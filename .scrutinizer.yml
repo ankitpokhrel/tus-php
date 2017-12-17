@@ -1,0 +1,13 @@
+---
+filter:
+    excluded_paths:
+        - tests/*
+
+checks:
+    php:
+        code_rating: true
+
+tools:
+    external_code_coverage:
+        timeout: 1800
+    php_code_coverage: false

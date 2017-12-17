@@ -2,7 +2,7 @@
 
 namespace TusPhp;
 
-use Illuminate\Http\Request;
+use Illuminate\Http\Request as HttpRequest;
 use Illuminate\Http\Response as HttpResponse;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -80,7 +80,7 @@ class Response
         string $disposition = ResponseHeaderBag::DISPOSITION_ATTACHMENT
     ) : BinaryFileResponse {
         $response = new BinaryFileResponse($file, HttpResponse::HTTP_OK, $headers, true, $disposition);
-        $response->prepare(Request::createFromGlobals());
+        $response->prepare(HttpRequest::createFromGlobals());
 
         if (! is_null($name)) {
             $response = $response->setContentDisposition(

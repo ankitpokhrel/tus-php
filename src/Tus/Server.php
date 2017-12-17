@@ -166,7 +166,7 @@ class Server extends AbstractTus
     {
         $fileName = $this->getRequest()->extractFileName();
 
-        if (! $fileName) {
+        if (empty($fileName)) {
             return $this->response->send(null, HttpResponse::HTTP_BAD_REQUEST);
         }
 

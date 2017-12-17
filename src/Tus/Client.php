@@ -4,6 +4,7 @@ namespace TusPhp\Tus;
 
 use TusPhp\File;
 use TusPhp\Cache\CacheFactory;
+use TusPhp\Exception\Exception;
 use TusPhp\Exception\FileException;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\ClientException;
@@ -280,6 +281,7 @@ class Client extends AbstractTus
      * @param string $checksum
      * @param int    $bytes
      *
+     * @throws Exception
      * @throws FileException
      * @throws ConnectionException
      *
@@ -309,6 +311,8 @@ class Client extends AbstractTus
             if (HttpResponse::HTTP_CONTINUE === $statusCode) {
                 throw new ConnectionException('Connection aborted by user.');
             }
+
+            throw new Exception($e->getMessage());
         } catch (ConnectException $e) {
             throw new ConnectionException("Couldn't connect to server.");
         }

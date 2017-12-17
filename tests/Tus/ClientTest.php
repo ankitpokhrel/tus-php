@@ -99,6 +99,24 @@ class ClientTest extends TestCase
     /**
      * @test
      *
+     * @covers ::getChecksum
+     */
+    public function it_sets_and_gets_checksum()
+    {
+        $file     = __DIR__ . '/../Fixtures/data.txt';
+        $checksum = hash_file('sha256', $file);
+
+        $this->tusClientMock
+            ->shouldReceive('getFilePath')
+            ->once()
+            ->andReturn($file);
+
+        $this->assertEquals($checksum, $this->tusClientMock->getChecksum());
+    }
+
+    /**
+     * @test
+     *
      * @covers ::upload
      */
     public function it_uploads_a_file()
@@ -504,6 +522,60 @@ class ClientTest extends TestCase
             ])
             ->andThrow($clientExceptionMock);
 
+
+        $this->tusClientMock->sendPatchRequest($checksum, $bytes);
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::sendPatchRequest
+     *
+     * @expectedException \TusPhp\Exception\Exception
+     */
+    public function it_throws_exception_for_other_exceptions_in_patch_request()
+    {
+        $bytes    = 12;
+        $data     = 'Hello World!';
+        $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
+
+        $this->tusClientMock
+            ->shouldReceive('getData')
+            ->once()
+            ->with($checksum, $bytes)
+            ->andReturn($data);
+
+        $guzzleMock   = m::mock(Client::class);
+        $responseMock = m::mock(Response::class);
+
+        $clientExceptionMock = m::mock(ClientException::class);
+
+        $clientExceptionMock
+            ->shouldReceive('getResponse')
+            ->once()
+            ->andReturn($responseMock);
+
+        $responseMock
+            ->shouldReceive('getStatusCode')
+            ->once()
+            ->andReturn(403);
+
+        $this->tusClientMock
+            ->shouldReceive('getClient')
+            ->once()
+            ->andReturn($guzzleMock);
+
+        $guzzleMock
+            ->shouldReceive('patch')
+            ->once()
+            ->with('/files/' . $checksum, [
+                'body' => $data,
+                'headers' => [
+                    'Content-Type' => 'application/offset+octet-stream',
+                    'Content-Length' => mb_strlen($data),
+                ],
+            ])
+            ->andThrow($clientExceptionMock);
 
         $this->tusClientMock->sendPatchRequest($checksum, $bytes);
     }

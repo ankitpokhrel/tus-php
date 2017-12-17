@@ -60,9 +60,9 @@ class Request
      * @param  string            $key
      * @param  string|array|null $default
      *
-     * @return string|array
+     * @return string|null
      */
-    public function header(string $key = null, $default = null)
+    public function header(string $key, $default = null)
     {
         return $this->request->header($key, $default);
     }
