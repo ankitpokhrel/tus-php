@@ -31,16 +31,19 @@ class Client extends AbstractTus
     /** @var string */
     protected $fileName;
 
+    /** @var string */
+    protected $checksum;
+
     /**
      * Client constructor.
      *
-     * @param string $endpoint
+     * @param string $baseUrl
      * @param string $cacheAdapter
      */
-    public function __construct(string $endpoint, string $cacheAdapter = 'file')
+    public function __construct(string $baseUrl, string $cacheAdapter = 'file')
     {
         $this->client = new GuzzleClient([
-            'base_uri' => $endpoint,
+            'base_uri' => $baseUrl,
         ]);
 
         $this->cache = CacheFactory::make($cacheAdapter);
@@ -133,6 +136,20 @@ class Client extends AbstractTus
     }
 
     /**
+     * Get checksum.
+     *
+     * @return string
+     */
+    public function getChecksum() : string
+    {
+        if (empty($this->checksum)) {
+            $this->checksum = hash_file(self::HASH_ALGORITHM, $this->getFilePath());
+        }
+
+        return $this->checksum;
+    }
+
+    /**
      * Upload file.
      *
      * @param int $bytes Bytes to upload
@@ -144,7 +161,7 @@ class Client extends AbstractTus
     public function upload(int $bytes = -1) : int
     {
         $bytes    = $bytes < 0 ? $this->getFileSize() : $bytes;
-        $checksum = hash_file(self::HASH_ALGORITHM, $this->getFilePath());
+        $checksum = $this->getChecksum();
 
         try {
             // Check if this upload exists with HEAD request
@@ -168,7 +185,7 @@ class Client extends AbstractTus
      */
     public function getOffset()
     {
-        $checksum = hash_file(self::HASH_ALGORITHM, $this->getFilePath());
+        $checksum = $this->getChecksum();
 
         try {
             $offset = $this->sendHeadRequest($checksum);
@@ -192,7 +209,7 @@ class Client extends AbstractTus
     {
         $response = $this->getClient()->post($this->apiPath, [
             'headers' => [
-                'Checksum' => hash_file(self::HASH_ALGORITHM, $this->filePath),
+                'Checksum' => $this->getChecksum(),
                 'Upload-Length' => $this->fileSize,
                 'Upload-Metadata' => 'filename ' . base64_encode($this->fileName),
             ],
@@ -207,6 +224,32 @@ class Client extends AbstractTus
         }
 
         return $checksum;
+    }
+
+    /**
+     * Send DELETE request.
+     *
+     * @param string $checksum
+     *
+     * @throws FileException
+     *
+     * @return void
+     */
+    public function delete(string $checksum)
+    {
+        try {
+            $this->getClient()->delete($this->apiPath . '/' . $checksum, [
+                'headers' => [
+                    'Tus-Resumable' => self::TUS_PROTOCOL_VERSION,
+                ],
+            ]);
+        } catch (ClientException $e) {
+            $statusCode = $e->getResponse()->getStatusCode();
+
+            if (HttpResponse::HTTP_NOT_FOUND === $statusCode || HttpResponse::HTTP_GONE === $statusCode) {
+                throw new FileException('File not found.');
+            }
+        }
     }
 
     /**
@@ -246,46 +289,28 @@ class Client extends AbstractTus
     {
         $data = $this->getData($checksum, $bytes);
 
-        $response = $this->getClient()->patch($this->apiPath . '/' . $checksum, [
-            'body' => $data,
-            'headers' => [
-                'Content-Type' => 'application/offset+octet-stream',
-                'Content-Length' => strlen($data),
-            ],
-        ]);
+        try {
+            $response = $this->getClient()->patch($this->apiPath . '/' . $checksum, [
+                'body' => $data,
+                'headers' => [
+                    'Content-Type' => 'application/offset+octet-stream',
+                    'Content-Length' => strlen($data),
+                ],
+            ]);
 
-        $statusCode = $response->getStatusCode();
+            return (int) current($response->getHeader('upload-offset'));
+        } catch (ClientException $e) {
+            $statusCode = $e->getResponse()->getStatusCode();
 
-        if (HttpResponse::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE === $statusCode) {
-            throw new FileException('The uploaded file is corrupt.');
-        }
+            if (HttpResponse::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE === $statusCode) {
+                throw new FileException('The uploaded file is corrupt.');
+            }
 
-        if (HttpResponse::HTTP_CONTINUE === $statusCode) {
-            throw new ConnectionException('Connection aborted by user.');
-        }
-
-        return (int) current($response->getHeader('upload-offset'));
-    }
-
-    /**
-     * Send DELETE request.
-     *
-     * @param string $checksum
-     *
-     * @throws FileException
-     *
-     * @return void
-     */
-    protected function sendDeleteRequest(string $checksum)
-    {
-        $response = $this->getClient()->delete($this->apiPath . '/' . $checksum, [
-            'headers' => [
-                'Tus-Resumable' => self::TUS_PROTOCOL_VERSION,
-            ],
-        ]);
-
-        if (HttpResponse::HTTP_NOT_FOUND === $response->getStatusCode()) {
-            throw new FileException('File not found.');
+            if (HttpResponse::HTTP_CONTINUE === $statusCode) {
+                throw new ConnectionException('Connection aborted by user.');
+            }
+        } catch (ConnectException $e) {
+            throw new ConnectionException("Couldn't connect to server.");
         }
     }
 

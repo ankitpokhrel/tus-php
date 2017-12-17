@@ -13,6 +13,9 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class Server extends AbstractTus
 {
+    /** @const Tus Creation Extension */
+    const TUS_EXTENSION_CREATION = 'creation';
+
     /** @const Tus Termination Extension */
     const TUS_EXTENSION_TERMINATION = 'termination';
 
@@ -123,7 +126,7 @@ class Server extends AbstractTus
             [
                 'Allow' => $this->request->allowedHttpVerbs(),
                 'Tus-Version' => self::TUS_PROTOCOL_VERSION,
-                'Tus-Extension' => self::TUS_EXTENSION_TERMINATION,
+                'Tus-Extension' => self::TUS_EXTENSION_CREATION . ',' . self::TUS_EXTENSION_TERMINATION,
             ]
         );
     }

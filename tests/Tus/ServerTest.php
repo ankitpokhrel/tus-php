@@ -170,7 +170,7 @@ class ServerTest extends TestCase
 
         $this->assertEquals(self::ALLOWED_HTTP_VERBS, $headers['allow']);
         $this->assertEquals('1.0.0', current($headers['tus-version']));
-        $this->assertEquals('termination', current($headers['tus-extension']));
+        $this->assertEquals('creation,termination', current($headers['tus-extension']));
     }
 
     /**

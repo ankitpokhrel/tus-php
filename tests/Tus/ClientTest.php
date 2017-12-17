@@ -103,14 +103,13 @@ class ClientTest extends TestCase
      */
     public function it_uploads_a_file()
     {
-        $file     = __DIR__ . '/../Fixtures/data.txt';
         $bytes    = 100;
-        $checksum = hash_file('sha256', $file);
+        $checksum = hash_file('sha256', __DIR__ . '/../Fixtures/data.txt');
 
         $this->tusClientMock
-            ->shouldReceive('getFilePath')
+            ->shouldReceive('getChecksum')
             ->once()
-            ->andReturn($file);
+            ->andReturn($checksum);
 
         $this->tusClientMock
             ->shouldReceive('sendHeadRequest')
@@ -134,14 +133,13 @@ class ClientTest extends TestCase
      */
     public function it_uploads_full_file_if_size_is_not_given()
     {
-        $file     = __DIR__ . '/../Fixtures/data.txt';
         $bytes    = 100;
-        $checksum = hash_file('sha256', $file);
+        $checksum = hash_file('sha256', __DIR__ . '/../Fixtures/data.txt');
 
         $this->tusClientMock
-            ->shouldReceive('getFilePath')
+            ->shouldReceive('getChecksum')
             ->once()
-            ->andReturn($file);
+            ->andReturn($checksum);
 
         $this->tusClientMock
             ->shouldReceive('getFileSize')
@@ -170,14 +168,13 @@ class ClientTest extends TestCase
      */
     public function it_creates_and_then_uploads_a_file_in_file_exception()
     {
-        $file     = __DIR__ . '/../Fixtures/data.txt';
         $bytes    = 100;
-        $checksum = hash_file('sha256', $file);
+        $checksum = hash_file('sha256', __DIR__ . '/../Fixtures/data.txt');
 
         $this->tusClientMock
-            ->shouldReceive('getFilePath')
+            ->shouldReceive('getChecksum')
             ->once()
-            ->andReturn($file);
+            ->andReturn($checksum);
 
         $this->tusClientMock
             ->shouldReceive('sendHeadRequest')
@@ -206,14 +203,13 @@ class ClientTest extends TestCase
      */
     public function it_creates_and_then_uploads_a_file_in_client_exception()
     {
-        $file     = __DIR__ . '/../Fixtures/data.txt';
         $bytes    = 100;
-        $checksum = hash_file('sha256', $file);
+        $checksum = hash_file('sha256', __DIR__ . '/../Fixtures/data.txt');
 
         $this->tusClientMock
-            ->shouldReceive('getFilePath')
+            ->shouldReceive('getChecksum')
             ->once()
-            ->andReturn($file);
+            ->andReturn($checksum);
 
         $this->tusClientMock
             ->shouldReceive('sendHeadRequest')
@@ -272,9 +268,9 @@ class ClientTest extends TestCase
         $checksum = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
 
         $this->tusClientMock
-            ->shouldReceive('getFilePath')
+            ->shouldReceive('getChecksum')
             ->once()
-            ->andReturn(__DIR__ . '/../Fixtures/empty.txt');
+            ->andReturn($checksum);
 
         $this->tusClientMock
             ->shouldReceive('sendHeadRequest')
@@ -295,9 +291,9 @@ class ClientTest extends TestCase
         $checksum = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
 
         $this->tusClientMock
-            ->shouldReceive('getFilePath')
+            ->shouldReceive('getChecksum')
             ->once()
-            ->andReturn(__DIR__ . '/../Fixtures/empty.txt');
+            ->andReturn($checksum);
 
         $this->tusClientMock
             ->shouldReceive('sendHeadRequest')
@@ -318,9 +314,9 @@ class ClientTest extends TestCase
         $checksum = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
 
         $this->tusClientMock
-            ->shouldReceive('getFilePath')
+            ->shouldReceive('getChecksum')
             ->once()
-            ->andReturn(__DIR__ . '/../Fixtures/empty.txt');
+            ->andReturn($checksum);
 
         $this->tusClientMock
             ->shouldReceive('sendHeadRequest')
@@ -424,6 +420,13 @@ class ClientTest extends TestCase
         $guzzleMock   = m::mock(Client::class);
         $responseMock = m::mock(Response::class);
 
+        $clientExceptionMock = m::mock(ClientException::class);
+
+        $clientExceptionMock
+            ->shouldReceive('getResponse')
+            ->once()
+            ->andReturn($responseMock);
+
         $responseMock
             ->shouldReceive('getStatusCode')
             ->once()
@@ -444,7 +447,7 @@ class ClientTest extends TestCase
                     'Content-Length' => mb_strlen($data),
                 ],
             ])
-            ->andReturn($responseMock);
+            ->andThrow($clientExceptionMock);
 
         $this->tusClientMock->sendPatchRequest($checksum, $bytes);
     }
@@ -472,6 +475,13 @@ class ClientTest extends TestCase
         $guzzleMock   = m::mock(Client::class);
         $responseMock = m::mock(Response::class);
 
+        $clientExceptionMock = m::mock(ClientException::class);
+
+        $clientExceptionMock
+            ->shouldReceive('getResponse')
+            ->once()
+            ->andReturn($responseMock);
+
         $responseMock
             ->shouldReceive('getStatusCode')
             ->once()
@@ -492,7 +502,50 @@ class ClientTest extends TestCase
                     'Content-Length' => mb_strlen($data),
                 ],
             ])
-            ->andReturn($responseMock);
+            ->andThrow($clientExceptionMock);
+
+
+        $this->tusClientMock->sendPatchRequest($checksum, $bytes);
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::sendPatchRequest
+     *
+     * @expectedException \TusPhp\Exception\ConnectionException
+     * @expectedExceptionMessage Couldn't connect to server.
+     */
+    public function it_throws_connection_exception_if_it_cannot_connect_to_server()
+    {
+        $bytes    = 12;
+        $data     = 'Hello World!';
+        $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
+
+        $this->tusClientMock
+            ->shouldReceive('getData')
+            ->once()
+            ->with($checksum, $bytes)
+            ->andReturn($data);
+
+        $guzzleMock = m::mock(Client::class);
+
+        $this->tusClientMock
+            ->shouldReceive('getClient')
+            ->once()
+            ->andReturn($guzzleMock);
+
+        $guzzleMock
+            ->shouldReceive('patch')
+            ->once()
+            ->with('/files/' . $checksum, [
+                'body' => $data,
+                'headers' => [
+                    'Content-Type' => 'application/offset+octet-stream',
+                    'Content-Length' => mb_strlen($data),
+                ],
+            ])
+            ->andThrow(m::mock(ConnectException::class));
 
 
         $this->tusClientMock->sendPatchRequest($checksum, $bytes);
@@ -517,11 +570,6 @@ class ClientTest extends TestCase
 
         $guzzleMock   = m::mock(Client::class);
         $responseMock = m::mock(Response::class);
-
-        $responseMock
-            ->shouldReceive('getStatusCode')
-            ->once()
-            ->andReturn(204);
 
         $this->tusClientMock
             ->shouldReceive('getClient')
@@ -648,7 +696,7 @@ class ClientTest extends TestCase
     /**
      * @test
      *
-     * @covers ::sendDeleteRequest
+     * @covers ::delete
      */
     public function it_sends_a_delete_request()
     {
@@ -666,17 +714,12 @@ class ClientTest extends TestCase
             ])
             ->andReturn($responseMock);
 
-        $responseMock
-            ->shouldReceive('getStatusCode')
-            ->once()
-            ->andReturn(204);
-
         $this->tusClientMock
             ->shouldReceive('getClient')
             ->once()
             ->andReturn($guzzleMock);
 
-        $response = $this->tusClientMock->sendDeleteRequest($checksum);
+        $response = $this->tusClientMock->delete($checksum);
 
         $this->assertNull($response);
     }
@@ -684,7 +727,7 @@ class ClientTest extends TestCase
     /**
      * @test
      *
-     * @covers ::sendDeleteRequest
+     * @covers ::delete
      *
      * @expectedException \TusPhp\Exception\FileException
      * @expectedExceptionMessage File not found.
@@ -695,6 +738,13 @@ class ClientTest extends TestCase
         $guzzleMock   = m::mock(Client::class);
         $responseMock = m::mock(Response::class);
 
+        $clientExceptionMock = m::mock(ClientException::class);
+
+        $clientExceptionMock
+            ->shouldReceive('getResponse')
+            ->once()
+            ->andReturn($responseMock);
+
         $guzzleMock
             ->shouldReceive('delete')
             ->once()
@@ -703,7 +753,7 @@ class ClientTest extends TestCase
                     'Tus-Resumable' => '1.0.0',
                 ],
             ])
-            ->andReturn($responseMock);
+            ->andThrow($clientExceptionMock);
 
         $responseMock
             ->shouldReceive('getStatusCode')
@@ -715,7 +765,7 @@ class ClientTest extends TestCase
             ->once()
             ->andReturn($guzzleMock);
 
-        $response = $this->tusClientMock->sendDeleteRequest($checksum);
+        $response = $this->tusClientMock->delete($checksum);
 
         $this->assertNull($response);
     }
