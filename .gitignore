@@ -1,0 +1,7 @@
+.idea
+.cache
+.php_cs.cache
+
+/coverage/
+/vendor/
+/uploads/
