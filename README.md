@@ -2,7 +2,7 @@
 [![Build](https://img.shields.io/travis/ankitpokhrel/tus-php.svg?style=flat-square)](https://travis-ci.org/ankitpokhrel/tus-php/)
 [![Code Coverage](https://img.shields.io/scrutinizer/coverage/g/ankitpokhrel/tus-php.svg?style=flat-square)](https://scrutinizer-ci.com/g/ankitpokhrel/tus-php/)
 [![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/g/ankitpokhrel/tus-php.svg?style=flat-square)](https://scrutinizer-ci.com/g/ankitpokhrel/tus-php/)
-[![Download](https://img.shields.io/packagist/dm/ankitpokhrel/tus-php.svg?style=flat-square)](https://packagist.org/packages/ankitpokhrel/tus-php)
+[![Download](https://img.shields.io/packagist/dt/ankitpokhrel/tus-php.svg?style=flat-square)](https://packagist.org/packages/ankitpokhrel/tus-php)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](https://github.com/ankitpokhrel/tus-php/blob/master/LICENSE)
 
 _A pure PHP server and client for the [tus resumable upload protocol v1.0.0](https://tus.io)_.
