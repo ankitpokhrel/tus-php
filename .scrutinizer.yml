@@ -9,5 +9,5 @@ checks:
 
 tools:
     external_code_coverage:
-        timeout: 1800
+        timeout: 300
     php_code_coverage: false
