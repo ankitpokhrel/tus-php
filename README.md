@@ -1,4 +1,5 @@
 # Tus PHP
+[![PHP Version](https://img.shields.io/badge/php-7.1.3%2B-brightgreen.svg?style=flat-square)](https://packagist.org/packages/ankitpokhrel/tus-php)
 [![Build](https://img.shields.io/travis/ankitpokhrel/tus-php.svg?style=flat-square)](https://travis-ci.org/ankitpokhrel/tus-php/)
 [![Code Coverage](https://img.shields.io/scrutinizer/coverage/g/ankitpokhrel/tus-php.svg?style=flat-square)](https://scrutinizer-ci.com/g/ankitpokhrel/tus-php/)
 [![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/g/ankitpokhrel/tus-php.svg?style=flat-square)](https://scrutinizer-ci.com/g/ankitpokhrel/tus-php/)
