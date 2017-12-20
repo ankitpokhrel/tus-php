@@ -106,6 +106,16 @@ class RequestTest extends TestCase
      *
      * @covers ::extractFileName
      */
+    public function it_return_null_if_it_cannot_extract_filename()
+    {
+        $this->assertNull($this->request->extractFileName());
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::extractFileName
+     */
     public function it_extracts_file_name()
     {
         $filename = 'file.txt';

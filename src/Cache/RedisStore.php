@@ -48,14 +48,14 @@ class RedisStore extends AbstractCache
     {
         $contents = json_decode($this->redis->get($key), true) ?? [];
 
-        if (! empty($contents) && is_array($contents)) {
+        if (is_array($value)) {
             $contents = $value + $contents;
         } else {
-            $contents = $value;
+            array_push($contents, $value);
         }
 
         $ttl = $this->getRedis()->ttl($key);
-        if ($ttl < 0) {
+        if ($ttl <= 0) {
             $ttl = $this->getTtl();
         }
 

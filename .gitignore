@@ -1,6 +1,8 @@
 .idea
 .cache
 .php_cs.cache
+infection.json.dist
+infection-log.txt
 
 /coverage/
 /vendor/

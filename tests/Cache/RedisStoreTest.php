@@ -99,8 +99,15 @@ class RedisStoreTest extends TestCase
         $cacheContent = ['expires_at' => 'Sat, 09 Dec 2017 16:25:51 GMT', 'offset' => 100];
 
         $this->redisStore->setTtl(1);
-        $this->redisStore->set($this->checksum, $cacheContent);
 
+        $this->assertTrue($this->redisStore->set($this->checksum, $cacheContent));
+        $this->assertEquals($cacheContent, $this->redisStore->get($this->checksum));
+
+        $string = 'Sherlock Holmes';
+
+        array_push($cacheContent, $string);
+
+        $this->assertTrue($this->redisStore->set($this->checksum, $string));
         $this->assertEquals($cacheContent, $this->redisStore->get($this->checksum));
     }
 
@@ -114,7 +121,7 @@ class RedisStoreTest extends TestCase
      */
     public function it_doesnt_replace_cache_key_in_set()
     {
-        $this->redisStore->set($this->checksum, ['offset' => 500]);
+        $this->assertTrue($this->redisStore->set($this->checksum, ['offset' => 500]));
 
         $contents = $this->redisStore->get($this->checksum);
 
@@ -147,10 +154,8 @@ class RedisStoreTest extends TestCase
     {
         $cacheContent = ['expires_at' => 'Fri, 08 Dec 2017 16:25:51 GMT', 'offset' => 100];
 
-        $this->redisStore->set($this->checksum, $cacheContent);
-
+        $this->assertTrue($this->redisStore->set($this->checksum, $cacheContent));
         $this->assertEquals($cacheContent, $this->redisStore->get($this->checksum));
-
         $this->assertFalse($this->redisStore->delete('invalid-checksum'));
         $this->assertTrue($this->redisStore->delete($this->checksum));
         $this->assertNull($this->redisStore->get($this->checksum));

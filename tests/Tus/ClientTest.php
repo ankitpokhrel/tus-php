@@ -4,6 +4,7 @@ namespace TusPhp\Test;
 
 use Mockery as m;
 use GuzzleHttp\Client;
+use phpmock\MockBuilder;
 use TusPhp\Cache\FileStore;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
@@ -49,6 +50,39 @@ class ClientTest extends TestCase
     public function it_throws_exception_for_invalid_file()
     {
         $this->tusClient->file('/path/to/invalid/file.txt');
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::file
+     *
+     * @runInSeparateProcess
+     *
+     * @expectedException \TusPhp\Exception\FileException
+     * @expectedExceptionMessageRegExp /Cannot read file: [a-zA-Z0-9-\/.]+/
+     */
+    public function it_throws_exception_for_unreadable_file()
+    {
+        $file = __DIR__ . '/../Fixtures/403.txt';
+
+        $mockBuilder = (new MockBuilder())->setNamespace('\TusPhp\Tus');
+
+        $mockBuilder
+            ->setName('is_readable')
+            ->setFunction(
+                function () {
+                    return false;
+                }
+            );
+
+        $mock = $mockBuilder->build();
+
+        $mock->enable();
+
+        $this->tusClient->file($file);
+
+        $mock->disable();
     }
 
     /**
@@ -768,6 +802,58 @@ class ClientTest extends TestCase
     /**
      * @test
      *
+     * @covers ::create
+     *
+     * @expectedException \TusPhp\Exception\FileException
+     * @expectedExceptionMessage Unable to create resource.
+     */
+    public function it_throws_exception_when_unable_to_get_checksum()
+    {
+        $filePath     = __DIR__ . '/../Fixtures/empty.txt';
+        $fileName     = 'file.txt';
+        $guzzleMock   = m::mock(Client::class);
+        $responseMock = m::mock(Response::class);
+
+        $responseMock
+            ->shouldReceive('getBody')
+            ->once()
+            ->andReturn(null);
+
+        $responseMock
+            ->shouldReceive('getStatusCode')
+            ->once()
+            ->andReturn(201);
+
+        $this->tusClientMock
+            ->shouldReceive('getClient')
+            ->once()
+            ->andReturn($guzzleMock);
+
+        $this->tusClientMock
+            ->shouldReceive('getChecksum')
+            ->once()
+            ->andReturn('');
+
+        $this->tusClientMock->file($filePath, $fileName);
+
+        $guzzleMock
+            ->shouldReceive('post')
+            ->once()
+            ->with('/files', [
+                'headers' => [
+                    'Checksum' => null,
+                    'Upload-Length' => filesize($filePath),
+                    'Upload-Metadata' => 'filename ' . base64_encode($fileName),
+                ],
+            ])
+            ->andReturn($responseMock);
+
+        $this->tusClientMock->create();
+    }
+
+    /**
+     * @test
+     *
      * @covers ::delete
      */
     public function it_sends_a_delete_request()
@@ -831,6 +917,52 @@ class ClientTest extends TestCase
             ->shouldReceive('getStatusCode')
             ->once()
             ->andReturn(404);
+
+        $this->tusClientMock
+            ->shouldReceive('getClient')
+            ->once()
+            ->andReturn($guzzleMock);
+
+        $response = $this->tusClientMock->delete($checksum);
+
+        $this->assertNull($response);
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::delete
+     *
+     * @expectedException \TusPhp\Exception\FileException
+     * @expectedExceptionMessage File not found.
+     */
+    public function it_throws_404_for_response_http_gone()
+    {
+        $checksum     = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
+        $guzzleMock   = m::mock(Client::class);
+        $responseMock = m::mock(Response::class);
+
+        $clientExceptionMock = m::mock(ClientException::class);
+
+        $clientExceptionMock
+            ->shouldReceive('getResponse')
+            ->once()
+            ->andReturn($responseMock);
+
+        $guzzleMock
+            ->shouldReceive('delete')
+            ->once()
+            ->with('/files/' . $checksum, [
+                'headers' => [
+                    'Tus-Resumable' => '1.0.0',
+                ],
+            ])
+            ->andThrow($clientExceptionMock);
+
+        $responseMock
+            ->shouldReceive('getStatusCode')
+            ->once()
+            ->andReturn(410);
 
         $this->tusClientMock
             ->shouldReceive('getClient')
