@@ -3,7 +3,7 @@
 namespace TusPhp\Tus;
 
 use TusPhp\File;
-use TusPhp\Cache\CacheFactory;
+use TusPhp\Cache\Cacheable;
 use TusPhp\Exception\Exception;
 use TusPhp\Exception\FileException;
 use GuzzleHttp\Client as GuzzleClient;
@@ -38,16 +38,16 @@ class Client extends AbstractTus
     /**
      * Client constructor.
      *
-     * @param string $baseUrl
-     * @param string $cacheAdapter
+     * @param string           $baseUrl
+     * @param Cacheable|string $cacheAdapter
      */
-    public function __construct(string $baseUrl, string $cacheAdapter = 'file')
+    public function __construct(string $baseUrl, $cacheAdapter = 'file')
     {
         $this->client = new GuzzleClient([
             'base_uri' => $baseUrl,
         ]);
 
-        $this->cache = CacheFactory::make($cacheAdapter);
+        $this->setCache($cacheAdapter);
     }
 
     /**

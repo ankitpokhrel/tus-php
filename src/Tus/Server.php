@@ -5,7 +5,7 @@ namespace TusPhp\Tus;
 use TusPhp\File;
 use TusPhp\Request;
 use TusPhp\Response;
-use TusPhp\Cache\CacheFactory;
+use TusPhp\Cache\Cacheable;
 use TusPhp\Exception\FileException;
 use TusPhp\Exception\ConnectionException;
 use Illuminate\Http\Response as HttpResponse;
@@ -31,14 +31,15 @@ class Server extends AbstractTus
     /**
      * TusServer constructor.
      *
-     * @param string $cacheAdapter
+     * @param Cacheable|string $cacheAdapter
      */
-    public function __construct(string $cacheAdapter = 'file')
+    public function __construct($cacheAdapter = 'file')
     {
-        $this->cache     = CacheFactory::make($cacheAdapter);
         $this->request   = new Request();
         $this->response  = new Response();
         $this->uploadDir = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'uploads';
+
+        $this->setCache($cacheAdapter);
     }
 
     /**

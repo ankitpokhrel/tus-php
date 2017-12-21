@@ -35,9 +35,17 @@ class ServerTest extends TestCase
     public function setUp()
     {
         $this->tusServer     = new TusServer();
-        $this->tusServerMock = m::mock(TusServer::class, ['file'])
+        $this->tusServerMock = m::mock(TusServer::class)
                                 ->shouldAllowMockingProtectedMethods()
                                 ->makePartial();
+
+        $this->tusServerMock
+            ->shouldReceive('setCache')
+            ->once()
+            ->with('file')
+            ->andReturnSelf();
+
+        $this->tusServerMock->__construct('file');
 
         $this->tusServerMock
             ->shouldReceive('exit')
@@ -115,9 +123,17 @@ class ServerTest extends TestCase
     public function it_calls_proper_handle_method()
     {
         foreach (self::ALLOWED_HTTP_VERBS as $method) {
-            $tusServerMock = m::mock(TusServer::class, ['file'])
+            $tusServerMock = m::mock(TusServer::class)
                               ->shouldAllowMockingProtectedMethods()
                               ->makePartial();
+
+            $tusServerMock
+                ->shouldReceive('setCache')
+                ->once()
+                ->with('file')
+                ->andReturnSelf();
+
+            $tusServerMock->__construct('file');
 
             $tusServerMock
                 ->shouldReceive('exit')
@@ -891,7 +907,13 @@ class ServerTest extends TestCase
         $createdAt = 'Fri, 08 Dec 2017 00:00:00 GMT';
         $expiresAt = 'Sat, 09 Dec 2017 00:00:00 GMT';
 
-        $file = $this->tusServerMock->buildFile([
+        $tusServerMock = m::mock(TusServer::class)
+                          ->shouldAllowMockingProtectedMethods()
+                          ->makePartial();
+
+        $tusServerMock->setCache('file');
+
+        $file = $tusServerMock->buildFile([
             'name' => $fileName,
             'size' => $fileSize,
             'offset' => 0,

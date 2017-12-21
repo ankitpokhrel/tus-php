@@ -32,7 +32,7 @@ class ClientTest extends TestCase
     public function setUp()
     {
         $this->tusClient     = new TusClient('http://tus.local');
-        $this->tusClientMock = m::mock(TusClient::class, ['http://tus.local'])
+        $this->tusClientMock = m::mock(TusClient::class)
                                 ->shouldAllowMockingProtectedMethods()
                                 ->makePartial();
 
