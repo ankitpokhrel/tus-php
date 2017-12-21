@@ -235,7 +235,7 @@ class Server extends AbstractTus
     {
         $checksum = $this->request->checksum();
 
-        if (! $checksum) {
+        if (empty($checksum)) {
             return $this->response->send('400 bad request.', HttpResponse::HTTP_BAD_REQUEST);
         }
 
