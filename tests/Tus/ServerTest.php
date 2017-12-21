@@ -661,6 +661,30 @@ class ServerTest extends TestCase
      *
      * @covers ::handleGet
      */
+    public function it_returns_400_for_request_without_hash()
+    {
+        $this->tusServerMock
+            ->getRequest()
+            ->getRequest()
+            ->server
+            ->add([
+                'REQUEST_METHOD' => 'GET',
+                'REQUEST_URI' => '/files',
+            ]);
+
+        $this->tusServerMock->getResponse()->createOnly(true);
+
+        $response = $this->tusServerMock->handleGet();
+
+        $this->assertEquals(400, $response->getStatusCode());
+        $this->assertEquals('400 bad request.', $response->getOriginalContent());
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::handleGet
+     */
     public function it_returns_404_for_invalid_get_request()
     {
         $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';

@@ -234,6 +234,11 @@ class Server extends AbstractTus
     protected function handleGet()
     {
         $checksum = $this->request->checksum();
+
+        if (! $checksum) {
+            return $this->response->send('400 bad request.', HttpResponse::HTTP_BAD_REQUEST);
+        }
+
         $fileMeta = $this->cache->get($checksum);
 
         if (! $fileMeta) {
