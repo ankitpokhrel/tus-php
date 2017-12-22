@@ -21,7 +21,7 @@ class AbstractTusTest extends TestCase
      */
     public function setUp()
     {
-        $this->tus = new TusServer();
+        $this->tus = new TusServer;
 
         parent::setUp();
     }
@@ -40,7 +40,7 @@ class AbstractTusTest extends TestCase
 
         $this->assertInstanceOf(RedisStore::class, $this->tus->getCache());
 
-        $fileStore = new FileStore();
+        $fileStore = new FileStore;
 
         $this->assertInstanceOf(TusServer::class, $this->tus->setCache($fileStore));
         $this->assertInstanceOf(FileStore::class, $this->tus->getCache());

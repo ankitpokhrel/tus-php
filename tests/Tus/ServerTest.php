@@ -34,7 +34,7 @@ class ServerTest extends TestCase
      */
     public function setUp()
     {
-        $this->tusServer     = new TusServer();
+        $this->tusServer     = new TusServer;
         $this->tusServerMock = m::mock(TusServer::class)
                                 ->shouldAllowMockingProtectedMethods()
                                 ->makePartial();

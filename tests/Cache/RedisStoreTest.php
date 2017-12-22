@@ -59,7 +59,7 @@ class RedisStoreTest extends TestCase
         }
 
         $this->checksum   = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
-        $this->redisStore = new RedisStore();
+        $this->redisStore = new RedisStore;
 
         parent::setUp();
     }

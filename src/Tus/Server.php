@@ -35,8 +35,8 @@ class Server extends AbstractTus
      */
     public function __construct($cacheAdapter = 'file')
     {
-        $this->request   = new Request();
-        $this->response  = new Response();
+        $this->request   = new Request;
+        $this->response  = new Response;
         $this->uploadDir = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'uploads';
 
         $this->setCache($cacheAdapter);

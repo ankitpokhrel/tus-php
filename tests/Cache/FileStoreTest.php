@@ -32,7 +32,7 @@ class FileStoreTest extends TestCase
         $this->checksum  = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
         $this->cacheDir  = dirname(__DIR__) . DS . '.cache' . DS;
         $this->cacheFile = 'tus_php.cache';
-        $this->fileStore = new FileStore();
+        $this->fileStore = new FileStore;
 
         $this->fileStore
             ->setCacheDir($this->cacheDir)
@@ -67,7 +67,7 @@ class FileStoreTest extends TestCase
         $defaultCacheDir  = dirname(__DIR__, 2) . DS . '.cache' . DS;
         $defaultCacheFile = 'tus_php.cache';
 
-        $fileStore = new FileStore();
+        $fileStore = new FileStore;
 
         $this->assertEquals($defaultCacheDir . $defaultCacheFile, $fileStore->getCacheFile());
     }
@@ -97,7 +97,7 @@ class FileStoreTest extends TestCase
         $cacheFile       = 'tus_cache.txt';
         $defaultCacheDir = dirname(__DIR__, 2) . DS . '.cache' . DS;
 
-        $fileStore = new FileStore();
+        $fileStore = new FileStore;
 
         $this->assertInstanceOf(FileStore::class, $fileStore->setCacheFile($cacheFile));
         $this->assertEquals($defaultCacheDir . $cacheFile, $fileStore->getCacheFile());

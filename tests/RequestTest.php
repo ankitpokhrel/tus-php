@@ -21,7 +21,7 @@ class RequestTest extends TestCase
      */
     public function setUp()
     {
-        $this->request = new Request();
+        $this->request = new Request;
 
         parent::setUp();
     }
@@ -36,7 +36,7 @@ class RequestTest extends TestCase
     {
         $this->assertEquals('GET', $this->request->method());
 
-        $request = new Request();
+        $request = new Request;
 
         $request->getRequest()->server->set('REQUEST_METHOD', 'POST');
 

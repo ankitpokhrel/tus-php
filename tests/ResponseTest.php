@@ -20,7 +20,7 @@ class ResponseTest extends TestCase
      */
     public function setUp()
     {
-        $this->response = new Response();
+        $this->response = new Response;
     }
 
     /**

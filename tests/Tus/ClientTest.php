@@ -66,7 +66,7 @@ class ClientTest extends TestCase
     {
         $file = __DIR__ . '/../Fixtures/403.txt';
 
-        $mockBuilder = (new MockBuilder())->setNamespace('\TusPhp\Tus');
+        $mockBuilder = (new MockBuilder)->setNamespace('\TusPhp\Tus');
 
         $mockBuilder
             ->setName('is_readable')
@@ -232,7 +232,7 @@ class ClientTest extends TestCase
             ->shouldReceive('sendHeadRequest')
             ->once()
             ->with($checksum)
-            ->andThrow(new FileException());
+            ->andThrow(new FileException);
 
         $this->tusClientMock
             ->shouldReceive('create')

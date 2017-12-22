@@ -328,7 +328,7 @@ class Client extends AbstractTus
      */
     protected function getData(string $checksum, int $bytes) : string
     {
-        $file = new File();
+        $file = new File;
 
         $handle   = $file->open($this->getFilePath(), $file::READ_BINARY);
         $fileMeta = $this->getCache()->get($checksum);

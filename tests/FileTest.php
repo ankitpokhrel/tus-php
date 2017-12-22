@@ -31,7 +31,7 @@ class FileTest extends TestCase
 
         $this->file->setMeta(100, 1024, '/path/to/file.txt', 'http://tus.local/uploads/file.txt');
 
-        $this->mockBuilder = (new MockBuilder())->setNamespace('\TusPhp');
+        $this->mockBuilder = (new MockBuilder)->setNamespace('\TusPhp');
     }
 
     /**
