@@ -76,7 +76,7 @@ class FileStore extends AbstractCache
      */
     protected function createCacheDir()
     {
-        if (! file_exists($this->cacheDir)) {
+        if ( ! file_exists($this->cacheDir)) {
             mkdir($this->cacheDir);
         }
     }
@@ -92,7 +92,7 @@ class FileStore extends AbstractCache
 
         $cacheFilePath = $this->getCacheFile();
 
-        if (! file_exists($cacheFilePath)) {
+        if ( ! file_exists($cacheFilePath)) {
             touch($cacheFilePath);
         }
     }
@@ -104,7 +104,7 @@ class FileStore extends AbstractCache
     {
         $contents = $this->getCacheContents();
 
-        if (! empty($contents[$key]) && $this->isValid($key)) {
+        if ( ! empty($contents[$key]) && $this->isValid($key)) {
             return $contents[$key];
         }
 
@@ -134,13 +134,13 @@ class FileStore extends AbstractCache
     {
         $cacheFile = $this->getCacheFile();
 
-        if (! file_exists($cacheFile) || ! $this->isValid($key)) {
+        if ( ! file_exists($cacheFile) || ! $this->isValid($key)) {
             $this->createCacheFile();
         }
 
         $contents = json_decode(file_get_contents($cacheFile), true) ?? [];
 
-        if (! empty($contents[$key]) && is_array($value)) {
+        if ( ! empty($contents[$key]) && is_array($value)) {
             $contents[$key] = $value + $contents[$key];
         } else {
             $contents[$key] = $value;
@@ -176,7 +176,7 @@ class FileStore extends AbstractCache
     {
         $cacheFile = $this->getCacheFile();
 
-        if (! file_exists($cacheFile)) {
+        if ( ! file_exists($cacheFile)) {
             return false;
         }
 

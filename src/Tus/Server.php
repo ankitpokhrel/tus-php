@@ -93,7 +93,7 @@ class Server extends AbstractTus
     {
         $method = $this->getRequest()->method();
 
-        if (! in_array($method, $this->request->allowedHttpVerbs())) {
+        if ( ! in_array($method, $this->request->allowedHttpVerbs())) {
             return $this->response->send(null, HttpResponse::HTTP_METHOD_NOT_ALLOWED);
         }
 
@@ -141,7 +141,7 @@ class Server extends AbstractTus
     {
         $checksum = $this->request->checksum();
 
-        if (! $this->cache->get($checksum)) {
+        if ( ! $this->cache->get($checksum)) {
             return $this->response->send(null, HttpResponse::HTTP_NOT_FOUND);
         }
 
@@ -204,7 +204,7 @@ class Server extends AbstractTus
     {
         $checksum = $this->request->checksum();
 
-        if (! $this->cache->get($checksum)) {
+        if ( ! $this->cache->get($checksum)) {
             return $this->response->send(null, HttpResponse::HTTP_GONE);
         }
 
@@ -241,14 +241,14 @@ class Server extends AbstractTus
 
         $fileMeta = $this->cache->get($checksum);
 
-        if (! $fileMeta) {
+        if ( ! $fileMeta) {
             return $this->response->send('404 upload not found.', HttpResponse::HTTP_NOT_FOUND);
         }
 
         $resource = $fileMeta['file_path'] ?? null;
         $fileName = $fileMeta['name'] ?? null;
 
-        if (! $resource || ! file_exists($resource)) {
+        if ( ! $resource || ! file_exists($resource)) {
             return $this->response->send('404 upload not found.', HttpResponse::HTTP_NOT_FOUND);
         }
 
@@ -266,13 +266,13 @@ class Server extends AbstractTus
         $fileMeta = $this->cache->get($checksum);
         $resource = $fileMeta['file_path'] ?? null;
 
-        if (! $resource) {
+        if ( ! $resource) {
             return $this->response->send(null, HttpResponse::HTTP_NOT_FOUND);
         }
 
         $isDeleted = $this->cache->delete($checksum);
 
-        if (! $isDeleted || ! file_exists($resource)) {
+        if ( ! $isDeleted || ! file_exists($resource)) {
             return $this->response->send(null, HttpResponse::HTTP_GONE);
         }
 

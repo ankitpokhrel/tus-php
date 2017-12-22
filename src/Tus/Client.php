@@ -62,7 +62,7 @@ class Client extends AbstractTus
     {
         $this->filePath = $file;
 
-        if (! file_exists($file) || ! is_readable($file)) {
+        if ( ! file_exists($file) || ! is_readable($file)) {
             throw new FileException('Cannot read file: ' . $file);
         }
 

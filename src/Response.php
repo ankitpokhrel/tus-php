@@ -80,9 +80,10 @@ class Response
         string $disposition = ResponseHeaderBag::DISPOSITION_ATTACHMENT
     ) : BinaryFileResponse {
         $response = new BinaryFileResponse($file, HttpResponse::HTTP_OK, $headers, true, $disposition);
+
         $response->prepare(HttpRequest::createFromGlobals());
 
-        if (! is_null($name)) {
+        if ( ! is_null($name)) {
             $response = $response->setContentDisposition(
                 $disposition,
                 $name,

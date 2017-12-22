@@ -275,7 +275,7 @@ class File
         try {
             $this->seek($output, $bytesWritten);
 
-            while (! feof($input)) {
+            while ( ! feof($input)) {
                 if (CONNECTION_NORMAL !== connection_status()) {
                     throw new ConnectionException('Connection aborted by user.');
                 }

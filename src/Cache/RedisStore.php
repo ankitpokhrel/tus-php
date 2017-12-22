@@ -26,7 +26,7 @@ class RedisStore extends AbstractCache
     {
         $contents = $this->redis->get($key);
 
-        if (! empty($contents)) {
+        if ( ! empty($contents)) {
             return json_decode($contents, true);
         }
 
