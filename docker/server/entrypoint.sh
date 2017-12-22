@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Run composer install
+# Run composer
 composer self-update
 composer install
 

@@ -88,7 +88,7 @@ $client->setApiPath('/api');
 - [ ] Todo: Expiration extension
 - [ ] Todo: Concatenation extension
 
-### Example
+### Setting up Dev environment and/or Running Example
 An ajax based example for this implementation can be found in `examples/` folder. To build it, make sure that 
 [docker](https://docs.docker.com/engine/installation/) and [docker-compose](https://docs.docker.com/compose/install/) 
 are installed in your system. Then, run docker script from project root.
@@ -96,8 +96,8 @@ are installed in your system. Then, run docker script from project root.
 $ bin/docker.sh
 ```
 
-Now, the client can be accessed at http://0.0.0.0:8080 and server can be accessed at http://0.0.0.0:8081. The default api endpoint is set to`/files`.
-The uploaded files can be found inside `uploads` folder.
+Now, the client can be accessed at http://0.0.0.0:8080 and server can be accessed at http://0.0.0.0:8081. Default api endpoint is set to`/files` 
+and uploaded files can be found inside `uploads` folder.
 
 ### Contributing
 1. Install [PHPUnit](https://phpunit.de/) and [composer](https://getcomposer.org/) if you haven't already.
@@ -111,7 +111,7 @@ The uploaded files can be found inside `uploads` folder.
     ```
 4. Validate changes against [PSR2 Coding Standards](http://www.php-fig.org/psr/psr-2/)
     ```shell
-    $ vendor/bin/php-cs-fixer fix <changes> --rules=@PSR2,not_operator_with_space
+    $ ./vendor/bin/php-cs-fixer fix <changes> --rules=@PSR2,not_operator_with_space
     ```
 
 ### Questions about this project?
