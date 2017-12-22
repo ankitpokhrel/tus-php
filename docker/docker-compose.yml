@@ -1,0 +1,54 @@
+---
+version: '3'
+
+services:
+  tus-base:
+    image: tus-php-base
+    container_name: tus-php-base
+    volumes:
+        - ./.data/composer:/root/.composer
+    labels:
+      tag: tus-php-base
+      group: tus-php
+
+  tus-server:
+    build: ./server
+    container_name: tus-php-server
+    ports:
+      - "8081:80"
+    volumes:
+        - ../:/var/www
+        - ./.data/server/logs:/var/log/nginx
+    entrypoint: entrypoint.sh
+    labels:
+      tag: tus-php-server
+      group: tus-php
+
+  tus-client:
+    build: ./client
+    container_name: tus-php-client
+    ports:
+      - "8080:80"
+    volumes:
+        - ../:/var/www
+        - ./.data/client/logs:/var/log/nginx
+    labels:
+      tag: tus-php-client
+      group: tus-php
+
+  redis:
+    image: redis
+    container_name: tus-php-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./.data/redis:/data
+    labels:
+      tag: tus-php-redis
+      group: tus-php
+
+networks:
+  default:
+    external:
+      name: tus-php-network

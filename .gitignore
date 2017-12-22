@@ -7,3 +7,4 @@ infection-log.txt
 /coverage/
 /vendor/
 /uploads/
+/docker/.data

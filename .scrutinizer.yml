@@ -1,6 +1,8 @@
 ---
 filter:
     excluded_paths:
+        - bin/*
+        - docker/*
         - tests/*
 
 checks:

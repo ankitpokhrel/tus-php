@@ -6,9 +6,9 @@
 
 require '../vendor/autoload.php';
 
-$client = new \TusPhp\Tus\Client('http://tus.local', 'redis');
+$client = new \TusPhp\Tus\Client('http://tus-php-server', 'redis');
 
-if (! empty($_FILES)) {
+if ( ! empty($_FILES)) {
     $fileMeta = $_FILES['tus_file'];
 
     try {
@@ -28,12 +28,14 @@ if (! empty($_FILES)) {
             'status' => 'error',
             'bytes_uploaded' => -1,
             'checksum' => '',
+            'error' => $e->getMessage(),
         ]);
     } catch (\TusPhp\Exception\FileException $e) {
         echo json_encode([
             'status' => 'uploading',
             'bytes_uploaded' => 0,
             'checksum' => '',
+            'error' => $e->getMessage(),
         ]);
     }
 } else {

@@ -7,14 +7,14 @@
 
 require '../vendor/autoload.php';
 
-$client = new \TusPhp\Tus\Client('http://tus.local', 'redis');
+$client = new \TusPhp\Tus\Client('http://tus-php-server', 'redis');
 
-if (! empty($_FILES)) {
+if ( ! empty($_FILES)) {
     $status   = 'new';
     $fileMeta = $_FILES['tus_file'];
 
     try {
-        $offset = $client->file($fileMeta['tmp_name'])->getOffset();
+        $offset   = $client->file($fileMeta['tmp_name'])->getOffset();
         $checksum = $client->getChecksum();
 
         if (false !== $offset) {

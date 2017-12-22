@@ -89,8 +89,15 @@ $client->setApiPath('/api');
 - [ ] Todo: Concatenation extension
 
 ### Example
-An ajax based example for this implementation can be found in `examples/` folder. To run it, create a virtual host called `tus.local` 
-and add proper nginx/apache conf to serve the request. 
+An ajax based example for this implementation can be found in `examples/` folder. To build it, make sure that 
+[docker](https://docs.docker.com/engine/installation/) and [docker-compose](https://docs.docker.com/compose/install/) 
+are installed in your system. Then, run docker script from project root.
+```shell
+$ bin/docker.sh
+```
+
+Now, the client can be accessed at http://0.0.0.0:8080 and server can be accessed at http://0.0.0.0:8081. The default api endpoint is set to`/files`.
+The uploaded files can be found inside `uploads` folder.
 
 ### Contributing
 1. Install [PHPUnit](https://phpunit.de/) and [composer](https://getcomposer.org/) if you haven't already.
@@ -104,7 +111,7 @@ and add proper nginx/apache conf to serve the request.
     ```
 4. Validate changes against [PSR2 Coding Standards](http://www.php-fig.org/psr/psr-2/)
     ```shell
-    $ vendor/bin/php-cs-fixer fix <changes> --rules=@PSR2
+    $ vendor/bin/php-cs-fixer fix <changes> --rules=@PSR2,not_operator_with_space
     ```
 
 ### Questions about this project?
