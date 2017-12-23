@@ -19,7 +19,8 @@ RUN apt-get -y install rsyslog \
                        nginx \
                        curl \
                        git \
-                       redis-server \
+                       vim \
+                       redis-tools \
                        php7.1-fpm \
                        php7.1-cli \
                        php7.1-gd \
