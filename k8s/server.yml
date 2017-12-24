@@ -1,0 +1,50 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: tus-php-server
+  labels:
+    app: tus-php
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tus-php-server
+
+  template:
+    metadata:
+      name: tus-php-server
+      labels:
+        app: tus-php-server
+
+    spec:
+      volumes:
+        - name: redis
+          persistentVolumeClaim:
+            claimName: tus-php-redis-pv-claim
+        - name: uploads
+          persistentVolumeClaim:
+            claimName: tus-php-uploads-pv-claim
+
+      containers:
+        - name: tus-php-server
+          image: tus-php-server-k8s
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8081
+          volumeMounts:
+            - name: uploads
+              mountPath: /var/www/uploads
+          env:
+            - name: REDIS_HOST
+              value: "127.0.0.1"
+            - name: REDIS_PORT
+              value: "6379"
+        - name: tus-php-redis
+          image: redis
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 6379
+          volumeMounts:
+            - name: redis
+              mountPath: /data
