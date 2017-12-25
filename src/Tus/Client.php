@@ -312,7 +312,7 @@ class Client extends AbstractTus
                 throw new ConnectionException('Connection aborted by user.');
             }
 
-            throw new Exception($e->getMessage());
+            throw new Exception($e->getResponse()->getBody(), $statusCode);
         } catch (ConnectException $e) {
             throw new ConnectionException("Couldn't connect to server.");
         }

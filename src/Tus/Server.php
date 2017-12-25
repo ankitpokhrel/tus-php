@@ -8,6 +8,7 @@ use TusPhp\Response;
 use TusPhp\Cache\Cacheable;
 use TusPhp\Exception\FileException;
 use TusPhp\Exception\ConnectionException;
+use TusPhp\Exception\OutOfRangeException;
 use Illuminate\Http\Response as HttpResponse;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
@@ -214,6 +215,8 @@ class Server extends AbstractTus
         try {
             $offset = $file->setChecksum($checksum)->upload($file->getFileSize());
         } catch (FileException $e) {
+            return $this->response->send($e->getMessage(), HttpResponse::HTTP_UNPROCESSABLE_ENTITY);
+        } catch (OutOfRangeException $e) {
             return $this->response->send(null, HttpResponse::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE);
         } catch (ConnectionException $e) {
             return $this->response->send(null, HttpResponse::HTTP_CONTINUE);

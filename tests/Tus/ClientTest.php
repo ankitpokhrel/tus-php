@@ -566,6 +566,8 @@ class ClientTest extends TestCase
      * @covers ::sendPatchRequest
      *
      * @expectedException \TusPhp\Exception\Exception
+     * @expectedExceptionMessage Unable to open file.
+     * @expectedExceptionCode 403
      */
     public function it_throws_exception_for_other_exceptions_in_patch_request()
     {
@@ -586,8 +588,13 @@ class ClientTest extends TestCase
 
         $clientExceptionMock
             ->shouldReceive('getResponse')
-            ->once()
+            ->twice()
             ->andReturn($responseMock);
+
+        $responseMock
+            ->shouldReceive('getBody')
+            ->once()
+            ->andReturn('Unable to open file.');
 
         $responseMock
             ->shouldReceive('getStatusCode')

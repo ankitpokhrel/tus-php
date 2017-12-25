@@ -6,6 +6,10 @@
 
 require '../vendor/autoload.php';
 
+use TusPhp\Exception\Exception;
+use TusPhp\Exception\FileException;
+use TusPhp\Exception\ConnectionException;
+
 $client = new \TusPhp\Tus\Client('http://tus-php-server', 'redis');
 
 if ( ! empty($_FILES)) {
@@ -23,17 +27,10 @@ if ( ! empty($_FILES)) {
             'bytes_uploaded' => $bytesUploaded,
             'checksum' => $checksum,
         ]);
-    } catch (\TusPhp\Exception\ConnectionException $e) {
+    } catch (ConnectionException | FileException |  Exception $e) {
         echo json_encode([
             'status' => 'error',
             'bytes_uploaded' => -1,
-            'checksum' => '',
-            'error' => $e->getMessage(),
-        ]);
-    } catch (\TusPhp\Exception\FileException $e) {
-        echo json_encode([
-            'status' => 'uploading',
-            'bytes_uploaded' => 0,
             'checksum' => '',
             'error' => $e->getMessage(),
         ]);
@@ -42,5 +39,6 @@ if ( ! empty($_FILES)) {
     echo json_encode([
         'status' => 'error',
         'bytes_uploaded' => -1,
+        'error' => 'No input!'
     ]);
 }

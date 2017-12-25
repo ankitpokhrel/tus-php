@@ -106,7 +106,7 @@
             <div class="panel-body">
                 <div class="alert alert-danger" id="error" style="display:none">
                     Oops! Something went wrong. Please refresh the page and try again.
-                    This might be because of network issue or some external interrupt.
+                    This might be because of network/server issue or some external interrupt.
                     Don't worry upload should start where you left off!
                 </div>
                 <div class="input-group">
@@ -220,6 +220,12 @@
       processData: false,
       contentType: false,
       success: function (response) {
+        if (response.status === 'error') {
+          $('#error').html(response.error).fadeIn(200);
+
+          return;
+        }
+
         var bytesUploaded = response.bytes_uploaded;
 
         cb(bytesUploaded);
