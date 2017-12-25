@@ -11,6 +11,7 @@ use PHPUnit\Framework\TestCase;
 use TusPhp\Tus\Server as TusServer;
 use TusPhp\Exception\FileException;
 use TusPhp\Exception\ConnectionException;
+use TusPhp\Exception\OutOfRangeException;
 use Illuminate\Http\Response as HttpResponse;
 
 /**
@@ -445,6 +446,77 @@ class ServerTest extends TestCase
      *
      * @covers ::handlePatch
      */
+    public function it_returns_422_for_file_exception()
+    {
+        $fileName  = 'file.txt';
+        $fileSize  = 1024;
+        $checksum  = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
+        $location  = 'http://tus.local/uploads/file.txt';
+        $expiresAt = 'Sat, 09 Dec 2017 00:00:00 GMT';
+        $fileMeta  = [
+            'name' => $fileName,
+            'size' => $fileSize,
+            'offset' => 0,
+            'file_path' => dirname(__DIR__) . DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR . $fileName,
+            'location' => $location,
+            'created_at' => 'Fri, 08 Dec 2017 00:00:00 GMT',
+            'expires_at' => $expiresAt,
+        ];
+
+        $this->tusServerMock
+            ->getRequest()
+            ->getRequest()
+            ->server
+            ->add([
+                'REQUEST_METHOD' => 'PATCH',
+                'REQUEST_URI' => '/files/' . $checksum,
+            ]);
+
+        $fileMock = m::mock(File::class);
+        $fileMock
+            ->shouldReceive('setChecksum')
+            ->once()
+            ->with($checksum)
+            ->andReturnSelf();
+
+        $fileMock
+            ->shouldReceive('getFileSize')
+            ->once()
+            ->andReturn($fileSize);
+
+        $fileMock
+            ->shouldReceive('upload')
+            ->once()
+            ->with($fileSize)
+            ->andThrow(new FileException('Unable to open file.'));
+
+        $this->tusServerMock
+            ->shouldReceive('buildFile')
+            ->once()
+            ->with($fileMeta)
+            ->andReturn($fileMock);
+
+        $cacheMock = m::mock(FileStore::class);
+        $cacheMock
+            ->shouldReceive('get')
+            ->twice()
+            ->with($checksum)
+            ->andReturn($fileMeta);
+
+        $this->tusServerMock->setCache($cacheMock);
+        $this->tusServerMock->getResponse()->createOnly(true);
+
+        $response = $this->tusServerMock->handlePatch();
+
+        $this->assertEquals(422, $response->getStatusCode());
+        $this->assertEquals('Unable to open file.', $response->getOriginalContent());
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::handlePatch
+     */
     public function it_returns_416_for_corrupt_upload()
     {
         $fileName  = 'file.txt';
@@ -487,7 +559,7 @@ class ServerTest extends TestCase
             ->shouldReceive('upload')
             ->once()
             ->with($fileSize)
-            ->andThrow(new FileException('The uploaded file is corrupt.'));
+            ->andThrow(new OutOfRangeException('The uploaded file is corrupt.'));
 
         $this->tusServerMock
             ->shouldReceive('buildFile')

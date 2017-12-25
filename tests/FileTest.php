@@ -489,7 +489,7 @@ class FileTest extends TestCase
      *
      * @covers ::upload
      *
-     * @expectedException \TusPhp\Exception\FileException
+     * @expectedException \TusPhp\Exception\OutOfRangeException
      * @expectedExceptionMessage The uploaded file is corrupt.
      */
     public function it_throws_exception_if_uploaded_file_is_corrupt()

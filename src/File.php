@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use TusPhp\Cache\Cacheable;
 use TusPhp\Exception\FileException;
 use TusPhp\Exception\ConnectionException;
+use TusPhp\Exception\OutOfRangeException;
 
 class File
 {
@@ -288,7 +289,7 @@ class File
                 $this->cache->set($checksum, ['offset' => $bytesWritten]);
 
                 if ($bytesWritten > $totalBytes) {
-                    throw new FileException('The uploaded file is corrupt.');
+                    throw new OutOfRangeException('The uploaded file is corrupt.');
                 }
 
                 if ($bytesWritten === $totalBytes) {
