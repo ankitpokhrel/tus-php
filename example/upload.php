@@ -27,7 +27,7 @@ if ( ! empty($_FILES)) {
             'bytes_uploaded' => $bytesUploaded,
             'checksum' => $checksum,
         ]);
-    } catch (ConnectionException | FileException |  Exception $e) {
+    } catch (ConnectionException | FileException | Exception $e) {
         echo json_encode([
             'status' => 'error',
             'bytes_uploaded' => -1,
