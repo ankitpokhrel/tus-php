@@ -177,7 +177,9 @@
 
           renderProgressBar(bytesUploaded, fileSize);
         }, function (checksum) {
-          cleanUp(fileMeta, checksum)
+          cleanUp();
+
+          listUploadedFiles(fileMeta, checksum);
         });
       });
     });
@@ -195,7 +197,9 @@
         renderProgressBar(response.bytes_uploaded, fileMeta.size);
 
         if ('uploaded' === response.status) {
-          cleanUp(fileMeta, response.checksum)
+          cleanUp();
+
+          listUploadedFiles(fileMeta, response.checksum)
         } else if ('error' !== response.status) {
           cb();
         }
@@ -220,8 +224,10 @@
       processData: false,
       contentType: false,
       success: function (response) {
-        if (response.status === 'error') {
+        if ('error' === response.status) {
           $('#error').html(response.error).fadeIn(200);
+
+          cleanUp();
 
           return;
         }
@@ -242,7 +248,7 @@
     });
   }
 
-  var cleanUp = function (fileMeta, checksum) {
+  var cleanUp = function () {
     $('#selected-file').val('');
 
     $('.progress').hide(100, function () {
@@ -251,16 +257,18 @@
         .attr('aria-valuenow', '0');
     });
 
-    $('#upload').text('Upload');
+    $('#upload').attr('disabled', false).text('Upload');
     $('#tus-file').attr('disabled', false);
+  };
 
+  var listUploadedFiles = function (fileMeta, checksum) {
     var completedUploads = $('div.completed-uploads');
 
     completedUploads.find('p.info').remove();
     completedUploads.append(
       '<div class="panel panel-default"><div class="panel-body"><a href="/files/'
       + checksum + '">' + fileMeta.name + '</a> (' + fileMeta.size + ' bytes)</div></div>'
-    )
+    );
   };
 
   var renderProgressBar = function (bytesUploaded, fileSize) {
