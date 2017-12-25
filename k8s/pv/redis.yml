@@ -13,3 +13,4 @@ spec:
     - ReadWriteOnce
   hostPath:
     path: /tmp/tus-php/redis
+    type: DirectoryOrCreate
