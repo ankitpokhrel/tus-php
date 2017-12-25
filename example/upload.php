@@ -6,9 +6,9 @@
 
 require '../vendor/autoload.php';
 
-use TusPhp\Exception\Exception;
 use TusPhp\Exception\FileException;
 use TusPhp\Exception\ConnectionException;
+use TusPhp\Exception\Exception as TusException;
 
 $client = new \TusPhp\Tus\Client('http://tus-php-server', 'redis');
 
@@ -27,7 +27,7 @@ if ( ! empty($_FILES)) {
             'bytes_uploaded' => $bytesUploaded,
             'checksum' => $checksum,
         ]);
-    } catch (ConnectionException | FileException | Exception $e) {
+    } catch (ConnectionException | FileException | TusException $e) {
         echo json_encode([
             'status' => 'error',
             'bytes_uploaded' => -1,

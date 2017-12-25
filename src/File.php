@@ -23,7 +23,7 @@ class File
     const READ_BINARY = 'rb';
 
     /** @const Append binary mode */
-    const APPEND_BINARY = 'ab';
+    const APPEND_BINARY = 'ab+';
 
     /** @var string */
     protected $checksum;
