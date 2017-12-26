@@ -14,6 +14,7 @@ spec:
   hostPath:
     path: /tmp/tus-php/uploads
     type: DirectoryOrCreate
+  persistentVolumeReclaimPolicy: Retain
 
 ---
 apiVersion: v1
@@ -31,3 +32,4 @@ spec:
   hostPath:
     path: /tmp/tus-php/redis
     type: DirectoryOrCreate
+  persistentVolumeReclaimPolicy: Retain
