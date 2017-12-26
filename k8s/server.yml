@@ -21,10 +21,10 @@ spec:
       volumes:
         - name: redis
           persistentVolumeClaim:
-            claimName: tus-php-redis-pv-claim
+            claimName: pvc-tus-php-redis
         - name: uploads
           persistentVolumeClaim:
-            claimName: tus-php-uploads-pv-claim
+            claimName: pvc-tus-php-uploads
 
       containers:
         - name: tus-php-server
