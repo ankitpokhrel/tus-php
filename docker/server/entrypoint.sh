@@ -6,3 +6,6 @@ composer install
 
 # Run supervisord
 /usr/bin/supervisord -n -c /etc/supervisord.conf
+
+# Fix uploads folder permission
+chown -R www-data:www-data /var/www/uploads
