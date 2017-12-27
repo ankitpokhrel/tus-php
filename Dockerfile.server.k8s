@@ -4,4 +4,4 @@ COPY . /var/www/
 
 EXPOSE 80
 
-ENTRYPOINT entrypoint.sh
+ENTRYPOINT ["entrypoint.sh"]
