@@ -1,17 +1,22 @@
 #!/bin/bash
 
-SSH="minikube ssh"
+if [[ $# -eq 0 ]]; then
+    printf "Options: uploads (List uploads), redis (Login to redis), clear-cache (Clear redis cache)"
+    exit 0
+fi
+
+REDIS_CONTAINER=$(kubectl get pods | grep tus-php-redis | awk '{ print $1 }' | xargs)
 
 case $1 in
     redis )
-        ${SSH} "ls -la /tmp/tus-php/redis"
+        kubectl exec -it ${REDIS_CONTAINER} -- redis-cli
         ;;
 
     clear-cache )
-        ${SSH} "sudo rm -rf /tmp/tus-php/redis/dump.rdb"
-        echo "Cache cleared successfully."
+        kubectl exec -it ${REDIS_CONTAINER} -- redis-cli -n 0 flushall &> /dev/null
+        printf "Cache cleared successfully."
         ;;
 
-    * )
-        ${SSH} "ls -la /tmp/tus-php/uploads"
+    uploads )
+        minikube ssh "ls -la /tmp/tus-php/uploads"
 esac
