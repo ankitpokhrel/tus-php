@@ -24,8 +24,3 @@ spec:
           imagePullPolicy: Never
           ports:
             - containerPort: 8080
-          env:
-            - name: REDIS_HOST
-              value: "tus-php-redis"
-            - name: REDIS_PORT
-              value: "6379"

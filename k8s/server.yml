@@ -6,7 +6,7 @@ metadata:
   labels:
     app: tus-php
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: tus-php-server
@@ -19,9 +19,6 @@ spec:
 
     spec:
       volumes:
-        - name: redis
-          persistentVolumeClaim:
-            claimName: pvc-tus-php-redis
         - name: uploads
           persistentVolumeClaim:
             claimName: pvc-tus-php-uploads
@@ -38,15 +35,6 @@ spec:
               readOnly: false
           env:
             - name: REDIS_HOST
-              value: "127.0.0.1"
+              value: "tus-php-redis"
             - name: REDIS_PORT
               value: "6379"
-        - name: tus-php-redis
-          image: redis
-          imagePullPolicy: Always
-          ports:
-            - containerPort: 6379
-          volumeMounts:
-            - name: redis
-              mountPath: /data
-              readOnly: false

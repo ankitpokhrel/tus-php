@@ -1,0 +1,35 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: tus-php-redis
+  labels:
+    app: tus-php
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tus-php-redis
+
+  template:
+    metadata:
+      name: tus-php-redis
+      labels:
+        app: tus-php-redis
+
+    spec:
+      volumes:
+        - name: redis
+          persistentVolumeClaim:
+            claimName: pvc-tus-php-redis
+
+      containers:
+        - name: tus-php-redis
+          image: redis
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 6379
+          volumeMounts:
+            - name: redis
+              mountPath: /data
+              readOnly: false
