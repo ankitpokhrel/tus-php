@@ -1,12 +1,13 @@
 ---
-apiVersion: extensions/v1beta1
-kind: Deployment
+apiVersion: apps/v1beta1
+kind: StatefulSet
 metadata:
   name: tus-php-redis
   labels:
     app: tus-php
 spec:
   replicas: 1
+  serviceName: tus-php-redis
   selector:
     matchLabels:
       app: tus-php-redis
