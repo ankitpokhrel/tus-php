@@ -10,6 +10,7 @@ spec:
   ports:
     - port: 80
       name: http
+      nodePort: 30021
   selector:
     app: tus-php-server
 
@@ -25,6 +26,7 @@ spec:
   ports:
     - port: 80
       name: http
+      nodePort: 30020
   selector:
     app: tus-php-client
 
