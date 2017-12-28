@@ -1,0 +1,46 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tus-php-server
+  labels:
+    app: tus-php-server
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      name: http
+      nodePort: 30021
+  selector:
+    app: tus-php-server
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tus-php-client
+  labels:
+    app: tus-php-client
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      name: http
+      nodePort: 30020
+  selector:
+    app: tus-php-client
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tus-php-redis
+  labels:
+    app: tus-php-redis
+spec:
+  type: NodePort
+  ports:
+    - port: 6379
+      name: redis-db
+  selector:
+    app: tus-php-redis

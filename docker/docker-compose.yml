@@ -35,6 +35,8 @@ services:
     labels:
       tag: tus-php-client
       group: tus-php
+    environment:
+      - SERVER_URL=http://0.0.0.0:8081
 
   redis:
     image: redis

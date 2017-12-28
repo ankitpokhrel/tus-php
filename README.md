@@ -88,16 +88,42 @@ $client->setApiPath('/api');
 - [ ] Todo: Expiration extension
 - [ ] Todo: Concatenation extension
 
-### Setting up Dev environment and/or Running Example
-An ajax based example for this implementation can be found in `examples/` folder. To build it, make sure that 
-[docker](https://docs.docker.com/engine/installation/) and [docker-compose](https://docs.docker.com/compose/install/) 
+### Setting up dev environment and/or running example locally
+An ajax based example for this implementation can be found in `examples/` folder. You can either build and run it using docker or use kubernetes locally with minikube.
+ 
+#### Docker
+Make sure that [docker](https://docs.docker.com/engine/installation/) and [docker-compose](https://docs.docker.com/compose/install/) 
 are installed in your system. Then, run docker script from project root.
 ```shell
 $ bin/docker.sh
 ```
 
 Now, the client can be accessed at http://0.0.0.0:8080 and server can be accessed at http://0.0.0.0:8081. Default api endpoint is set to`/files` 
-and uploaded files can be found inside `uploads` folder.
+and uploaded files can be found inside `uploads` folder. All docker configs can be found in `docker/` folder.
+
+#### Kubernetes with minikube
+Make sure you have [minikube](https://github.com/kubernetes/minikube) and [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) 
+are installed in your system. Then, build and spin up containers using k8s script from project root.
+```shell
+$ bin/k8s.sh
+```
+
+The script will set minikube docker env, build all required docker images locally, create kubernetes objects and serve client at port `30020`. After successful build, 
+the client can be accessed at http://192.168.99.100:30020 and server can be accessed at http://192.168.99.100:30021. 
+
+The script will create 1 client replica and 3 server replicas by default. All kubernetes configs can be found inside `k8s/` folder, you can tweak it as required.
+
+You can use another helper script while using minikube to list all uploaded files, login to redis and clear redis cache.
+```shell
+# List all uploads
+$ bin/minikube.sh uploads
+
+# Login to redis
+$ bin/minikube.sh redis
+
+# Clear redis cache
+$ bin/minikube.sh clear-cache
+```
 
 ### Contributing
 1. Install [PHPUnit](https://phpunit.de/) and [composer](https://getcomposer.org/) if you haven't already.
