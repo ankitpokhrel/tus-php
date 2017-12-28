@@ -24,3 +24,6 @@ spec:
           imagePullPolicy: Never
           ports:
             - containerPort: 8080
+          env:
+            - name: SERVER_URL
+              value: "http://192.168.99.100:30021"
