@@ -90,6 +90,8 @@ $client->setApiPath('/api');
 
 ### Setting up dev environment and/or running example locally
 An ajax based example for this implementation can be found in `examples/` folder. You can either build and run it using docker or use kubernetes locally with minikube.
+
+![Tus PHP demo](https://github.com/ankitpokhrel/tus-php/blob/master/example/example.png "")
  
 #### Docker
 Make sure that [docker](https://docs.docker.com/engine/installation/) and [docker-compose](https://docs.docker.com/compose/install/) 
