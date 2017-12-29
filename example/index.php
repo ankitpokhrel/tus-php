@@ -194,6 +194,14 @@
       processData: false,
       contentType: false,
       success: function (response) {
+        if ('error' === response.status) {
+          $('#error').html(response.error).fadeIn(200);
+
+          cleanUp();
+
+          return;
+        }
+
         renderProgressBar(response.bytes_uploaded, fileMeta.size);
 
         if ('uploaded' === response.status) {

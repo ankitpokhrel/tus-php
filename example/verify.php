@@ -7,6 +7,10 @@
 
 require '../vendor/autoload.php';
 
+use TusPhp\Exception\FileException;
+use TusPhp\Exception\ConnectionException;
+use GuzzleHttp\Exception\ConnectException;
+
 $client = new \TusPhp\Tus\Client('http://tus-php-server', 'redis');
 
 if ( ! empty($_FILES)) {
@@ -28,12 +32,12 @@ if ( ! empty($_FILES)) {
             'bytes_uploaded' => $offset,
             'checksum' => $checksum,
         ]);
-    } catch (\TusPhp\Exception\ConnectionException $e) {
+    } catch (ConnectionException | ConnectException $e) {
         echo json_encode([
             'status' => 'error',
             'bytes_uploaded' => -1,
         ]);
-    } catch (\TusPhp\Exception\FileException $e) {
+    } catch (FileException $e) {
         echo json_encode([
             'status' => 'resume',
             'bytes_uploaded' => 0,
