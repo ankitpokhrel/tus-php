@@ -266,7 +266,7 @@
 
     completedUploads.find('p.info').remove();
     completedUploads.append(
-      '<div class="panel panel-default"><div class="panel-body"><a href="<?= getenv('SERVER_URL') ?? '' ?>/files/'
+      '<div class="panel panel-default"><div class="panel-body"><a href="<?= (string) (getenv('SERVER_URL') ?? '') ?>/files/'
       + checksum + '">' + fileMeta.name + '</a> (' + fileMeta.size + ' bytes)</div></div>'
     );
   };
