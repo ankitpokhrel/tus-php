@@ -20,6 +20,9 @@ class Server extends AbstractTus
     /** @const Tus Termination Extension */
     const TUS_EXTENSION_TERMINATION = 'termination';
 
+    /** @const Tus Checksum Extension */
+    const TUS_EXTENSION_CHECKSUM = 'checksum';
+
     /** @var Request */
     protected $request;
 
@@ -128,7 +131,11 @@ class Server extends AbstractTus
             [
                 'Allow' => $this->request->allowedHttpVerbs(),
                 'Tus-Version' => self::TUS_PROTOCOL_VERSION,
-                'Tus-Extension' => self::TUS_EXTENSION_CREATION . ',' . self::TUS_EXTENSION_TERMINATION,
+                'Tus-Extension' => implode(',', [
+                    self::TUS_EXTENSION_CREATION,
+                    self::TUS_EXTENSION_TERMINATION,
+                    self::TUS_EXTENSION_CHECKSUM,
+                ]),
             ]
         );
     }
