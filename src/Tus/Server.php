@@ -136,6 +136,7 @@ class Server extends AbstractTus
                     self::TUS_EXTENSION_TERMINATION,
                     self::TUS_EXTENSION_CHECKSUM,
                 ]),
+                'Tus-Checksum-Algorithm' => $this->getSupportedHashAlgorithms(),
             ]
         );
     }
@@ -303,6 +304,27 @@ class Server extends AbstractTus
     {
         return (new File($meta['name'], $this->cache))
             ->setMeta($meta['offset'], $meta['size'], $meta['file_path'], $meta['location']);
+    }
+
+    /**
+     * Get list of supported hash algorithms.
+     *
+     * @return string
+     */
+    protected function getSupportedHashAlgorithms()
+    {
+        $supportedAlgorithms = hash_algos();
+
+        $algorithms = '';
+        foreach ($supportedAlgorithms as $hashAlgo) {
+            if (false !== strpos($hashAlgo, ',')) {
+                $algorithms .= ",'{$hashAlgo}'";
+            } else {
+                $algorithms .= ",$hashAlgo";
+            }
+        }
+
+        return $algorithms;
     }
 
     /**
