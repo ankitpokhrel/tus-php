@@ -139,7 +139,7 @@ $ bin/minikube.sh clear-cache
     ```
 4. Validate changes against [PSR2 Coding Standards](http://www.php-fig.org/psr/psr-2/)
     ```shell
-    $ ./vendor/bin/php-cs-fixer fix <changes> --rules=@PSR2,not_operator_with_space
+    $ ./vendor/bin/php-cs-fixer fix <changes> --rules=@PSR2,not_operator_with_space,single_quote
     ```
 
 ### Questions about this project?

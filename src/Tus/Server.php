@@ -173,7 +173,7 @@ class Server extends AbstractTus
         }
 
         $checksum = $this->getRequest()->header('Checksum');
-        $location = $this->getRequest()->url() . "/" . basename($this->uploadDir) . "/" . $fileName;
+        $location = $this->getRequest()->url() . '/' . basename($this->uploadDir) . '/' . $fileName;
 
         $file = $this->buildFile([
             'name' => $fileName,

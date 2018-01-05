@@ -220,7 +220,7 @@ class FileTest extends TestCase
     public function it_throws_exception_if_it_cannot_seek()
     {
         $this->mockBuilder
-            ->setName("fseek")
+            ->setName('fseek')
             ->setFunction(
                 function () {
                     return -1;
@@ -272,7 +272,7 @@ class FileTest extends TestCase
     public function it_throws_exception_if_it_cannot_read()
     {
         $this->mockBuilder
-            ->setName("fread")
+            ->setName('fread')
             ->setFunction(
                 function () {
                     return false;
@@ -325,7 +325,7 @@ class FileTest extends TestCase
     public function it_throws_exception_if_it_cannot_write()
     {
         $this->mockBuilder
-            ->setName("fwrite")
+            ->setName('fwrite')
             ->setFunction(
                 function () {
                     return false;
@@ -361,7 +361,7 @@ class FileTest extends TestCase
 
         $this->file->write($handle, 'Sherlock Holmes', $bytes);
 
-        $this->assertEquals("", $this->file->read($handle, $bytes));
+        $this->assertEquals('', $this->file->read($handle, $bytes));
 
         $this->file->seek($handle, 0);
 
