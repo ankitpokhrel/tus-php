@@ -190,9 +190,7 @@ class Client extends AbstractTus
 
         try {
             $offset = $this->sendHeadRequest($checksum);
-        } catch (FileException $e) {
-            return false;
-        } catch (ClientException $e) {
+        } catch (FileException | ClientException $e) {
             return false;
         }
 

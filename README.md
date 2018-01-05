@@ -1,6 +1,6 @@
 # Tus PHP
 [![PHP Version](https://img.shields.io/badge/php-7.1.3%2B-brightgreen.svg?style=flat-square)](https://packagist.org/packages/ankitpokhrel/tus-php)
-[![Build](https://img.shields.io/travis/ankitpokhrel/tus-php.svg?style=flat-square)](https://travis-ci.org/ankitpokhrel/tus-php/)
+[![Build](https://img.shields.io/travis/ankitpokhrel/tus-php/master.svg?style=flat-square)](https://travis-ci.org/ankitpokhrel/tus-php)
 [![Code Coverage](https://img.shields.io/scrutinizer/coverage/g/ankitpokhrel/tus-php.svg?style=flat-square)](https://scrutinizer-ci.com/g/ankitpokhrel/tus-php/)
 [![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/g/ankitpokhrel/tus-php.svg?style=flat-square)](https://scrutinizer-ci.com/g/ankitpokhrel/tus-php/)
 [![Download](https://img.shields.io/packagist/dt/ankitpokhrel/tus-php.svg?style=flat-square)](https://packagist.org/packages/ankitpokhrel/tus-php)
@@ -139,7 +139,7 @@ $ bin/minikube.sh clear-cache
     ```
 4. Validate changes against [PSR2 Coding Standards](http://www.php-fig.org/psr/psr-2/)
     ```shell
-    $ ./vendor/bin/php-cs-fixer fix <changes> --rules=@PSR2,not_operator_with_space
+    $ ./vendor/bin/php-cs-fixer fix <changes> --rules=@PSR2,not_operator_with_space,single_quote
     ```
 
 ### Questions about this project?

@@ -16,11 +16,11 @@ class RedisStoreTest extends TestCase
     /** @var string */
     protected $checksum;
 
-    /** @var RedisStore */
-    protected $redisStore;
-
     /** @var Client|bool */
     protected static $connection;
+
+    /** @var RedisStore|bool */
+    protected static $redisStore;
 
     /**
      * Check redis connection.
@@ -29,7 +29,7 @@ class RedisStoreTest extends TestCase
      */
     public static function setUpBeforeClass()
     {
-        $connection = new Client([
+        $connection = new RedisStore([
             'host' => getenv('REDIS_HOST'),
             'port' => getenv('REDIS_PORT'),
             'timeout' => getenv('REDIS_TIMEOUT'),
@@ -37,11 +37,11 @@ class RedisStoreTest extends TestCase
         ]);
 
         try {
-            $connection->ping();
+            $connection->getRedis()->ping();
 
-            static::$connection = $connection;
+            static::$redisStore = $connection;
         } catch (ConnectionException $e) {
-            static::$connection = false;
+            static::$redisStore = false;
         }
 
         parent::setUpBeforeClass();
@@ -54,12 +54,11 @@ class RedisStoreTest extends TestCase
      */
     protected function setUp()
     {
-        if (false === static::$connection) {
+        if (false === static::$redisStore) {
             $this->markTestSkipped('Unable to connect to redis.');
         }
 
-        $this->checksum   = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
-        $this->redisStore = new RedisStore;
+        $this->checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
 
         parent::setUp();
     }
@@ -98,17 +97,17 @@ class RedisStoreTest extends TestCase
     {
         $cacheContent = ['expires_at' => 'Sat, 09 Dec 2017 16:25:51 GMT', 'offset' => 100];
 
-        $this->redisStore->setTtl(1);
+        static::$redisStore->setTtl(1);
 
-        $this->assertTrue($this->redisStore->set($this->checksum, $cacheContent));
-        $this->assertEquals($cacheContent, $this->redisStore->get($this->checksum));
+        $this->assertTrue(static::$redisStore->set($this->checksum, $cacheContent));
+        $this->assertEquals($cacheContent, static::$redisStore->get($this->checksum));
 
         $string = 'Sherlock Holmes';
 
         array_push($cacheContent, $string);
 
-        $this->assertTrue($this->redisStore->set($this->checksum, $string));
-        $this->assertEquals($cacheContent, $this->redisStore->get($this->checksum));
+        $this->assertTrue(static::$redisStore->set($this->checksum, $string));
+        $this->assertEquals($cacheContent, static::$redisStore->get($this->checksum));
     }
 
     /**
@@ -121,9 +120,9 @@ class RedisStoreTest extends TestCase
      */
     public function it_doesnt_replace_cache_key_in_set()
     {
-        $this->assertTrue($this->redisStore->set($this->checksum, ['offset' => 500]));
+        $this->assertTrue(static::$redisStore->set($this->checksum, ['offset' => 500]));
 
-        $contents = $this->redisStore->get($this->checksum);
+        $contents = static::$redisStore->get($this->checksum);
 
         $this->assertEquals(500, $contents['offset']);
         $this->assertEquals('Sat, 09 Dec 2017 16:25:51 GMT', $contents['expires_at']);
@@ -140,7 +139,7 @@ class RedisStoreTest extends TestCase
     {
         sleep(1);
 
-        $this->assertNull($this->redisStore->get($this->checksum));
+        $this->assertNull(static::$redisStore->get($this->checksum));
     }
 
     /**
@@ -154,11 +153,11 @@ class RedisStoreTest extends TestCase
     {
         $cacheContent = ['expires_at' => 'Fri, 08 Dec 2017 16:25:51 GMT', 'offset' => 100];
 
-        $this->assertTrue($this->redisStore->set($this->checksum, $cacheContent));
-        $this->assertEquals($cacheContent, $this->redisStore->get($this->checksum));
-        $this->assertFalse($this->redisStore->delete('invalid-checksum'));
-        $this->assertTrue($this->redisStore->delete($this->checksum));
-        $this->assertNull($this->redisStore->get($this->checksum));
+        $this->assertTrue(static::$redisStore->set($this->checksum, $cacheContent));
+        $this->assertEquals($cacheContent, static::$redisStore->get($this->checksum));
+        $this->assertFalse(static::$redisStore->delete('invalid-checksum'));
+        $this->assertTrue(static::$redisStore->delete($this->checksum));
+        $this->assertNull(static::$redisStore->get($this->checksum));
     }
 
     /**
@@ -168,7 +167,7 @@ class RedisStoreTest extends TestCase
      */
     public function it_gets_redis_object()
     {
-        $this->assertInstanceOf(Client::class, $this->redisStore->getRedis());
+        $this->assertInstanceOf(Client::class, static::$redisStore->getRedis());
     }
 
     /**
@@ -178,8 +177,11 @@ class RedisStoreTest extends TestCase
      */
     public static function tearDownAfterClass()
     {
-        if (static::$connection) {
-            static::$connection->flushall();
+        if (false !== static::$redisStore) {
+            $redis = static::$redisStore->getRedis();
+
+            $redis->flushall();
+            $redis->disconnect();
         }
 
         parent::tearDownAfterClass();

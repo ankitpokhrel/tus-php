@@ -325,7 +325,7 @@ class File
             self::READ_BINARY === $mode &&
             ! file_exists($filePath)
         ) {
-            throw new FileException("File not found.");
+            throw new FileException('File not found.');
         }
 
         $ptr = @fopen($filePath, $mode);
