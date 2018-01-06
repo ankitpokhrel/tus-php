@@ -191,9 +191,7 @@ class Client extends AbstractTus
         try {
             // Check if this upload exists with HEAD request
             $this->sendHeadRequest($checksum);
-        } catch (FileException $e) {
-            $this->create();
-        } catch (ClientException $e) {
+        } catch (FileException | ClientException $e) {
             $this->create();
         } catch (ConnectException $e) {
             throw new ConnectionException("Couldn't connect to server.");
