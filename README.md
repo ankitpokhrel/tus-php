@@ -80,11 +80,18 @@ By default the client uses `/files` as a api path. You can change it with `setAp
 $client->setApiPath('/api');
 ```
 
+By default the server will use `sha256` algorithm to verify the integrity of the upload. If you want to use different hash algorithm, you can do so by 
+using `setChecksumAlgorithm` method. To get the list of supported hash algorithms, you can send `OPTIONS` request to the server. 
+
+```php
+$client->setChecksumAlgorithm('crc32');
+```
+
 ### Extension support
 - [x] The Creation extension is mostly implemented and is used for creating the upload. Deferring the upload's length is not possible at the moment.
 - [x] The Termination extension is implemented which is used to terminate completed and unfinished uploads allowing the Server to free up used resources.
-- [x] The Checksum extension is not implemented at the moment but the server verifies the upload internally using `sha256` algorithm.
-- [ ] Todo: Checksum extension
+- [x] The Checksum extension is implemented, the server will use `sha256` algorithm by default to verify the upload.
+- [x] ~~Todo: Checksum extension~~
 - [ ] Todo: Expiration extension
 - [ ] Todo: Concatenation extension
 
