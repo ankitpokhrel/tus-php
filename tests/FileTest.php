@@ -409,8 +409,8 @@ class FileTest extends TestCase
      */
     public function it_throws_connection_exception_if_connection_is_aborted_by_user()
     {
-        $file       = __DIR__ . '/.tmp/upload.txt';
-        $checksum   = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
+        $file     = __DIR__ . '/.tmp/upload.txt';
+        $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
 
         $cacheMock = m::mock(FileStore::class);
         $fileMock  = m::mock(File::class, [null, $cacheMock])->makePartial();
@@ -438,48 +438,6 @@ class FileTest extends TestCase
             ->upload(100);
 
         $mock->disable();
-
-        @unlink($file);
-    }
-
-    /**
-     * @test
-     *
-     * @covers ::upload
-     *
-     * @expectedException \TusPhp\Exception\FileException
-     * @expectedExceptionMessage The uploaded file is corrupt.
-     */
-    public function it_throws_exception_if_file_is_uploaded_but_checksum_is_different()
-    {
-        $file       = __DIR__ . '/.tmp/upload.txt';
-        $data       = file_get_contents(__DIR__ . '/Fixtures/data.txt');
-        $checksum   = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
-        $totalBytes = strlen($data);
-
-        $cacheMock = m::mock(FileStore::class);
-        $fileMock  = m::mock(File::class, [null, $cacheMock])->makePartial();
-
-        $fileMock
-            ->shouldReceive('read')
-            ->once()
-            ->andReturn($data);
-
-        $fileMock
-            ->shouldReceive('getChecksum')
-            ->once()
-            ->andReturn($checksum);
-
-        $cacheMock
-            ->shouldReceive('set')
-            ->once()
-            ->with($checksum, ['offset' => $totalBytes])
-            ->andReturn(null);
-
-        $fileMock
-            ->setFilePath($file)
-            ->setOffset(0)
-            ->upload($totalBytes);
 
         @unlink($file);
     }
