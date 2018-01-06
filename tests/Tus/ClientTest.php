@@ -151,6 +151,21 @@ class ClientTest extends TestCase
     /**
      * @test
      *
+     * @covers ::getChecksumAlgorithm
+     * @covers ::setChecksumAlgorithm
+     */
+    public function it_sets_and_gets_checksum_algorithm()
+    {
+        $this->assertEquals('sha256', $this->tusClient->getChecksumAlgorithm());
+
+        $this->tusClient->setChecksumAlgorithm('crc32');
+
+        $this->assertEquals('crc32', $this->tusClient->getChecksumAlgorithm());
+    }
+
+    /**
+     * @test
+     *
      * @covers ::upload
      */
     public function it_uploads_a_file()
@@ -1084,6 +1099,29 @@ class ClientTest extends TestCase
 
         $this->assertEquals($dataLength, strlen($data));
         $this->assertEquals('Sherlock Holmes', $data);
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::getUploadChecksumHeader
+     */
+    public function it_gets_upload_checksum_header()
+    {
+        $file     = __DIR__ . '/../Fixtures/empty.txt';
+        $checksum = hash_file('crc32', $file);
+
+        $this->tusClientMock
+            ->shouldReceive('getChecksum')
+            ->once()
+            ->andReturn($checksum);
+
+        $this->tusClientMock
+            ->shouldReceive('getChecksumAlgorithm')
+            ->once()
+            ->andReturn('crc32');
+
+        $this->assertEquals('crc32 ' . base64_encode($checksum), $this->tusClientMock->getUploadChecksumHeader());
     }
 
     /**

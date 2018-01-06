@@ -6,6 +6,7 @@ use TusPhp\File;
 use Mockery as m;
 use TusPhp\Request;
 use TusPhp\Response;
+use phpmock\MockBuilder;
 use TusPhp\Cache\FileStore;
 use PHPUnit\Framework\TestCase;
 use TusPhp\Tus\Server as TusServer;
@@ -1034,6 +1035,142 @@ class ServerTest extends TestCase
         $this->assertEquals($location, $details['location']);
         $this->assertEquals($createdAt, $details['created_at']);
         $this->assertEquals($expiresAt, $details['expires_at']);
+    }
+
+    /**
+     * @test
+     *
+     * @runInSeparateProcess
+     *
+     * @covers ::getSupportedHashAlgorithms
+     */
+    public function it_gets_supported_hash_algorithms()
+    {
+        $mockBuilder = (new MockBuilder())->setNamespace('\TusPhp\Tus');
+
+        $mockBuilder
+            ->setName('hash_algos')
+            ->setFunction(
+                function () {
+                    return ['md5', 'sha1', 'sha256', 'haval256,3'];
+                }
+            );
+
+        $mock = $mockBuilder->build();
+
+        $mock->enable();
+
+        $this->assertEquals("md5,sha1,sha256,'haval256,3'", $this->tusServerMock->getSupportedHashAlgorithms());
+
+        $mock->disable();
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::getUploadChecksum
+     */
+    public function it_returns_400_if_upload_checksum_header_is_not_present()
+    {
+        $response = $this->tusServerMock->getUploadChecksum();
+
+        $this->assertEquals(400, $response->getStatusCode());
+        $this->assertNull($response->getOriginalContent());
+    }
+
+    /**
+     * @test
+     *
+     * @runInSeparateProcess
+     *
+     * @covers ::getUploadChecksum
+     */
+    public function it_returns_404_for_unsupported_hash_algorithm()
+    {
+        $filePath    = __DIR__ . '/../Fixtures/empty.txt';
+        $checksum    = hash_file('sha1', $filePath);
+        $mockBuilder = (new MockBuilder())->setNamespace('\TusPhp\Tus');
+
+        $mockBuilder
+            ->setName('hash_algos')
+            ->setFunction(
+                function () {
+                    return ['invalid'];
+                }
+            );
+
+        $mock = $mockBuilder->build();
+
+        $mock->enable();
+
+        $this->tusServerMock
+            ->getRequest()
+            ->getRequest()
+            ->headers
+            ->set('Upload-Checksum', 'sha1 ' . base64_encode($checksum));
+
+        $response = $this->tusServerMock->getUploadChecksum();
+
+        $this->assertEquals(400, $response->getStatusCode());
+        $this->assertNull($response->getOriginalContent());
+
+        $mock->disable();
+    }
+
+    /**
+     * @test
+     *
+     * @runInSeparateProcess
+     *
+     * @covers ::getUploadChecksum
+     */
+    public function it_returns_404_for_invalid_checksum_in_header()
+    {
+        $mockBuilder = (new MockBuilder())->setNamespace('\TusPhp\Tus');
+
+        $mockBuilder
+            ->setName('base64_decode')
+            ->setFunction(
+                function () {
+                    return false;
+                }
+            );
+
+        $mock = $mockBuilder->build();
+
+        $mock->enable();
+
+        $this->tusServerMock
+            ->getRequest()
+            ->getRequest()
+            ->headers
+            ->set('Upload-Checksum', 'sha1 invalid');
+
+        $response = $this->tusServerMock->getUploadChecksum();
+
+        $this->assertEquals(400, $response->getStatusCode());
+        $this->assertNull($response->getOriginalContent());
+
+        $mock->disable();
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::getUploadChecksum
+     */
+    public function it_gets_upload_checksum_from_header()
+    {
+        $filePath = __DIR__ . '/../Fixtures/empty.txt';
+        $checksum = hash_file('sha1', $filePath);
+
+        $this->tusServerMock
+            ->getRequest()
+            ->getRequest()
+            ->headers
+            ->set('Upload-Checksum', 'sha1 ' . base64_encode($checksum));
+
+        $this->assertEquals($checksum, $this->tusServerMock->getUploadChecksum());
     }
 
     /**

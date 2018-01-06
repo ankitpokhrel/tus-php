@@ -324,16 +324,16 @@ class Server extends AbstractTus
     {
         $supportedAlgorithms = hash_algos();
 
-        $algorithms = '';
+        $algorithms = [];
         foreach ($supportedAlgorithms as $hashAlgo) {
             if (false !== strpos($hashAlgo, ',')) {
-                $algorithms .= ",'{$hashAlgo}'";
+                $algorithms[] = "'{$hashAlgo}'";
             } else {
-                $algorithms .= ",$hashAlgo";
+                $algorithms[] = $hashAlgo;
             }
         }
 
-        return $algorithms;
+        return implode(',', $algorithms);
     }
 
     /**
