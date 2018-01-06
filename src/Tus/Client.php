@@ -14,9 +14,6 @@ use Illuminate\Http\Response as HttpResponse;
 
 class Client extends AbstractTus
 {
-    /** @const Checksum algorithm. */
-    const HASH_ALGORITHM = 'sha256';
-
     /** @var GuzzleClient */
     protected $client;
 
@@ -34,6 +31,9 @@ class Client extends AbstractTus
 
     /** @var string */
     protected $checksum;
+
+    /** @var string */
+    protected $checksumAlgorithm = 'sha256';
 
     /**
      * Client constructor.
@@ -144,10 +144,34 @@ class Client extends AbstractTus
     public function getChecksum() : string
     {
         if (empty($this->checksum)) {
-            $this->checksum = hash_file(self::HASH_ALGORITHM, $this->getFilePath());
+            $this->checksum = hash_file($this->getChecksumAlgorithm(), $this->getFilePath());
         }
 
         return $this->checksum;
+    }
+
+    /**
+     * Set checksum algorithm.
+     *
+     * @param string $algorithm
+     *
+     * @return Client
+     */
+    public function setChecksumAlgorithm(string $algorithm) : self
+    {
+        $this->checksumAlgorithm = $algorithm;
+
+        return $this;
+    }
+
+    /**
+     * Get checksum algorithm.
+     *
+     * @return string
+     */
+    public function getChecksumAlgorithm() : string
+    {
+        return $this->checksumAlgorithm;
     }
 
     /**
@@ -208,8 +232,8 @@ class Client extends AbstractTus
     {
         $response = $this->getClient()->post($this->apiPath, [
             'headers' => [
-                'Checksum' => $this->getChecksum(),
                 'Upload-Length' => $this->fileSize,
+                'Upload-Checksum' => $this->getUploadChecksumHeader(),
                 'Upload-Metadata' => 'filename ' . base64_encode($this->fileName),
             ],
         ]);
@@ -295,6 +319,7 @@ class Client extends AbstractTus
                 'headers' => [
                     'Content-Type' => 'application/offset+octet-stream',
                     'Content-Length' => strlen($data),
+                    'Upload-Checksum' => $this->getUploadChecksumHeader(),
                 ],
             ]);
 
@@ -338,5 +363,15 @@ class Client extends AbstractTus
         $file->close($handle);
 
         return (string) $data;
+    }
+
+    /**
+     * Get upload checksum header.
+     *
+     * @return string
+     */
+    protected function getUploadChecksumHeader() : string
+    {
+        return $this->getChecksumAlgorithm() . ' ' . base64_encode($this->getChecksum());
     }
 }

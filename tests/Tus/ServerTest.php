@@ -187,7 +187,7 @@ class ServerTest extends TestCase
 
         $this->assertEquals(self::ALLOWED_HTTP_VERBS, $headers['allow']);
         $this->assertEquals('1.0.0', current($headers['tus-version']));
-        $this->assertEquals('creation,termination', current($headers['tus-extension']));
+        $this->assertEquals('creation,termination,checksum', current($headers['tus-extension']));
     }
 
     /**
@@ -360,8 +360,13 @@ class ServerTest extends TestCase
 
         $this->tusServerMock
             ->shouldReceive('getRequest')
-            ->times(4)
+            ->times(3)
             ->andReturn($requestMock);
+
+        $this->tusServerMock
+            ->shouldReceive('getUploadChecksum')
+            ->once()
+            ->andReturn($checksum);
 
         $cacheMock = m::mock(FileStore::class);
         $cacheMock

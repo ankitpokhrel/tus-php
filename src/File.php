@@ -293,11 +293,6 @@ class File
                 }
 
                 if ($bytesWritten === $totalBytes) {
-                    // Upload done. Verify checksum.
-                    if ($checksum !== hash_file(self::HASH_ALGORITHM, $this->getFilePath())) {
-                        throw new FileException('The uploaded file is corrupt.');
-                    }
-
                     break;
                 }
             }

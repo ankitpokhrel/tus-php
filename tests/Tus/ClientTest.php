@@ -469,6 +469,11 @@ class ClientTest extends TestCase
             ->with($checksum, $bytes)
             ->andReturn($data);
 
+        $this->tusClientMock
+            ->shouldReceive('getUploadChecksumHeader')
+            ->once()
+            ->andReturn($checksum);
+
         $guzzleMock   = m::mock(Client::class);
         $responseMock = m::mock(Response::class);
 
@@ -497,6 +502,7 @@ class ClientTest extends TestCase
                 'headers' => [
                     'Content-Type' => 'application/offset+octet-stream',
                     'Content-Length' => mb_strlen($data),
+                    'Upload-Checksum' => $checksum,
                 ],
             ])
             ->andThrow($clientExceptionMock);
@@ -523,6 +529,11 @@ class ClientTest extends TestCase
             ->once()
             ->with($checksum, $bytes)
             ->andReturn($data);
+
+        $this->tusClientMock
+            ->shouldReceive('getUploadChecksumHeader')
+            ->once()
+            ->andReturn($checksum);
 
         $guzzleMock   = m::mock(Client::class);
         $responseMock = m::mock(Response::class);
@@ -552,6 +563,7 @@ class ClientTest extends TestCase
                 'headers' => [
                     'Content-Type' => 'application/offset+octet-stream',
                     'Content-Length' => mb_strlen($data),
+                    'Upload-Checksum' => $checksum,
                 ],
             ])
             ->andThrow($clientExceptionMock);
@@ -567,7 +579,7 @@ class ClientTest extends TestCase
      *
      * @expectedException \TusPhp\Exception\Exception
      * @expectedExceptionMessage Unable to open file.
-     * @expectedExceptionCode 403
+     * @expectedExceptionCode    403
      */
     public function it_throws_exception_for_other_exceptions_in_patch_request()
     {
@@ -580,6 +592,11 @@ class ClientTest extends TestCase
             ->once()
             ->with($checksum, $bytes)
             ->andReturn($data);
+
+        $this->tusClientMock
+            ->shouldReceive('getUploadChecksumHeader')
+            ->once()
+            ->andReturn($checksum);
 
         $guzzleMock   = m::mock(Client::class);
         $responseMock = m::mock(Response::class);
@@ -614,6 +631,7 @@ class ClientTest extends TestCase
                 'headers' => [
                     'Content-Type' => 'application/offset+octet-stream',
                     'Content-Length' => mb_strlen($data),
+                    'Upload-Checksum' => $checksum,
                 ],
             ])
             ->andThrow($clientExceptionMock);
@@ -641,6 +659,11 @@ class ClientTest extends TestCase
             ->with($checksum, $bytes)
             ->andReturn($data);
 
+        $this->tusClientMock
+            ->shouldReceive('getUploadChecksumHeader')
+            ->once()
+            ->andReturn($checksum);
+
         $guzzleMock = m::mock(Client::class);
 
         $this->tusClientMock
@@ -656,6 +679,7 @@ class ClientTest extends TestCase
                 'headers' => [
                     'Content-Type' => 'application/offset+octet-stream',
                     'Content-Length' => mb_strlen($data),
+                    'Upload-Checksum' => $checksum,
                 ],
             ])
             ->andThrow(m::mock(ConnectException::class));
@@ -681,6 +705,11 @@ class ClientTest extends TestCase
             ->with($checksum, $bytes)
             ->andReturn($data);
 
+        $this->tusClientMock
+            ->shouldReceive('getUploadChecksumHeader')
+            ->once()
+            ->andReturn($checksum);
+
         $guzzleMock   = m::mock(Client::class);
         $responseMock = m::mock(Response::class);
 
@@ -697,6 +726,7 @@ class ClientTest extends TestCase
                 'headers' => [
                     'Content-Type' => 'application/offset+octet-stream',
                     'Content-Length' => mb_strlen($data),
+                    'Upload-Checksum' => $checksum,
                 ],
             ])
             ->andReturn($responseMock);
@@ -749,8 +779,8 @@ class ClientTest extends TestCase
             ->once()
             ->with('/files', [
                 'headers' => [
-                    'Checksum' => hash_file('sha256', $filePath),
                     'Upload-Length' => filesize($filePath),
+                    'Upload-Checksum' => 'sha256 ' . base64_encode(hash_file('sha256', $filePath)),
                     'Upload-Metadata' => 'filename ' . base64_encode($fileName),
                 ],
             ])
@@ -796,8 +826,8 @@ class ClientTest extends TestCase
             ->once()
             ->with('/files', [
                 'headers' => [
-                    'Checksum' => hash_file('sha256', $filePath),
                     'Upload-Length' => filesize($filePath),
+                    'Upload-Checksum' => 'sha256 ' . base64_encode(hash_file('sha256', $filePath)),
                     'Upload-Metadata' => 'filename ' . base64_encode($fileName),
                 ],
             ])
@@ -848,8 +878,8 @@ class ClientTest extends TestCase
             ->once()
             ->with('/files', [
                 'headers' => [
-                    'Checksum' => null,
                     'Upload-Length' => filesize($filePath),
+                    'Upload-Checksum' => 'sha256 ',
                     'Upload-Metadata' => 'filename ' . base64_encode($fileName),
                 ],
             ])

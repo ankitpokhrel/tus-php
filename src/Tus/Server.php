@@ -23,6 +23,9 @@ class Server extends AbstractTus
     /** @const Tus Checksum Extension */
     const TUS_EXTENSION_CHECKSUM = 'checksum';
 
+    /** @const 460 Checksum Mismatch */
+    const HTTP_CHECKSUM_MISMATCH = 460;
+
     /** @var Request */
     protected $request;
 
@@ -180,7 +183,7 @@ class Server extends AbstractTus
             return $this->response->send(null, HttpResponse::HTTP_BAD_REQUEST);
         }
 
-        $checksum = $this->getRequest()->header('Checksum');
+        $checksum = $this->getUploadChecksum();
         $location = $this->getRequest()->url() . '/' . basename($this->uploadDir) . '/' . $fileName;
 
         $file = $this->buildFile([
@@ -221,7 +224,13 @@ class Server extends AbstractTus
         $file = $this->buildFile($meta);
 
         try {
-            $offset = $file->setChecksum($checksum)->upload($file->getFileSize());
+            $fileSize = $file->getFileSize();
+            $offset   = $file->setChecksum($checksum)->upload($fileSize);
+
+            // If upload is done, verify checksum.
+            if ($offset === $fileSize && $checksum !== $this->getUploadChecksum()) {
+                return $this->response->send(null, self::HTTP_CHECKSUM_MISMATCH);
+            }
         } catch (FileException $e) {
             return $this->response->send($e->getMessage(), HttpResponse::HTTP_UNPROCESSABLE_ENTITY);
         } catch (OutOfRangeException $e) {
@@ -325,6 +334,30 @@ class Server extends AbstractTus
         }
 
         return $algorithms;
+    }
+
+    /**
+     * Verify and get upload checksum from header.
+     *
+     * @return string|HttpResponse
+     */
+    protected function getUploadChecksum()
+    {
+        $checksumHeader = $this->getRequest()->header('Upload-Checksum');
+
+        if ( ! $checksumHeader) {
+            return $this->response->send(null, HttpResponse::HTTP_BAD_REQUEST);
+        }
+
+        list($checksumAlgorithm, $checksum) = explode(' ', $checksumHeader);
+
+        $checksum = base64_decode($checksum);
+
+        if ( ! in_array($checksumAlgorithm, hash_algos()) || false === $checksum) {
+            return $this->response->send(null, HttpResponse::HTTP_BAD_REQUEST);
+        }
+
+        return $checksum;
     }
 
     /**
