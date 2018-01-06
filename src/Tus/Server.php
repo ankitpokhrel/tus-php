@@ -345,7 +345,7 @@ class Server extends AbstractTus
     {
         $checksumHeader = $this->getRequest()->header('Upload-Checksum');
 
-        if ( empty($checksumHeader)) {
+        if (empty($checksumHeader)) {
             return $this->response->send(null, HttpResponse::HTTP_BAD_REQUEST);
         }
 
