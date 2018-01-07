@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Uploads files in 10mb chunk.
+ * Uploads files in 5mb chunk.
  */
 
 require '../vendor/autoload.php';
