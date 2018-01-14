@@ -23,6 +23,16 @@ class RedisStore extends AbstractCache
     }
 
     /**
+     * Get redis.
+     *
+     * @return RedisClient
+     */
+    public function getRedis() : RedisClient
+    {
+        return $this->redis;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function get(string $key)
@@ -34,14 +44,6 @@ class RedisStore extends AbstractCache
         }
 
         return null;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function delete(string $key)
-    {
-        return $this->redis->del(self::TUS_REDIS_PREFIX . $key) > 0;
     }
 
     /**
@@ -68,12 +70,10 @@ class RedisStore extends AbstractCache
     }
 
     /**
-     * Get redis.
-     *
-     * @return RedisClient
+     * {@inheritdoc}
      */
-    public function getRedis() : RedisClient
+    public function delete(string $key)
     {
-        return $this->redis;
+        return $this->redis->del(self::TUS_REDIS_PREFIX . $key) > 0;
     }
 }
