@@ -6,6 +6,9 @@ use Predis\Client as RedisClient;
 
 class RedisStore extends AbstractCache
 {
+    /** @const Tus Redis Prefix */
+    const TUS_REDIS_PREFIX = 'tus:';
+
     /** @var RedisClient */
     protected $redis;
 
@@ -24,7 +27,7 @@ class RedisStore extends AbstractCache
      */
     public function get(string $key)
     {
-        $contents = $this->redis->get($key);
+        $contents = $this->redis->get(self::TUS_REDIS_PREFIX . $key);
 
         if ( ! empty($contents)) {
             return json_decode($contents, true);
@@ -38,7 +41,7 @@ class RedisStore extends AbstractCache
      */
     public function delete(string $key)
     {
-        return $this->redis->del($key) > 0;
+        return $this->redis->del(self::TUS_REDIS_PREFIX . $key) > 0;
     }
 
     /**
@@ -46,7 +49,7 @@ class RedisStore extends AbstractCache
      */
     public function set(string $key, $value)
     {
-        $contents = json_decode($this->redis->get($key), true) ?? [];
+        $contents = $this->get($key) ?? [];
 
         if (is_array($value)) {
             $contents = $value + $contents;
@@ -59,7 +62,7 @@ class RedisStore extends AbstractCache
             $ttl = $this->getTtl();
         }
 
-        $status = $this->redis->setex($key, $ttl, json_encode($contents));
+        $status = $this->redis->setex(self::TUS_REDIS_PREFIX . $key, $ttl, json_encode($contents));
 
         return 'OK' === $status->getPayload();
     }
