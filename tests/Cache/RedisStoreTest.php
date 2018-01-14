@@ -137,6 +137,8 @@ class RedisStoreTest extends TestCase
      */
     public function it_returns_null_if_cache_is_expired()
     {
+        static::$redisStore->getRedis()->expire(static::$redisStore::TUS_REDIS_PREFIX . $this->checksum, 1);
+
         sleep(1);
 
         $this->assertNull(static::$redisStore->get($this->checksum));

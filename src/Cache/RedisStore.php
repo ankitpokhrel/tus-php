@@ -2,11 +2,12 @@
 
 namespace TusPhp\Cache;
 
+use Carbon\Carbon;
 use Predis\Client as RedisClient;
 
 class RedisStore extends AbstractCache
 {
-    /** @const Tus Redis Prefix */
+    /** @const string Prefix for redis keys */
     const TUS_REDIS_PREFIX = 'tus:';
 
     /** @var RedisClient */
@@ -40,7 +41,11 @@ class RedisStore extends AbstractCache
         $contents = $this->redis->get(self::TUS_REDIS_PREFIX . $key);
 
         if ( ! empty($contents)) {
-            return json_decode($contents, true);
+            $contents = json_decode($contents, true);
+
+            $isExpired = Carbon::parse($contents['expires_at'])->lt(Carbon::now());
+
+            return $isExpired ? null : $contents;
         }
 
         return null;
@@ -59,12 +64,7 @@ class RedisStore extends AbstractCache
             array_push($contents, $value);
         }
 
-        $ttl = $this->getRedis()->ttl($key);
-        if ($ttl <= 0) {
-            $ttl = $this->getTtl();
-        }
-
-        $status = $this->redis->setex(self::TUS_REDIS_PREFIX . $key, $ttl, json_encode($contents));
+        $status = $this->redis->set(self::TUS_REDIS_PREFIX . $key, json_encode($contents));
 
         return 'OK' === $status->getPayload();
     }
