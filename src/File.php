@@ -13,9 +13,6 @@ class File
     /** @const Max chunk size */
     const CHUNK_SIZE = 8192; // 8 bytes
 
-    /** @const Checksum algorithm. */
-    const HASH_ALGORITHM = 'sha256';
-
     /** @const Input stream */
     const INPUT_STREAM = 'php://input';
 
