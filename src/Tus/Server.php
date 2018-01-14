@@ -3,6 +3,7 @@
 namespace TusPhp\Tus;
 
 use TusPhp\File;
+use Carbon\Carbon;
 use TusPhp\Request;
 use TusPhp\Response;
 use TusPhp\Cache\Cacheable;
@@ -362,6 +363,53 @@ class Server extends AbstractTus
         }
 
         return $checksum;
+    }
+
+    /**
+     * Get expired and incomplete uploads.
+     *
+     * @param array|null $contents
+     *
+     * @return bool
+     */
+    protected function isExpired($contents) : bool
+    {
+        $isExpired = empty($contents['expires_at']) || Carbon::parse($contents['expires_at'])->lt(Carbon::now());
+
+        if ($isExpired && $contents['offset'] !== $contents['size']) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Delete expired resources.
+     *
+     * @return array
+     */
+    public function handleExpiration()
+    {
+        $deleted   = [];
+        $cacheKeys = $this->cache->keys();
+
+        foreach ($cacheKeys as $key) {
+            $contents = $this->cache->get($key, true);
+
+            if ( ! $this->isExpired($contents)) {
+                continue;
+            }
+
+            $cacheDeleted = $this->cache->delete($key);
+
+            if ($cacheDeleted && file_exists($contents['file_path']) && is_writable($contents['file_path'])) {
+                unlink($contents['file_path']);
+            }
+
+            $deleted[] = $contents;
+        }
+
+        return $deleted;
     }
 
     /**

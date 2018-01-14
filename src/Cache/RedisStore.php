@@ -34,25 +34,28 @@ class RedisStore extends AbstractCache
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
-    public function get(string $key)
+    public function get(string $key, bool $withExpired = false)
     {
-        $contents = $this->redis->get(self::TUS_REDIS_PREFIX . $key);
-
-        if ( ! empty($contents)) {
-            $contents = json_decode($contents, true);
-
-            $isExpired = Carbon::parse($contents['expires_at'])->lt(Carbon::now());
-
-            return $isExpired ? null : $contents;
+        if (false === strpos($key, self::TUS_REDIS_PREFIX)) {
+            $key = self::TUS_REDIS_PREFIX . $key;
         }
 
-        return null;
+        $contents = $this->redis->get($key);
+        $contents = json_decode($contents, true);
+
+        if ($withExpired) {
+            return $contents;
+        }
+
+        $isExpired = Carbon::parse($contents['expires_at'])->lt(Carbon::now());
+
+        return $isExpired ? null : $contents;
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function set(string $key, $value)
     {
@@ -70,10 +73,22 @@ class RedisStore extends AbstractCache
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function delete(string $key)
     {
-        return $this->redis->del(self::TUS_REDIS_PREFIX . $key) > 0;
+        if (false === strpos($key, self::TUS_REDIS_PREFIX)) {
+            $key = self::TUS_REDIS_PREFIX . $key;
+        }
+
+        return $this->redis->del($key) > 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function keys() : array
+    {
+        return $this->redis->keys(self::TUS_REDIS_PREFIX . '*');
     }
 }

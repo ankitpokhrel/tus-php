@@ -11,10 +11,11 @@ interface Cacheable
      * Get data associated with the key.
      *
      * @param string $key
+     * @param bool   $withExpired
      *
      * @return mixed
      */
-    public function get(string $key);
+    public function get(string $key, bool $withExpired = false);
 
     /**
      * Set data to the given key.
@@ -41,4 +42,11 @@ interface Cacheable
      * @return int
      */
     public function getTtl() : int;
+
+    /**
+     * Get cache keys.
+     *
+     * @return array
+     */
+    public function keys() : array;
 }
