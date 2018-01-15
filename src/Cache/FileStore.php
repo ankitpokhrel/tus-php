@@ -160,7 +160,7 @@ class FileStore extends AbstractCache
     {
         $contents = $this->getCacheContents();
 
-        if (false !== $contents) {
+        if (is_array($contents)) {
             return array_keys($this->getCacheContents());
         }
 
