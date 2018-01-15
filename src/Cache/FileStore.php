@@ -158,7 +158,13 @@ class FileStore extends AbstractCache
      */
     public function keys() : array
     {
-        return array_keys($this->getCacheContents());
+        $contents = $this->getCacheContents();
+
+        if (false !== $contents) {
+            return array_keys($this->getCacheContents());
+        }
+
+        return [];
     }
 
     /**

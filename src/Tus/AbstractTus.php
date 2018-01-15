@@ -16,7 +16,7 @@ abstract class AbstractTus
     /**
      * Set cache.
      *
-     * @param Cacheable|string $cache
+     * @param mixed $cache
      *
      * @return self
      */
