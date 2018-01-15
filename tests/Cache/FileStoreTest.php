@@ -200,6 +200,21 @@ class FileStoreTest extends TestCase
     /**
      * @test
      *
+     * @covers ::get
+     */
+    public function it_returns_expired_contents_if_with_expired_is_true()
+    {
+        $cacheContent = ['expires_at' => 'Thu, 07 Dec 2017 16:25:51 GMT', 'offset' => 100];
+
+        $this->fileStore->set($this->checksum, $cacheContent);
+
+        $this->assertNull($this->fileStore->get($this->checksum));
+        $this->assertEquals($cacheContent, $this->fileStore->get($this->checksum, true));
+    }
+
+    /**
+     * @test
+     *
      * @covers ::set
      * @covers ::get
      */
@@ -283,6 +298,18 @@ class FileStoreTest extends TestCase
         $this->assertFalse($this->fileStore->delete('invalid-checksum'));
         $this->assertTrue($this->fileStore->delete($this->checksum));
         $this->assertNull($this->fileStore->get($this->checksum));
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::keys
+     */
+    public function it_gets_cache_keys()
+    {
+        $this->fileStore->set($this->checksum, []);
+
+        $this->assertEquals([$this->checksum], $this->fileStore->keys());
     }
 
     /**

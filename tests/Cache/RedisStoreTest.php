@@ -147,6 +147,20 @@ class RedisStoreTest extends TestCase
     /**
      * @test
      *
+     * @covers ::get
+     */
+    public function it_returns_expired_contents_if_with_expired_is_true()
+    {
+        $cacheContent = ['expires_at' => 'Thu, 07 Dec 2017 16:25:51 GMT', 'offset' => 100];
+
+        $this->assertTrue(static::$redisStore->set($this->checksum, $cacheContent));
+        $this->assertNull(static::$redisStore->get($this->checksum));
+        $this->assertEquals($cacheContent, static::$redisStore->get($this->checksum, true));
+    }
+
+    /**
+     * @test
+     *
      * @covers ::set
      * @covers ::get
      * @covers ::delete
@@ -170,6 +184,17 @@ class RedisStoreTest extends TestCase
     public function it_gets_redis_object()
     {
         $this->assertInstanceOf(Client::class, static::$redisStore->getRedis());
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::keys
+     */
+    public function it_gets_cache_keys()
+    {
+        $this->assertTrue(static::$redisStore->set($this->checksum, []));
+        $this->assertEquals([static::$redisStore::TUS_REDIS_PREFIX . $this->checksum], static::$redisStore->keys());
     }
 
     /**
