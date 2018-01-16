@@ -402,7 +402,11 @@ class Server extends AbstractTus
 
             $cacheDeleted = $this->cache->delete($key);
 
-            if ($cacheDeleted && file_exists($contents['file_path']) && is_writable($contents['file_path'])) {
+            if ( ! $cacheDeleted) {
+                continue;
+            }
+
+            if (file_exists($contents['file_path']) && is_writable($contents['file_path'])) {
                 unlink($contents['file_path']);
             }
 

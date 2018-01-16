@@ -92,6 +92,7 @@ class RedisStoreTest extends TestCase
      * @covers ::set
      * @covers ::get
      * @covers ::setTtl
+     * @covers ::delete
      */
     public function it_sets_and_gets_cache_contents()
     {
@@ -102,12 +103,16 @@ class RedisStoreTest extends TestCase
         $this->assertTrue(static::$redisStore->set($this->checksum, $cacheContent));
         $this->assertEquals($cacheContent, static::$redisStore->get($this->checksum));
 
-        $string = 'Sherlock Holmes';
+        $string   = 'Sherlock Holmes';
+        $checksum = '74f02d6da32082463e382f22';
+
+        $this->assertTrue(static::$redisStore->set($checksum, $cacheContent));
 
         array_push($cacheContent, $string);
 
-        $this->assertTrue(static::$redisStore->set($this->checksum, $string));
-        $this->assertEquals($cacheContent, static::$redisStore->get($this->checksum));
+        $this->assertTrue(static::$redisStore->set($checksum, $string));
+        $this->assertEquals($cacheContent, static::$redisStore->get($checksum));
+        $this->assertTrue(static::$redisStore->delete($checksum));
     }
 
     /**
@@ -132,15 +137,24 @@ class RedisStoreTest extends TestCase
      * @test
      *
      * @covers ::get
+     */
+    public function it_returns_contents_if_not_expired()
+    {
+        $cacheContent = ['expires_at' => 'Sat, 09 Dec 2017 16:25:51 GMT', 'offset' => 500];
+
+        $this->assertEquals($cacheContent, static::$redisStore->get($this->checksum));
+    }
+
+    /**
+     * @test
      *
-     * @depends it_sets_and_gets_cache_contents
+     * @covers ::get
      */
     public function it_returns_null_if_cache_is_expired()
     {
-        static::$redisStore->getRedis()->expire(static::$redisStore::TUS_REDIS_PREFIX . $this->checksum, 1);
+        $cacheContent = ['expires_at' => 'Thu, 07 Dec 2017 16:25:51 GMT', 'offset' => 100];
 
-        sleep(1);
-
+        $this->assertTrue(static::$redisStore->set($this->checksum, $cacheContent));
         $this->assertNull(static::$redisStore->get($this->checksum));
     }
 

@@ -313,6 +313,18 @@ class FileStoreTest extends TestCase
     }
 
     /**
+     * @test
+     *
+     * @covers ::keys
+     */
+    public function it_returns_empty_array_for_invalid_cache_contents()
+    {
+        $this->fileStore->setCacheFile('/path/to/invalid/file');
+
+        $this->assertEquals([], $this->fileStore->keys());
+    }
+
+    /**
      * Clear file contents.
      *
      * @return void
