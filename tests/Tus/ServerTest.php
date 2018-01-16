@@ -1329,6 +1329,8 @@ class ServerTest extends TestCase
 
         touch($filePath);
 
+        $this->assertTrue(file_exists($filePath));
+
         $this->assertEquals([
             [
                 'expires_at' => 'Thu, 07 Dec 2017 00:00:00 GMT',
@@ -1337,6 +1339,8 @@ class ServerTest extends TestCase
                 'file_path' => $filePath,
             ],
         ], $this->tusServerMock->handleExpiration());
+
+        $this->assertFalse(file_exists($filePath));
     }
 
     /**
