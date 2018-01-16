@@ -188,7 +188,7 @@ class ServerTest extends TestCase
 
         $this->assertEquals(self::ALLOWED_HTTP_VERBS, $headers['allow']);
         $this->assertEquals('1.0.0', current($headers['tus-version']));
-        $this->assertEquals('creation,termination,checksum', current($headers['tus-extension']));
+        $this->assertEquals('creation,termination,checksum,expiration', current($headers['tus-extension']));
     }
 
     /**
@@ -1247,6 +1247,138 @@ class ServerTest extends TestCase
             ->set('Upload-Checksum', 'sha1 ' . base64_encode($checksum));
 
         $this->assertEquals($checksum, $this->tusServerMock->getUploadChecksum());
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::isExpired
+     */
+    public function it_checks_expiry_date()
+    {
+        $this->assertFalse($this->tusServerMock->isExpired(['expires_at' => 'Sat, 09 Dec 2017 00:00:00 GMT']));
+
+        $this->assertFalse($this->tusServerMock->isExpired([
+            'expires_at' => 'Thu, 07 Dec 2017 00:00:00 GMT',
+            'offset' => 100,
+            'size' => 100,
+            'file_path' => '/path/to/file.txt',
+        ]));
+
+        $this->assertTrue($this->tusServerMock->isExpired([
+            'expires_at' => 'Thu, 07 Dec 2017 00:00:00 GMT',
+            'offset' => 100,
+            'size' => 1100,
+        ]));
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::isExpired
+     * @covers ::handleExpiration
+     */
+    public function it_deletes_expired_uploads()
+    {
+        $filePath  = __DIR__ . '/../.tmp/upload.txt';
+        $cacheMock = m::mock(FileStore::class);
+
+        $cacheMock
+            ->shouldReceive('keys')
+            ->once()
+            ->andReturn([
+                'expired_false',
+                'expired_but_uploaded',
+                'expired_true',
+            ]);
+
+        $cacheMock
+            ->shouldReceive('get')
+            ->once()
+            ->with('expired_false', true)
+            ->andReturn(['expires_at' => 'Sat, 09 Dec 2017 00:00:00 GMT']);
+
+        $cacheMock
+            ->shouldReceive('get')
+            ->once()
+            ->with('expired_but_uploaded', true)
+            ->andReturn([
+                'expires_at' => 'Thu, 07 Dec 2017 00:00:00 GMT',
+                'offset' => 100,
+                'size' => 100,
+            ]);
+
+        $cacheMock
+            ->shouldReceive('get')
+            ->once()
+            ->with('expired_true', true)
+            ->andReturn([
+                'expires_at' => 'Thu, 07 Dec 2017 00:00:00 GMT',
+                'offset' => 100,
+                'size' => 1100,
+                'file_path' => $filePath,
+            ]);
+
+        $cacheMock
+            ->shouldReceive('delete')
+            ->with('expired_true')
+            ->once()
+            ->andReturn(true);
+
+        $this->tusServerMock->setCache($cacheMock);
+
+        touch($filePath);
+
+        $this->assertTrue(file_exists($filePath));
+
+        $this->assertEquals([
+            [
+                'expires_at' => 'Thu, 07 Dec 2017 00:00:00 GMT',
+                'offset' => 100,
+                'size' => 1100,
+                'file_path' => $filePath,
+            ],
+        ], $this->tusServerMock->handleExpiration());
+
+        $this->assertFalse(file_exists($filePath));
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::isExpired
+     * @covers ::handleExpiration
+     */
+    public function it_doesnt_unlink_if_unable_to_delete_from_cache()
+    {
+        $filePath  = dirname(__DIR__) . DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR . 'empty.txt';
+        $cacheMock = m::mock(FileStore::class);
+
+        $cacheMock
+            ->shouldReceive('keys')
+            ->once()
+            ->andReturn(['expired_true']);
+
+        $cacheMock
+            ->shouldReceive('get')
+            ->once()
+            ->with('expired_true', true)
+            ->andReturn([
+                'expires_at' => 'Thu, 07 Dec 2017 00:00:00 GMT',
+                'offset' => 100,
+                'size' => 1100,
+                'file_path' => $filePath,
+            ]);
+
+        $cacheMock
+            ->shouldReceive('delete')
+            ->with('expired_true')
+            ->once()
+            ->andReturn(false);
+
+        $this->tusServerMock->setCache($cacheMock);
+
+        $this->assertEquals([], $this->tusServerMock->handleExpiration());
     }
 
     /**

@@ -98,37 +98,25 @@ class FileStore extends AbstractCache
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
-    public function get(string $key)
+    public function get(string $key, bool $withExpired = false)
     {
         $contents = $this->getCacheContents();
 
-        if ( ! empty($contents[$key]) && $this->isValid($key)) {
+        if (empty($contents[$key])) {
+            return null;
+        }
+
+        if ($withExpired) {
             return $contents[$key];
         }
 
-        return null;
+        return $this->isValid($key) ? $contents[$key] : null;
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function delete(string $key)
-    {
-        $contents = $this->getCacheContents();
-
-        if (isset($contents[$key])) {
-            unset($contents[$key]);
-
-            return false !== file_put_contents($this->getCacheFile(), json_encode($contents));
-        }
-
-        return false;
-    }
-
-    /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function set(string $key, $value)
     {
@@ -147,6 +135,36 @@ class FileStore extends AbstractCache
         }
 
         return file_put_contents($cacheFile, json_encode($contents));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function delete(string $key)
+    {
+        $contents = $this->getCacheContents();
+
+        if (isset($contents[$key])) {
+            unset($contents[$key]);
+
+            return false !== file_put_contents($this->getCacheFile(), json_encode($contents));
+        }
+
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function keys() : array
+    {
+        $contents = $this->getCacheContents();
+
+        if (is_array($contents)) {
+            return array_keys($this->getCacheContents());
+        }
+
+        return [];
     }
 
     /**

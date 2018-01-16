@@ -18,7 +18,7 @@ abstract class AbstractCache implements Cacheable
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getTtl() : int
     {
