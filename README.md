@@ -90,10 +90,26 @@ $client->setChecksumAlgorithm('crc32');
 ### Extension support
 - [x] The Creation extension is mostly implemented and is used for creating the upload. Deferring the upload's length is not possible at the moment.
 - [x] The Termination extension is implemented which is used to terminate completed and unfinished uploads allowing the Server to free up used resources.
-- [x] The Checksum extension is implemented, the server will use `sha256` algorithm by default to verify the upload.
-- [x] ~~Todo: Checksum extension~~
-- [ ] Todo: Expiration extension
+- [x] ~~Todo: Checksum extension~~ The Checksum extension is implemented, the server will use `sha256` algorithm by default to verify the upload.
+- [x] ~~Todo: Expiration extension~~ The Expiration extension is implemented, details below.
 - [ ] Todo: Concatenation extension
+
+### Expiration
+The Server is capable of removing expired but unfinished uploads. You can use following command manually or in a cron job to remove them.
+
+```shell
+$ bin/console tus:expired --help
+
+Usage:
+  tus:expired [<cache-adapter>]
+
+Arguments:
+  cache-adapter     Cache adapter to use, redis or file. Optional, defaults to file based cache.
+  
+eg:
+
+$ bin/console tus:expired redis
+```
 
 ### Setting up dev environment and/or running example locally
 An ajax based example for this implementation can be found in `examples/` folder. You can either build and run it using docker or use kubernetes locally with minikube.
