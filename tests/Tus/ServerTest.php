@@ -1063,12 +1063,28 @@ class ServerTest extends TestCase
         $this->tusServerMock->setCache($cacheMock);
         $this->tusServerMock->getResponse()->createOnly(true);
 
+        $mockBuilder = (new MockBuilder())->setNamespace('\TusPhp\Tus');
+
+        $mockBuilder
+            ->setName('unlink')
+            ->setFunction(
+                function () {
+                    return true;
+                }
+            );
+
+        $mock = $mockBuilder->build();
+
+        $mock->enable();
+
         $response = $this->tusServerMock->handleDelete();
 
         $this->assertNull($response->getOriginalContent());
         $this->assertEquals(204, $response->getStatusCode());
         $this->assertEquals('1.0.0', $response->headers->get('tus-resumable'));
         $this->assertEquals('termination', $response->headers->get('tus-extension'));
+
+        $mock->disable();
     }
 
     /**

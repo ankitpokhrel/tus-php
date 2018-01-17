@@ -150,6 +150,8 @@ $ bin/minikube.sh redis
 $ bin/minikube.sh clear-cache
 ```
 
+Since the server supports tus expiration extension, a cron job is set to run once a day at midnight to free server resources. You can adjust it as required in `k8s/cron.yml`. 
+
 ### Contributing
 1. Install [PHPUnit](https://phpunit.de/) and [composer](https://getcomposer.org/) if you haven't already.
 2. Install dependencies
