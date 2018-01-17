@@ -396,9 +396,9 @@ class Server extends AbstractTus
         $cacheKeys = $this->cache->keys();
 
         foreach ($cacheKeys as $key) {
-            $contents = $this->cache->get($key, true);
+            $fileMeta = $this->cache->get($key, true);
 
-            if ( ! $this->isExpired($contents)) {
+            if ( ! $this->isExpired($fileMeta)) {
                 continue;
             }
 
@@ -408,11 +408,11 @@ class Server extends AbstractTus
                 continue;
             }
 
-            if (file_exists($contents['file_path']) && is_writable($contents['file_path'])) {
-                @unlink($contents['file_path']);
+            if (file_exists($fileMeta['file_path']) && is_writable($fileMeta['file_path'])) {
+                @unlink($fileMeta['file_path']);
             }
 
-            $deleted[] = $contents;
+            $deleted[] = $fileMeta;
         }
 
         return $deleted;
