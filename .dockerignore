@@ -14,5 +14,5 @@ infection.json.dist
 uploads/
 k8s/
 docker/
-bin/
+bin/*.sh
 .git/
