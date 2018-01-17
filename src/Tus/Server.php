@@ -301,6 +301,8 @@ class Server extends AbstractTus
             return $this->response->send(null, HttpResponse::HTTP_GONE);
         }
 
+        @unlink($resource);
+
         return $this->response->send(null, HttpResponse::HTTP_NO_CONTENT, [
             'Tus-Resumable' => self::TUS_PROTOCOL_VERSION,
             'Tus-Extension' => self::TUS_EXTENSION_TERMINATION,
@@ -407,7 +409,7 @@ class Server extends AbstractTus
             }
 
             if (file_exists($contents['file_path']) && is_writable($contents['file_path'])) {
-                unlink($contents['file_path']);
+                @unlink($contents['file_path']);
             }
 
             $deleted[] = $contents;
