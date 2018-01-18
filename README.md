@@ -98,7 +98,7 @@ $client->setChecksumAlgorithm('crc32');
 The Server is capable of removing expired but unfinished uploads. You can use following command manually or in a cron job to remove them.
 
 ```shell
-$ bin/tus tus:expired --help
+$ ./vendor/bin/tus tus:expired --help
 
 Usage:
   tus:expired [<cache-adapter>]
@@ -108,7 +108,7 @@ Arguments:
   
 eg:
 
-$ bin/tus tus:expired redis
+$ ./vendor/bin/tus tus:expired redis
 ```
 
 ### Setting up dev environment and/or running example locally
