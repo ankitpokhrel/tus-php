@@ -27,5 +27,8 @@
       "TusPhp\\": "src/",
       "TusPhp\\Test\\": "tests/"
     }
-  }
+  },
+  "bin": [
+    "bin/tus"
+  ]
 }

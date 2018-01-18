@@ -18,7 +18,7 @@ spec:
           - name: tus-php-server-expiration-job
             image: tus-php-server-k8s
             imagePullPolicy: Never
-            command: ['bin/console', 'tus:expired', 'redis']
+            command: ['bin/tus', 'tus:expired', 'redis']
             volumeMounts:
               - name: uploads
                 mountPath: /var/www/uploads
