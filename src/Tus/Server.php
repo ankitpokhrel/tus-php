@@ -27,6 +27,9 @@ class Server extends AbstractTus
     /** @const Tus Expiration Extension */
     const TUS_EXTENSION_EXPIRATION = 'expiration';
 
+    /** @const Tus Concatenation Extension */
+    const TUS_EXTENSION_CONCATENATION = 'concatenation';
+
     /** @const 460 Checksum Mismatch */
     const HTTP_CHECKSUM_MISMATCH = 460;
 
@@ -143,6 +146,7 @@ class Server extends AbstractTus
                     self::TUS_EXTENSION_TERMINATION,
                     self::TUS_EXTENSION_CHECKSUM,
                     self::TUS_EXTENSION_EXPIRATION,
+                    self::TUS_EXTENSION_CONCATENATION,
                 ]),
                 'Tus-Checksum-Algorithm' => $this->getSupportedHashAlgorithms(),
             ]
