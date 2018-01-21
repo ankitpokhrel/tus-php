@@ -368,7 +368,7 @@ class Server extends AbstractTus
     }
 
     /**
-     * Get expired and incomplete uploads.
+     * Get expired but incomplete uploads.
      *
      * @param array|null $contents
      *
