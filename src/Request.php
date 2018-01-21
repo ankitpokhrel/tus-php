@@ -95,6 +95,16 @@ class Request
     }
 
     /**
+     * Check if this is a partial upload request.
+     *
+     * @return bool
+     */
+    public function isPartial() : bool
+    {
+        return $this->header('Upload-Concat') === 'partial';
+    }
+
+    /**
      * Get request.
      *
      * @return HttpRequest
