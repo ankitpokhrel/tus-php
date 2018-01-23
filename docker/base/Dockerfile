@@ -1,5 +1,5 @@
 FROM ubuntu:16.04
-MAINTAINER Ankit Pokhrel <info@ankitpokhrel.com.np>
+MAINTAINER Ankit Pokhrel <hello@ankit.pl>
 
 ENV LANG C.UTF-8
 ENV DEBIAN_FRONTEND noninteractive
