@@ -795,13 +795,13 @@ class ClientTest extends TestCase
             ->with('/files', [
                 'headers' => [
                     'Upload-Length' => filesize($filePath),
-                    'Upload-Checksum' => 'sha256 ' . base64_encode(hash_file('sha256', $filePath)),
+                    'Upload-Checksum' => 'sha256 ' . base64_encode($checksum),
                     'Upload-Metadata' => 'filename ' . base64_encode($fileName),
                 ],
             ])
             ->andReturn($responseMock);
 
-        $this->assertEquals($checksum, $this->tusClientMock->create());
+        $this->assertEquals($checksum, $this->tusClientMock->create($checksum));
     }
 
     /**
@@ -816,6 +816,7 @@ class ClientTest extends TestCase
     {
         $filePath     = __DIR__ . '/../Fixtures/empty.txt';
         $fileName     = 'file.txt';
+        $checksum     = hash_file('sha256', $filePath);
         $guzzleMock   = m::mock(Client::class);
         $responseMock = m::mock(Response::class);
 
@@ -842,13 +843,13 @@ class ClientTest extends TestCase
             ->with('/files', [
                 'headers' => [
                     'Upload-Length' => filesize($filePath),
-                    'Upload-Checksum' => 'sha256 ' . base64_encode(hash_file('sha256', $filePath)),
+                    'Upload-Checksum' => 'sha256 ' . base64_encode($checksum),
                     'Upload-Metadata' => 'filename ' . base64_encode($fileName),
                 ],
             ])
             ->andReturn($responseMock);
 
-        $this->tusClientMock->create();
+        $this->tusClientMock->create($checksum);
     }
 
     /**
@@ -900,7 +901,7 @@ class ClientTest extends TestCase
             ])
             ->andReturn($responseMock);
 
-        $this->tusClientMock->create();
+        $this->tusClientMock->create('');
     }
 
     /**

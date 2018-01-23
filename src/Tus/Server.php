@@ -193,13 +193,19 @@ class Server extends AbstractTus
         }
 
         $checksum = $this->getUploadChecksum();
+        $filePath = $this->uploadDir . DIRECTORY_SEPARATOR . $fileName;
+
+        if ($this->getRequest()->isPartial()) {
+            $filePath = $this->getPathForPartialUpload($checksum) . $fileName;
+        }
+
         $location = $this->getRequest()->url() . '/' . basename($this->uploadDir) . '/' . $fileName;
 
         $file = $this->buildFile([
             'name' => $fileName,
             'offset' => 0,
             'size' => $this->getRequest()->header('Upload-Length'),
-            'file_path' => $this->uploadDir . DIRECTORY_SEPARATOR . $fileName,
+            'file_path' => $filePath,
             'location' => $location,
         ])->setChecksum($checksum);
 
@@ -387,6 +393,26 @@ class Server extends AbstractTus
         }
 
         return false;
+    }
+
+    /**
+     * Get path for partial upload.
+     *
+     * @param string $checksum
+     *
+     * @return string
+     */
+    protected function getPathForPartialUpload(string $checksum) : string
+    {
+        list($actualChecksum,) = explode(':', $checksum);
+
+        $path = $this->uploadDir . DIRECTORY_SEPARATOR . $actualChecksum . DIRECTORY_SEPARATOR;
+
+        if ( ! file_exists($path)) {
+            mkdir($path);
+        }
+
+        return $path;
     }
 
     /**
