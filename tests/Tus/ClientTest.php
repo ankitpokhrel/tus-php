@@ -516,7 +516,7 @@ class ClientTest extends TestCase
                 'body' => $data,
                 'headers' => [
                     'Content-Type' => 'application/offset+octet-stream',
-                    'Content-Length' => mb_strlen($data),
+                    'Content-Length' => strlen($data),
                     'Upload-Checksum' => $checksum,
                 ],
             ])
@@ -577,7 +577,7 @@ class ClientTest extends TestCase
                 'body' => $data,
                 'headers' => [
                     'Content-Type' => 'application/offset+octet-stream',
-                    'Content-Length' => mb_strlen($data),
+                    'Content-Length' => strlen($data),
                     'Upload-Checksum' => $checksum,
                 ],
             ])
@@ -645,7 +645,7 @@ class ClientTest extends TestCase
                 'body' => $data,
                 'headers' => [
                     'Content-Type' => 'application/offset+octet-stream',
-                    'Content-Length' => mb_strlen($data),
+                    'Content-Length' => strlen($data),
                     'Upload-Checksum' => $checksum,
                 ],
             ])
@@ -693,7 +693,7 @@ class ClientTest extends TestCase
                 'body' => $data,
                 'headers' => [
                     'Content-Type' => 'application/offset+octet-stream',
-                    'Content-Length' => mb_strlen($data),
+                    'Content-Length' => strlen($data),
                     'Upload-Checksum' => $checksum,
                 ],
             ])
@@ -740,7 +740,7 @@ class ClientTest extends TestCase
                 'body' => $data,
                 'headers' => [
                     'Content-Type' => 'application/offset+octet-stream',
-                    'Content-Length' => mb_strlen($data),
+                    'Content-Length' => strlen($data),
                     'Upload-Checksum' => $checksum,
                 ],
             ])
