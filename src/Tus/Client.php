@@ -195,7 +195,7 @@ class Client extends AbstractTus
     }
 
     /**
-     * Is it a partial upload request?
+     * Check if this is a partial upload request.
      *
      * @return bool
      */
