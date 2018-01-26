@@ -404,7 +404,7 @@ class Server extends AbstractTus
      */
     protected function getPathForPartialUpload(string $checksum) : string
     {
-        list($actualChecksum,) = explode(':', $checksum);
+        list($actualChecksum) = explode(self::PARTIAL_UPLOAD_NAME_SEPARATOR, $checksum);
 
         $path = $this->uploadDir . DIRECTORY_SEPARATOR . $actualChecksum . DIRECTORY_SEPARATOR;
 

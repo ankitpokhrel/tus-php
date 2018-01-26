@@ -7,8 +7,11 @@ use TusPhp\Cache\CacheFactory;
 
 abstract class AbstractTus
 {
-    /** @const Tus protocol version. */
+    /** @const string Tus protocol version. */
     const TUS_PROTOCOL_VERSION = '1.0.0';
+
+    /** @const string Name separator for partial upload. */
+    const PARTIAL_UPLOAD_NAME_SEPARATOR = '_';
 
     /** @var Cacheable */
     protected $cache;

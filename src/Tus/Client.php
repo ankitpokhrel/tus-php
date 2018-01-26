@@ -89,6 +89,20 @@ class Client extends AbstractTus
     }
 
     /**
+     * Set file name.
+     *
+     * @param string $name
+     *
+     * @return Client
+     */
+    public function setFileName(string $name) : self
+    {
+        $this->fileName = $name;
+
+        return $this;
+    }
+
+    /**
      * Get file name.
      *
      * @return string|null
@@ -322,9 +336,17 @@ class Client extends AbstractTus
     {
         $this->partial = $state;
 
-        if ($this->partial) {
-            $this->checksum = $this->getChecksum() . ':' . time();
+        if ( ! $this->partial) {
+            return;
         }
+
+        $checksum = $this->getChecksum();
+
+        if (false !== strpos($checksum, self::PARTIAL_UPLOAD_NAME_SEPARATOR)) {
+            list($checksum) = explode(self::PARTIAL_UPLOAD_NAME_SEPARATOR, $checksum);
+        }
+
+        $this->checksum = $checksum . uniqid(self::PARTIAL_UPLOAD_NAME_SEPARATOR);
     }
 
     /**
