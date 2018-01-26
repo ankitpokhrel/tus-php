@@ -84,14 +84,28 @@ class Request
      */
     public function extractFileName()
     {
-        $file = null;
-        $meta = $this->header('Upload-Metadata');
-
-        if (false !== strpos($meta, 'filename')) {
-            list(, $file) = explode(' ', $meta) ?? null;
-        }
+        $file = $this->extractMetadata('filename');
 
         return $file ? base64_decode($file) : null;
+    }
+
+    /**
+     * Extract metadata from header.
+     *
+     * @param string $key
+     *
+     * @return string|null
+     */
+    public function extractMetadata(string $key)
+    {
+        $data = null;
+        $meta = $this->header('Upload-Metadata');
+
+        if (false !== strpos($meta, $key)) {
+            list(, $data) = explode(' ', $meta) ?? null;
+        }
+
+        return $data;
     }
 
     /**
