@@ -181,24 +181,6 @@ class Client extends AbstractTus
     }
 
     /**
-     * Set as partial request.
-     *
-     * @param bool $state
-     *
-     * @return self
-     */
-    public function partial(bool $state = true) : self
-    {
-        $this->partial = $state;
-
-        if ($this->partial) {
-            $this->checksum = $this->getChecksum() . ':' . time();
-        }
-
-        return $this;
-    }
-
-    /**
      * Is it a partial upload request?
      *
      * @return bool
@@ -209,7 +191,7 @@ class Client extends AbstractTus
     }
 
     /**
-     * Set offset.
+     * Set offset and force this to be a partial upload request.
      *
      * @param int $offset
      *
@@ -218,6 +200,8 @@ class Client extends AbstractTus
     public function seek(int $offset)
     {
         $this->offset = $offset;
+
+        $this->partial();
 
         return $this;
     }
@@ -326,6 +310,20 @@ class Client extends AbstractTus
             if (HttpResponse::HTTP_NOT_FOUND === $statusCode || HttpResponse::HTTP_GONE === $statusCode) {
                 throw new FileException('File not found.');
             }
+        }
+    }
+
+    /**
+     * Set as partial request.
+     *
+     * @param bool $state
+     */
+    protected function partial(bool $state = true)
+    {
+        $this->partial = $state;
+
+        if ($this->partial) {
+            $this->checksum = $this->getChecksum() . ':' . time();
         }
     }
 
