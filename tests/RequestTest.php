@@ -114,6 +114,7 @@ class RequestTest extends TestCase
     /**
      * @test
      *
+     * @covers ::extractFromHeader
      * @covers ::extractFileName
      */
     public function it_extracts_file_name()
@@ -123,6 +124,19 @@ class RequestTest extends TestCase
         $this->request->getRequest()->headers->set('Upload-Metadata', 'filename ' . base64_encode($filename));
 
         $this->assertEquals($filename, $this->request->extractFileName());
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::extractFromHeader
+     * @covers ::extractPartials
+     */
+    public function it_extracts_partials()
+    {
+        $this->request->getRequest()->headers->set('Upload-Concat', 'final;/files/a /files/b');
+
+        $this->assertEquals(['/files/a', '/files/b'], $this->request->extractPartials());
     }
 
     /**

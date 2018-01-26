@@ -302,6 +302,36 @@ class Client extends AbstractTus
     }
 
     /**
+     * Concatenate 2 or more partial uploads.
+     *
+     * @param string $checksum
+     * @param array  $partials
+     *
+     * @return string
+     */
+    public function concat(string $checksum, ...$partials) : string
+    {
+        $response = $this->getClient()->post($this->apiPath, [
+            'headers' => [
+                'Upload-Length' => $this->fileSize,
+                'Upload-Checksum' => $this->getUploadChecksumHeader($checksum),
+                'Upload-Metadata' => 'filename ' . base64_encode($this->fileName),
+                'Upload-Concat' => 'final;' . implode(' ', $partials),
+            ],
+        ]);
+
+        $data       = json_decode($response->getBody(), true);
+        $checksum   = $data['data']['checksum'] ?? null;
+        $statusCode = $response->getStatusCode();
+
+        if (HttpResponse::HTTP_CREATED !== $statusCode || ! $checksum) {
+            throw new FileException('Unable to create resource.');
+        }
+
+        return $checksum;
+    }
+
+    /**
      * Send DELETE request.
      *
      * @param string $checksum

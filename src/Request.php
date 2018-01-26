@@ -78,34 +78,46 @@ class Request
     }
 
     /**
+     * Extract metadata from header.
+     *
+     * @param string $key
+     * @param string $value
+     *
+     * @return array
+     */
+    public function extractFromHeader(string $key, string $value) : array
+    {
+        $meta = $this->header($key);
+
+        if (false !== strpos($meta, $value)) {
+            $meta = trim(str_replace($value, '', $meta));
+
+            return explode(' ', $meta) ?? [];
+        }
+
+        return [];
+    }
+
+    /**
      * Extract base64 encoded filename from header.
      *
      * @return string|null
      */
     public function extractFileName()
     {
-        $file = $this->extractMetadata('filename');
+        $file = current($this->extractFromHeader('Upload-Metadata', 'filename'));
 
         return $file ? base64_decode($file) : null;
     }
 
     /**
-     * Extract metadata from header.
+     * Extract partials from header.
      *
-     * @param string $key
-     *
-     * @return string|null
+     * @return array
      */
-    public function extractMetadata(string $key)
+    public function extractPartials() : array
     {
-        $data = null;
-        $meta = $this->header('Upload-Metadata');
-
-        if (false !== strpos($meta, $key)) {
-            list(, $data) = explode(' ', $meta) ?? null;
-        }
-
-        return $data;
+        return $this->extractFromHeader('Upload-Concat', 'final;');
     }
 
     /**
@@ -116,6 +128,16 @@ class Request
     public function isPartial() : bool
     {
         return $this->header('Upload-Concat') === 'partial';
+    }
+
+    /**
+     * Check if this is a final concatenation request.
+     *
+     * @return bool
+     */
+    public function isFinal() : bool
+    {
+        return false !== strpos($this->header('Upload-Concat'), 'final;');
     }
 
     /**

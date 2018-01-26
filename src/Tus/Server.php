@@ -99,6 +99,36 @@ class Server extends AbstractTus
     }
 
     /**
+     * Get file checksum.
+     *
+     * @param string $filePath
+     *
+     * @return string
+     */
+    public function getChecksum(string $filePath)
+    {
+        return hash_file($this->getChecksumAlgorithm(), $filePath);
+    }
+
+    /**
+     * Get checksum algorithm.
+     *
+     * @return null
+     */
+    public function getChecksumAlgorithm()
+    {
+        $checksumHeader = $this->getRequest()->header('Upload-Checksum');
+
+        if (empty($checksumHeader)) {
+            return null;
+        }
+
+        list($checksumAlgorithm) = explode(' ', $checksumHeader);
+
+        return $checksumAlgorithm;
+    }
+
+    /**
      * Handle all HTTP request.
      *
      * @return null|HttpResponse
@@ -195,6 +225,10 @@ class Server extends AbstractTus
         $checksum = $this->getUploadChecksum();
         $filePath = $this->uploadDir . DIRECTORY_SEPARATOR . $fileName;
 
+        if ($this->getRequest()->isFinal()) {
+            return $this->handleConcatenation($fileName, $filePath);
+        }
+
         if ($this->getRequest()->isPartial()) {
             $filePath = $this->getPathForPartialUpload($checksum) . $fileName;
         }
@@ -217,6 +251,51 @@ class Server extends AbstractTus
             [
                 'Location' => $location,
                 'Upload-Expires' => $this->cache->get($checksum)['expires_at'],
+                'Tus-Resumable' => self::TUS_PROTOCOL_VERSION,
+            ]
+        );
+    }
+
+    /**
+     * Handle file concatenation.
+     *
+     * @param string $fileName
+     * @param string $filePath
+     *
+     * @return HttpResponse
+     */
+    protected function handleConcatenation(string $fileName, string $filePath) : HttpResponse
+    {
+        $files    = [];
+        $partials = $this->getRequest()->extractPartials();
+        $location = $this->getRequest()->url() . '/' . basename($this->uploadDir) . '/' . $fileName;
+
+        foreach ($partials as $partial) {
+            $fileMeta = $this->getCache()->get($partial);
+
+            $files[] = $fileMeta['file_path'];
+        }
+
+        $file = (new File($fileName, $this->cache))
+            ->setFilePath($filePath);
+
+        $file->merge($files);
+
+        // Verify checksum.
+        $checksum = $this->getChecksum($filePath);
+
+        if ($checksum !== $this->getUploadChecksum()) {
+            return $this->response->send(null, self::HTTP_CHECKSUM_MISMATCH);
+        }
+
+        // Cleanup.
+        $file->delete($files, true);
+
+        return $this->response->send(
+            ['data' => ['checksum' => $checksum]],
+            HttpResponse::HTTP_CREATED,
+            [
+                'Location' => $location,
                 'Tus-Resumable' => self::TUS_PROTOCOL_VERSION,
             ]
         );
