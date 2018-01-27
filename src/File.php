@@ -408,7 +408,7 @@ class File
 
         foreach ($files as $file) {
             if ( ! file_exists($file)) {
-                throw new FileException('File to merge not found.');
+                throw new FileException('File to be merged not found.');
             }
 
             $this->write($handle, file_get_contents($file));
@@ -427,7 +427,7 @@ class File
      */
     public function copy(string $source, string $destination) : bool
     {
-        $status = copy($source, $destination);
+        $status = @copy($source, $destination);
 
         if (false === $status) {
             throw new FileException('Cannot copy source to destination.');
@@ -446,10 +446,12 @@ class File
      */
     public function delete(array $files, bool $folder = false) : bool
     {
-        $status = true;
+        $status = empty($files) ? false : true;
 
         foreach ($files as $file) {
-            $status = $status && unlink($file);
+            if (file_exists($file)) {
+                $status = $status && unlink($file);
+            }
         }
 
         if ($status && $folder) {

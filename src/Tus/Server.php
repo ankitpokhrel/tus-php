@@ -113,7 +113,7 @@ class Server extends AbstractTus
     /**
      * Get checksum algorithm.
      *
-     * @return null
+     * @return string|null
      */
     public function getChecksumAlgorithm()
     {
