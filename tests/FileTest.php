@@ -417,7 +417,7 @@ class FileTest extends TestCase
         $this->file->setFilePath($mergedFilePath)->merge($files);
 
         $this->assertTrue(file_exists($mergedFilePath));
-        $this->assertEquals("123", file_get_contents($mergedFilePath));
+        $this->assertEquals('123', file_get_contents($mergedFilePath));
 
         @unlink($mergedFilePath);
 

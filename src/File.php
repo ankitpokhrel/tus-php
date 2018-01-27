@@ -437,7 +437,7 @@ class File
     }
 
     /**
-     * Delete file and folder.
+     * Delete file and/or folder.
      *
      * @param array $files
      * @param bool  $folder

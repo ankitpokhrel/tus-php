@@ -276,8 +276,7 @@ class Server extends AbstractTus
             $files[] = $fileMeta['file_path'];
         }
 
-        $file = (new File($fileName, $this->cache))
-            ->setFilePath($filePath);
+        $file = (new File($fileName, $this->cache))->setFilePath($filePath);
 
         $file->merge($files);
 

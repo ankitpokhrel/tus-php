@@ -33,7 +33,7 @@ class Client extends AbstractTus
     protected $checksum;
 
     /** @var int */
-    protected $offset = -1;
+    protected $partialOffset = -1;
 
     /** @var bool */
     protected $partial = false;
@@ -205,6 +205,15 @@ class Client extends AbstractTus
     }
 
     /**
+     * Get partial offset.
+     * @return int
+     */
+    public function getPartialOffset() : int
+    {
+        return $this->partialOffset;
+    }
+
+    /**
      * Set offset and force this to be a partial upload request.
      *
      * @param int $offset
@@ -213,7 +222,7 @@ class Client extends AbstractTus
      */
     public function seek(int $offset)
     {
-        $this->offset = $offset;
+        $this->partialOffset = $offset;
 
         $this->partial();
 
@@ -462,7 +471,7 @@ class Client extends AbstractTus
     {
         $file   = new File;
         $handle = $file->open($this->getFilePath(), $file::READ_BINARY);
-        $offset = $this->offset;
+        $offset = $this->partialOffset;
 
         if ($offset < 0) {
             $fileMeta = $this->getCache()->get($checksum);
