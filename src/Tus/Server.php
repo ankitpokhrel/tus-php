@@ -33,6 +33,9 @@ class Server extends AbstractTus
     /** @const 460 Checksum Mismatch */
     const HTTP_CHECKSUM_MISMATCH = 460;
 
+    /** @const Default checksum algorithm */
+    const DEFAULT_CHECKSUM_ALGORITHM = 'sha256';
+
     /** @var Request */
     protected $request;
 
@@ -120,7 +123,7 @@ class Server extends AbstractTus
         $checksumHeader = $this->getRequest()->header('Upload-Checksum');
 
         if (empty($checksumHeader)) {
-            return null;
+            return self::DEFAULT_CHECKSUM_ALGORITHM;
         }
 
         list($checksumAlgorithm) = explode(' ', $checksumHeader);
@@ -276,7 +279,7 @@ class Server extends AbstractTus
             $files[] = $fileMeta['file_path'];
         }
 
-        $file = (new File($fileName, $this->cache))->setFilePath($filePath);
+        $file = $this->buildFile(['name' => $fileName])->setFilePath($filePath);
 
         $file->merge($files);
 
@@ -406,8 +409,13 @@ class Server extends AbstractTus
      */
     protected function buildFile(array $meta) : File
     {
-        return (new File($meta['name'], $this->cache))
-            ->setMeta($meta['offset'], $meta['size'], $meta['file_path'], $meta['location']);
+        $file = new File($meta['name'], $this->cache);
+
+        if (array_key_exists('offset', $meta)) {
+            $file->setMeta($meta['offset'], $meta['size'], $meta['file_path'], $meta['location']);
+        }
+
+        return $file;
     }
 
     /**
