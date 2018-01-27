@@ -416,12 +416,14 @@ class ServerTest extends TestCase
      */
     public function it_handles_post_for_partial_request()
     {
+        $baseDir   = __DIR__ . '/../.tmp';
         $fileName  = 'file.txt';
         $checksum  = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a_partial';
         $folder    = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
-        $location  = 'http://tus.local/uploads/file.txt';
+        $location  = 'http://tus.local/.tmp/file.txt';
         $expiresAt = 'Sat, 09 Dec 2017 00:00:00 GMT';
 
+        $this->tusServerMock->setUploadDir($baseDir);
         $this->tusServerMock
             ->getRequest()
             ->getRequest()
@@ -481,7 +483,7 @@ class ServerTest extends TestCase
                 'name' => $fileName,
                 'size' => 10,
                 'offset' => 0,
-                'file_path' => dirname(__DIR__, 2) . "/uploads/$folder/$fileName",
+                'file_path' => "$baseDir/$folder/$fileName",
                 'location' => $location,
                 'created_at' => 'Fri, 08 Dec 2017 00:00:00 GMT',
                 'expires_at' => $expiresAt,
