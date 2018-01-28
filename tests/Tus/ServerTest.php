@@ -221,8 +221,10 @@ class ServerTest extends TestCase
 
         $this->assertEquals(self::ALLOWED_HTTP_VERBS, $headers['allow']);
         $this->assertEquals('1.0.0', current($headers['tus-version']));
-        $this->assertEquals('creation,termination,checksum,expiration,concatenation',
-            current($headers['tus-extension']));
+        $this->assertEquals(
+            'creation,termination,checksum,expiration,concatenation',
+            current($headers['tus-extension'])
+        );
     }
 
     /**
@@ -613,8 +615,8 @@ class ServerTest extends TestCase
         $filePath = __DIR__ . '/../.tmp/';
         $location = 'http://tus.local/uploads/file.txt';
         $files    = [
-            $filePath . 'file_a',
-            $filePath . 'file_b',
+            ['file_path' => $filePath . 'file_a', 'offset' => 10],
+            ['file_path' => $filePath . 'file_b', 'offset' => 20],
         ];
 
         $requestMock = m::mock(Request::class, ['file'])->makePartial();
@@ -648,6 +650,7 @@ class ServerTest extends TestCase
             ->with('file_a')
             ->andReturn([
                 'file_path' => $filePath . 'file_a',
+                'offset' => 10,
             ]);
 
         $cacheMock
@@ -656,7 +659,20 @@ class ServerTest extends TestCase
             ->with('file_b')
             ->andReturn([
                 'file_path' => $filePath . 'file_b',
+                'offset' => 20,
             ]);
+
+        $cacheMock
+            ->shouldReceive('set')
+            ->once()
+            ->with($checksum, $files)
+            ->andReturnNull();
+
+        $cacheMock
+            ->shouldReceive('deleteAll')
+            ->once()
+            ->with(['file_a', 'file_b'])
+            ->andReturn(true);
 
         $this->tusServerMock->setCache($cacheMock);
         $this->tusServerMock->getResponse()->createOnly(true);
@@ -666,7 +682,13 @@ class ServerTest extends TestCase
         $this->tusServerMock
             ->shouldReceive('buildFile')
             ->once()
-            ->with(['name' => $fileName])
+            ->with([
+                'name' => $fileName,
+                'offset' => 0,
+                'size' => 0,
+                'file_path' => $filePath . $fileName,
+                'location' => $location,
+            ])
             ->andReturn($fileMock);
 
         $this->tusServerMock
@@ -682,15 +704,29 @@ class ServerTest extends TestCase
             ->andReturnSelf();
 
         $fileMock
+            ->shouldReceive('setOffset')
+            ->once()
+            ->with(30)
+            ->andReturnSelf();
+
+        $fileMock
             ->shouldReceive('merge')
             ->once()
             ->with($files)
-            ->andReturnNull();
+            ->andReturn(30);
+
+        $fileMock
+            ->shouldReceive('details')
+            ->once()
+            ->andReturn($files);
 
         $fileMock
             ->shouldReceive('delete')
             ->once()
-            ->with($files, true)
+            ->with([
+                $filePath . 'file_a',
+                $filePath . 'file_b',
+            ], true)
             ->andReturn(true);
 
         $response = $this->tusServerMock->handleConcatenation($fileName, $filePath . $fileName);
@@ -710,9 +746,10 @@ class ServerTest extends TestCase
         $fileName = 'file.txt';
         $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
         $filePath = __DIR__ . '/../.tmp/';
+        $location = 'http://tus.local/uploads/file.txt';
         $files    = [
-            $filePath . 'file_a',
-            $filePath . 'file_b',
+            ['file_path' => $filePath . 'file_a', 'offset' => 10],
+            ['file_path' => $filePath . 'file_b', 'offset' => 20],
         ];
 
         $requestMock = m::mock(Request::class, ['file'])->makePartial();
@@ -746,6 +783,7 @@ class ServerTest extends TestCase
             ->with('file_a')
             ->andReturn([
                 'file_path' => $filePath . 'file_a',
+                'offset' => 10,
             ]);
 
         $cacheMock
@@ -754,6 +792,7 @@ class ServerTest extends TestCase
             ->with('file_b')
             ->andReturn([
                 'file_path' => $filePath . 'file_b',
+                'offset' => 20,
             ]);
 
         $this->tusServerMock->setCache($cacheMock);
@@ -764,7 +803,13 @@ class ServerTest extends TestCase
         $this->tusServerMock
             ->shouldReceive('buildFile')
             ->once()
-            ->with(['name' => $fileName])
+            ->with([
+                'name' => $fileName,
+                'offset' => 0,
+                'size' => 0,
+                'file_path' => $filePath . $fileName,
+                'location' => $location,
+            ])
             ->andReturn($fileMock);
 
         $this->tusServerMock
@@ -780,10 +825,16 @@ class ServerTest extends TestCase
             ->andReturnSelf();
 
         $fileMock
+            ->shouldReceive('setOffset')
+            ->once()
+            ->with(30)
+            ->andReturnSelf();
+
+        $fileMock
             ->shouldReceive('merge')
             ->once()
             ->with($files)
-            ->andReturnNull();
+            ->andReturn(30);
 
         $response = $this->tusServerMock->handleConcatenation($fileName, $filePath . $fileName);
 

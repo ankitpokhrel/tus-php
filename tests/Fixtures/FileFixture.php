@@ -7,6 +7,9 @@ class FileFixture
     /**
      * Make files and folder.
      *
+     * @param string $path
+     * @param array  $files
+     *
      * @return null
      */
     public static function makeFilesAndFolder(string $path, array $files)
@@ -16,9 +19,11 @@ class FileFixture
         }
 
         foreach ($files as $file) {
-            touch($file);
+            $filePath = $file['file_path'];
 
-            file_put_contents($file, basename($file));
+            touch($filePath);
+
+            file_put_contents($filePath, basename($filePath));
         }
     }
 }

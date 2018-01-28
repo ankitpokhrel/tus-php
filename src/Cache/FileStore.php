@@ -140,7 +140,7 @@ class FileStore extends AbstractCache
     /**
      * {@inheritDoc}
      */
-    public function delete(string $key)
+    public function delete(string $key) : bool
     {
         $contents = $this->getCacheContents();
 

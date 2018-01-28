@@ -193,6 +193,27 @@ class RedisStoreTest extends TestCase
     /**
      * @test
      *
+     * @covers ::set
+     * @covers ::get
+     * @covers ::deleteAll
+     */
+    public function it_deletes_all_cache_keys()
+    {
+        $checksum1    = 'checksum-1';
+        $checksum2    = 'checksum-2';
+        $cacheContent = ['expires_at' => 'Fri, 08 Dec 2017 16:25:51 GMT', 'offset' => 100];
+
+        $this->assertTrue(static::$redisStore->set($checksum1, $cacheContent));
+        $this->assertTrue(static::$redisStore->set($checksum2, $cacheContent));
+        $this->assertTrue(static::$redisStore->deleteAll([$checksum1, $checksum2]));
+        $this->assertFalse(static::$redisStore->deleteAll([]));
+        $this->assertNull(static::$redisStore->get($checksum1));
+        $this->assertNull(static::$redisStore->get($checksum2));
+    }
+
+    /**
+     * @test
+     *
      * @covers ::getRedis
      */
     public function it_gets_redis_object()

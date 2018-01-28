@@ -384,11 +384,13 @@ class FileTest extends TestCase
     public function it_throws_file_exception_if_file_to_merge_doesnt_exist()
     {
         $path  = __DIR__ . '/.tmp/fld';
-        $files = ["$path/1"];
+        $files = [
+            ['file_path' => "$path/1", 'offset' => 10],
+        ];
 
         FileFixture::makeFilesAndFolder($path, $files);
 
-        array_push($files, "$path/invalid");
+        array_push($files, ['file_path' => "$path/invalid", 'offset' => 0]);
 
         $mergedFilePath = $path . '/../file.txt';
 
@@ -405,9 +407,9 @@ class FileTest extends TestCase
     {
         $path  = __DIR__ . '/.tmp/fld';
         $files = [
-            "$path/1",
-            "$path/2",
-            "$path/3",
+            ['file_path' => "$path/1", 'offset' => 10],
+            ['file_path' => "$path/2", 'offset' => 20],
+            ['file_path' => "$path/3", 'offset' => 30],
         ];
 
         FileFixture::makeFilesAndFolder($path, $files);
@@ -418,6 +420,8 @@ class FileTest extends TestCase
 
         $this->assertTrue(file_exists($mergedFilePath));
         $this->assertEquals('123', file_get_contents($mergedFilePath));
+        $this->assertEquals(60, $this->file->getOffset());
+        $this->assertEquals(3, $this->file->getFileSize());
 
         @unlink($mergedFilePath);
 
@@ -456,7 +460,9 @@ class FileTest extends TestCase
     public function it_throws_file_exception_if_it_cannot_copy_file()
     {
         $path  = __DIR__ . '/.tmp/fld';
-        $files = ["$path/invalid"];
+        $files = [
+            ['file_path' => "$path/invalid", 'offset' => 10],
+        ];
 
         $this->file->merge($files);
     }
@@ -468,14 +474,19 @@ class FileTest extends TestCase
      */
     public function it_deletes_files_only() : string
     {
-        $path  = __DIR__ . '/.tmp/fld';
+        $path = __DIR__ . '/.tmp/fld';
+
         $files = [
             "$path/1",
             "$path/2",
             "$path/3",
         ];
 
-        FileFixture::makeFilesAndFolder($path, $files);
+        FileFixture::makeFilesAndFolder($path, [
+            ['file_path' => "$path/1", 'offset' => 10],
+            ['file_path' => "$path/2", 'offset' => 20],
+            ['file_path' => "$path/3", 'offset' => 30],
+        ]);
 
         $this->file->delete($files);
 

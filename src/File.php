@@ -395,26 +395,36 @@ class File
     /**
      * Merge 2 or more files.
      *
-     * @param array $files
+     * @param array $files File data with meta info.
+     *
+     * @return int
      */
-    public function merge(array $files)
+    public function merge(array $files) : int
     {
         $destination = $this->getFilePath();
+        $firstFile   = array_shift($files);
 
         // First partial file can directly be copied.
-        $this->copy(array_shift($files), $destination);
+        $this->copy($firstFile['file_path'], $destination);
+
+        $this->offset   = $firstFile['offset'];
+        $this->fileSize = filesize($firstFile['file_path']);
 
         $handle = $this->open($destination, self::APPEND_BINARY);
 
         foreach ($files as $file) {
-            if ( ! file_exists($file)) {
+            if ( ! file_exists($file['file_path'])) {
                 throw new FileException('File to be merged not found.');
             }
 
-            $this->write($handle, file_get_contents($file));
+            $this->fileSize += $this->write($handle, file_get_contents($file['file_path']));
+
+            $this->offset += $file['offset'];
         }
 
         $this->close($handle);
+
+        return $this->fileSize;
     }
 
     /**

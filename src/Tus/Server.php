@@ -269,19 +269,27 @@ class Server extends AbstractTus
      */
     protected function handleConcatenation(string $fileName, string $filePath) : HttpResponse
     {
-        $files    = [];
-        $partials = $this->getRequest()->extractPartials();
-        $location = $this->getRequest()->url() . '/' . basename($this->uploadDir) . '/' . $fileName;
+        $files     = [];
+        $filePaths = [];
+        $partials  = $this->getRequest()->extractPartials();
+        $location  = $this->getRequest()->url() . '/' . basename($this->uploadDir) . '/' . $fileName;
 
         foreach ($partials as $partial) {
             $fileMeta = $this->getCache()->get($partial);
 
-            $files[] = $fileMeta['file_path'];
+            $files[]     = $fileMeta;
+            $filePaths[] = $fileMeta['file_path'];
         }
 
-        $file = $this->buildFile(['name' => $fileName])->setFilePath($filePath);
+        $file = $this->buildFile([
+            'name' => $fileName,
+            'offset' => 0,
+            'size' => 0,
+            'file_path' => $filePath,
+            'location' => $location,
+        ])->setFilePath($filePath);
 
-        $file->merge($files);
+        $file->setOffset($file->merge($files));
 
         // Verify checksum.
         $checksum = $this->getChecksum($filePath);
@@ -290,8 +298,12 @@ class Server extends AbstractTus
             return $this->response->send(null, self::HTTP_CHECKSUM_MISMATCH);
         }
 
+        $this->cache->set($checksum, $file->details());
+
         // Cleanup.
-        $file->delete($files, true);
+        if ($file->delete($filePaths, true)) {
+            $this->cache->deleteAll($partials);
+        }
 
         return $this->response->send(
             ['data' => ['checksum' => $checksum]],

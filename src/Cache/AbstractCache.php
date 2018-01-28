@@ -24,4 +24,26 @@ abstract class AbstractCache implements Cacheable
     {
         return $this->ttl;
     }
+
+    /**
+     * Delete all keys.
+     *
+     * @param array $keys
+     *
+     * @return bool
+     */
+    public function deleteAll(array $keys) : bool
+    {
+        if (empty($keys)) {
+            return false;
+        }
+
+        $status = true;
+
+        foreach ($keys as $key) {
+            $status = $status && $this->delete($key);
+        }
+
+        return $status;
+    }
 }
