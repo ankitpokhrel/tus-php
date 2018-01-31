@@ -489,6 +489,7 @@ class ServerTest extends TestCase
                 'location' => $location,
                 'created_at' => 'Fri, 08 Dec 2017 00:00:00 GMT',
                 'expires_at' => $expiresAt,
+                'upload_type' => 'partial',
             ])
             ->andReturn(null);
 
@@ -583,6 +584,7 @@ class ServerTest extends TestCase
                 'location' => $location,
                 'created_at' => 'Fri, 08 Dec 2017 00:00:00 GMT',
                 'expires_at' => $expiresAt,
+                'upload_type' => 'normal',
             ])
             ->andReturn(null);
 
@@ -614,9 +616,18 @@ class ServerTest extends TestCase
         $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
         $filePath = __DIR__ . '/../.tmp/';
         $location = 'http://tus.local/uploads/file.txt';
-        $files    = [
+
+        $files = [
             ['file_path' => $filePath . 'file_a', 'offset' => 10],
             ['file_path' => $filePath . 'file_b', 'offset' => 20],
+        ];
+
+        $concatenatedFile = [
+            'name' => $fileName,
+            'offset' => 0,
+            'size' => 0,
+            'file_path' => $filePath . $fileName,
+            'location' => $location,
         ];
 
         $requestMock = m::mock(Request::class, ['file'])->makePartial();
@@ -665,7 +676,7 @@ class ServerTest extends TestCase
         $cacheMock
             ->shouldReceive('set')
             ->once()
-            ->with($checksum, $files)
+            ->with($checksum, $concatenatedFile + ['upload_type' => 'final'])
             ->andReturnNull();
 
         $cacheMock
@@ -682,13 +693,7 @@ class ServerTest extends TestCase
         $this->tusServerMock
             ->shouldReceive('buildFile')
             ->once()
-            ->with([
-                'name' => $fileName,
-                'offset' => 0,
-                'size' => 0,
-                'file_path' => $filePath . $fileName,
-                'location' => $location,
-            ])
+            ->with($concatenatedFile)
             ->andReturn($fileMock);
 
         $this->tusServerMock
@@ -718,7 +723,7 @@ class ServerTest extends TestCase
         $fileMock
             ->shouldReceive('details')
             ->once()
-            ->andReturn($files);
+            ->andReturn($concatenatedFile);
 
         $fileMock
             ->shouldReceive('delete')

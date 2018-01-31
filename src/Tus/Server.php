@@ -15,26 +15,35 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class Server extends AbstractTus
 {
-    /** @const Tus Creation Extension */
+    /** @const string Tus Creation Extension */
     const TUS_EXTENSION_CREATION = 'creation';
 
-    /** @const Tus Termination Extension */
+    /** @const string Tus Termination Extension */
     const TUS_EXTENSION_TERMINATION = 'termination';
 
-    /** @const Tus Checksum Extension */
+    /** @const string Tus Checksum Extension */
     const TUS_EXTENSION_CHECKSUM = 'checksum';
 
-    /** @const Tus Expiration Extension */
+    /** @const string Tus Expiration Extension */
     const TUS_EXTENSION_EXPIRATION = 'expiration';
 
-    /** @const Tus Concatenation Extension */
+    /** @const string Tus Concatenation Extension */
     const TUS_EXTENSION_CONCATENATION = 'concatenation';
 
-    /** @const 460 Checksum Mismatch */
+    /** @const int 460 Checksum Mismatch */
     const HTTP_CHECKSUM_MISMATCH = 460;
 
-    /** @const Default checksum algorithm */
+    /** @const string Default checksum algorithm */
     const DEFAULT_CHECKSUM_ALGORITHM = 'sha256';
+
+    /** @const string Upload type normal */
+    const UPLOAD_TYPE_NORMAL = 'normal';
+
+    /** @const string Upload type partial */
+    const UPLOAD_TYPE_PARTIAL = 'partial';
+
+    /** @const string Upload type final */
+    const UPLOAD_TYPE_FINAL = 'final';
 
     /** @var Request */
     protected $request;
@@ -219,7 +228,8 @@ class Server extends AbstractTus
      */
     protected function handlePost() : HttpResponse
     {
-        $fileName = $this->getRequest()->extractFileName();
+        $fileName   = $this->getRequest()->extractFileName();
+        $uploadType = self::UPLOAD_TYPE_NORMAL;
 
         if (empty($fileName)) {
             return $this->response->send(null, HttpResponse::HTTP_BAD_REQUEST);
@@ -233,7 +243,8 @@ class Server extends AbstractTus
         }
 
         if ($this->getRequest()->isPartial()) {
-            $filePath = $this->getPathForPartialUpload($checksum) . $fileName;
+            $filePath   = $this->getPathForPartialUpload($checksum) . $fileName;
+            $uploadType = self::UPLOAD_TYPE_PARTIAL;
         }
 
         $location = $this->getRequest()->url() . '/' . basename($this->uploadDir) . '/' . $fileName;
@@ -246,7 +257,7 @@ class Server extends AbstractTus
             'location' => $location,
         ])->setChecksum($checksum);
 
-        $this->cache->set($checksum, $file->details());
+        $this->cache->set($checksum, $file->details() + ['upload_type' => $uploadType]);
 
         return $this->response->send(
             ['data' => ['checksum' => $checksum]],
@@ -298,7 +309,7 @@ class Server extends AbstractTus
             return $this->response->send(null, self::HTTP_CHECKSUM_MISMATCH);
         }
 
-        $this->cache->set($checksum, $file->details());
+        $this->cache->set($checksum, $file->details() + ['upload_type' => self::UPLOAD_TYPE_FINAL]);
 
         // Cleanup.
         if ($file->delete($filePaths, true)) {
