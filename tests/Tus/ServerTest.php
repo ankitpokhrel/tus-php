@@ -321,6 +321,7 @@ class ServerTest extends TestCase
             ->with($checksum)
             ->andReturn([
                 'offset' => 49,
+                'upload_type' => 'normal',
             ]);
 
         $this->tusServerMock->setCache($cacheMock);
@@ -330,6 +331,87 @@ class ServerTest extends TestCase
         $this->assertNull($response->getOriginalContent());
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals(49, $response->headers->get('upload-offset'));
+        $this->assertNull($response->headers->get('upload-concat'));
+        $this->assertEquals('1.0.0', $response->headers->get('tus-resumable'));
+        $this->assertEquals('no-store, private', $response->headers->get('cache-control'));
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::handleHead
+     */
+    public function it_handles_head_request_for_partial_upload()
+    {
+        $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
+
+        $this->tusServerMock
+            ->getRequest()
+            ->getRequest()
+            ->server
+            ->add([
+                'REQUEST_METHOD' => 'HEAD',
+                'REQUEST_URI' => '/files/' . $checksum,
+            ]);
+
+        $cacheMock = m::mock(FileStore::class);
+        $cacheMock
+            ->shouldReceive('get')
+            ->twice()
+            ->with($checksum)
+            ->andReturn([
+                'offset' => 49,
+                'upload_type' => 'partial',
+            ]);
+
+        $this->tusServerMock->setCache($cacheMock);
+
+        $response = $this->tusServerMock->handleHead();
+
+        $this->assertNull($response->getOriginalContent());
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(49, $response->headers->get('upload-offset'));
+        $this->assertEquals('partial', $response->headers->get('upload-concat'));
+        $this->assertEquals('1.0.0', $response->headers->get('tus-resumable'));
+        $this->assertEquals('no-store, private', $response->headers->get('cache-control'));
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::handleHead
+     */
+    public function it_handles_head_request_for_final_upload()
+    {
+        $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
+
+        $this->tusServerMock
+            ->getRequest()
+            ->getRequest()
+            ->server
+            ->add([
+                'REQUEST_METHOD' => 'HEAD',
+                'REQUEST_URI' => '/files/' . $checksum,
+            ]);
+
+        $cacheMock = m::mock(FileStore::class);
+        $cacheMock
+            ->shouldReceive('get')
+            ->twice()
+            ->with($checksum)
+            ->andReturn([
+                'offset' => 49,
+                'upload_type' => 'final',
+            ]);
+
+        $this->tusServerMock->setCache($cacheMock);
+
+        $response = $this->tusServerMock->handleHead();
+
+        $this->assertNull($response->getOriginalContent());
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(49, $response->headers->get('upload-offset'));
+        $this->assertEquals('final', $response->headers->get('upload-concat'));
         $this->assertEquals('1.0.0', $response->headers->get('tus-resumable'));
         $this->assertEquals('no-store, private', $response->headers->get('cache-control'));
     }
