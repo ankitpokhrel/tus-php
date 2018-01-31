@@ -36,15 +36,6 @@ class Server extends AbstractTus
     /** @const string Default checksum algorithm */
     const DEFAULT_CHECKSUM_ALGORITHM = 'sha256';
 
-    /** @const string Upload type normal */
-    const UPLOAD_TYPE_NORMAL = 'normal';
-
-    /** @const string Upload type partial */
-    const UPLOAD_TYPE_PARTIAL = 'partial';
-
-    /** @const string Upload type final */
-    const UPLOAD_TYPE_FINAL = 'final';
-
     /** @var Request */
     protected $request;
 

@@ -325,7 +325,7 @@ class Client extends AbstractTus
                 'Upload-Length' => $this->fileSize,
                 'Upload-Checksum' => $this->getUploadChecksumHeader($checksum),
                 'Upload-Metadata' => 'filename ' . base64_encode($this->fileName),
-                'Upload-Concat' => 'final;' . implode(' ', $partials),
+                'Upload-Concat' => self::UPLOAD_TYPE_FINAL . ';' . implode(' ', $partials),
             ],
         ]);
 
@@ -432,7 +432,7 @@ class Client extends AbstractTus
         ];
 
         if ($this->isPartial()) {
-            $headers += ['Upload-Concat' => 'partial'];
+            $headers += ['Upload-Concat' => self::UPLOAD_TYPE_PARTIAL];
         }
 
         try {
