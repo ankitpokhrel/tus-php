@@ -982,6 +982,7 @@ class ServerTest extends TestCase
             'location' => $location,
             'created_at' => 'Fri, 08 Dec 2017 00:00:00 GMT',
             'expires_at' => $expiresAt,
+            'upload_type' => 'normal',
         ];
 
         $this->tusServerMock
@@ -1053,6 +1054,7 @@ class ServerTest extends TestCase
             'location' => $location,
             'created_at' => 'Fri, 08 Dec 2017 00:00:00 GMT',
             'expires_at' => $expiresAt,
+            'upload_type' => 'normal',
         ];
 
         $this->tusServerMock
@@ -1124,6 +1126,7 @@ class ServerTest extends TestCase
             'location' => $location,
             'created_at' => 'Fri, 08 Dec 2017 00:00:00 GMT',
             'expires_at' => $expiresAt,
+            'upload_type' => 'normal',
         ];
 
         $this->tusServerMock
@@ -1243,6 +1246,7 @@ class ServerTest extends TestCase
             'location' => $location,
             'created_at' => 'Fri, 08 Dec 2017 00:00:00 GMT',
             'expires_at' => $expiresAt,
+            'upload_type' => 'normal',
         ];
 
         $this->tusServerMock
@@ -1319,6 +1323,7 @@ class ServerTest extends TestCase
             'location' => $location,
             'created_at' => 'Fri, 08 Dec 2017 00:00:00 GMT',
             'expires_at' => $expiresAt,
+            'upload_type' => 'normal',
         ];
 
         $this->tusServerMock
