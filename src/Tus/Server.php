@@ -333,11 +333,10 @@ class Server extends AbstractTus
     {
         $checksum = $this->request->checksum();
 
-        if ( ! $this->cache->get($checksum)) {
+        if ( ! $meta = $this->cache->get($checksum)) {
             return $this->response->send(null, HttpResponse::HTTP_GONE);
         }
 
-        $meta = $this->cache->get($checksum);
         $file = $this->buildFile($meta);
 
         try {

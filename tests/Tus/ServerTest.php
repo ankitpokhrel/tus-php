@@ -1020,7 +1020,7 @@ class ServerTest extends TestCase
         $cacheMock = m::mock(FileStore::class);
         $cacheMock
             ->shouldReceive('get')
-            ->twice()
+            ->once()
             ->with($checksum)
             ->andReturn($fileMeta);
 
@@ -1091,7 +1091,7 @@ class ServerTest extends TestCase
         $cacheMock = m::mock(FileStore::class);
         $cacheMock
             ->shouldReceive('get')
-            ->twice()
+            ->once()
             ->with($checksum)
             ->andReturn($fileMeta);
 
@@ -1162,7 +1162,7 @@ class ServerTest extends TestCase
         $cacheMock = m::mock(FileStore::class);
         $cacheMock
             ->shouldReceive('get')
-            ->twice()
+            ->once()
             ->with($checksum)
             ->andReturn($fileMeta);
 
@@ -1238,7 +1238,7 @@ class ServerTest extends TestCase
         $cacheMock = m::mock(FileStore::class);
         $cacheMock
             ->shouldReceive('get')
-            ->times(2)
+            ->once()
             ->with($checksum)
             ->andReturn($fileMeta);
 
@@ -1309,7 +1309,7 @@ class ServerTest extends TestCase
         $cacheMock = m::mock(FileStore::class);
         $cacheMock
             ->shouldReceive('get')
-            ->times(3)
+            ->twice()
             ->with($checksum)
             ->andReturn($fileMeta);
 
