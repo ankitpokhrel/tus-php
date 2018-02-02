@@ -337,6 +337,10 @@ class Server extends AbstractTus
             return $this->response->send(null, HttpResponse::HTTP_GONE);
         }
 
+        if (self::UPLOAD_TYPE_FINAL === $meta['upload_type']) {
+            return $this->response->send(null, HttpResponse::HTTP_FORBIDDEN);
+        }
+
         $file = $this->buildFile($meta);
 
         try {
