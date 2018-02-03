@@ -456,16 +456,30 @@ class File
      */
     public function delete(array $files, bool $folder = false) : bool
     {
+        $status = $this->deleteFiles($files);
+
+        if ($status && $folder) {
+            return rmdir(dirname(current($files)));
+        }
+
+        return $status;
+    }
+
+    /**
+     * Delete files.
+     *
+     * @param array $files
+     *
+     * @return bool
+     */
+    public function deleteFiles(array $files)
+    {
         $status = empty($files) ? false : true;
 
         foreach ($files as $file) {
             if (file_exists($file)) {
                 $status = $status && unlink($file);
             }
-        }
-
-        if ($status && $folder) {
-            return rmdir(dirname(current($files)));
         }
 
         return $status;

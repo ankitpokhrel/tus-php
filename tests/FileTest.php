@@ -471,6 +471,7 @@ class FileTest extends TestCase
      * @test
      *
      * @covers ::delete
+     * @covers ::deleteFiles
      */
     public function it_deletes_files_only() : string
     {
@@ -506,6 +507,7 @@ class FileTest extends TestCase
      * @depends it_deletes_files_only
      *
      * @covers ::delete
+     * @covers ::deleteFiles
      */
     public function it_doesnt_delete_folder_if_file_path_is_not_given(string $path)
     {
@@ -520,6 +522,7 @@ class FileTest extends TestCase
      * @depends it_deletes_files_only
      *
      * @covers ::delete
+     * @covers ::deleteFiles
      */
     public function it_deletes_empty_folder(string $path)
     {
