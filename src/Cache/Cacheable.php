@@ -34,7 +34,16 @@ interface Cacheable
      *
      * @return bool
      */
-    public function delete(string $key);
+    public function delete(string $key) : bool;
+
+    /**
+     * Delete all data associated with the keys.
+     *
+     * @param array $keys
+     *
+     * @return bool
+     */
+    public function deleteAll(array $keys) : bool;
 
     /**
      * Get time to live.

@@ -78,20 +78,66 @@ class Request
     }
 
     /**
+     * Extract metadata from header.
+     *
+     * @param string $key
+     * @param string $value
+     *
+     * @return array
+     */
+    public function extractFromHeader(string $key, string $value) : array
+    {
+        $meta = $this->header($key);
+
+        if (false !== strpos($meta, $value)) {
+            $meta = trim(str_replace($value, '', $meta));
+
+            return explode(' ', $meta) ?? [];
+        }
+
+        return [];
+    }
+
+    /**
      * Extract base64 encoded filename from header.
      *
      * @return string|null
      */
     public function extractFileName()
     {
-        $file = null;
-        $meta = $this->header('Upload-Metadata');
-
-        if (false !== strpos($meta, 'filename')) {
-            list(, $file) = explode(' ', $meta) ?? null;
-        }
+        $file = current($this->extractFromHeader('Upload-Metadata', 'filename'));
 
         return $file ? base64_decode($file) : null;
+    }
+
+    /**
+     * Extract partials from header.
+     *
+     * @return array
+     */
+    public function extractPartials() : array
+    {
+        return $this->extractFromHeader('Upload-Concat', 'final;');
+    }
+
+    /**
+     * Check if this is a partial upload request.
+     *
+     * @return bool
+     */
+    public function isPartial() : bool
+    {
+        return $this->header('Upload-Concat') === 'partial';
+    }
+
+    /**
+     * Check if this is a final concatenation request.
+     *
+     * @return bool
+     */
+    public function isFinal() : bool
+    {
+        return false !== strpos($this->header('Upload-Concat'), 'final;');
     }
 
     /**

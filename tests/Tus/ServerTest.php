@@ -101,6 +101,39 @@ class ServerTest extends TestCase
     /**
      * @test
      *
+     * @covers ::getChecksum
+     */
+    public function it_gets_a_checksum()
+    {
+        $filePath = __DIR__ . '/../Fixtures/empty.txt';
+        $checksum = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
+
+        $this->assertEquals($checksum, $this->tusServer->getChecksum($filePath));
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::getChecksumAlgorithm
+     */
+    public function it_gets_checksum_algorithm()
+    {
+        $this->assertEquals('sha256', $this->tusServerMock->getChecksumAlgorithm());
+
+        $checksumAlgorithm = 'sha1';
+
+        $this->tusServerMock
+            ->getRequest()
+            ->getRequest()
+            ->headers
+            ->set('Upload-Checksum', $checksumAlgorithm . ' checksum');
+
+        $this->assertEquals($checksumAlgorithm, $this->tusServerMock->getChecksumAlgorithm());
+    }
+
+    /**
+     * @test
+     *
      * @covers ::serve
      */
     public function it_sends_405_for_invalid_http_verbs()
@@ -188,13 +221,17 @@ class ServerTest extends TestCase
 
         $this->assertEquals(self::ALLOWED_HTTP_VERBS, $headers['allow']);
         $this->assertEquals('1.0.0', current($headers['tus-version']));
-        $this->assertEquals('creation,termination,checksum,expiration', current($headers['tus-extension']));
+        $this->assertEquals(
+            'creation,termination,checksum,expiration,concatenation',
+            current($headers['tus-extension'])
+        );
     }
 
     /**
      * @test
      *
      * @covers ::handleHead
+     * @covers ::getHeadersForHeadRequest
      */
     public function it_sends_404_for_invalid_checksum_in_head_method()
     {
@@ -229,6 +266,7 @@ class ServerTest extends TestCase
      * @test
      *
      * @covers ::handleHead
+     * @covers ::getHeadersForHeadRequest
      */
     public function it_returns_410_if_no_offset_is_set()
     {
@@ -246,7 +284,7 @@ class ServerTest extends TestCase
         $cacheMock = m::mock(FileStore::class);
         $cacheMock
             ->shouldReceive('get')
-            ->twice()
+            ->once()
             ->with($checksum)
             ->andReturn([
                 'name' => 'file.txt',
@@ -264,6 +302,7 @@ class ServerTest extends TestCase
      * @test
      *
      * @covers ::handleHead
+     * @covers ::getHeadersForHeadRequest
      */
     public function it_handles_head_request()
     {
@@ -281,10 +320,11 @@ class ServerTest extends TestCase
         $cacheMock = m::mock(FileStore::class);
         $cacheMock
             ->shouldReceive('get')
-            ->twice()
+            ->once()
             ->with($checksum)
             ->andReturn([
                 'offset' => 49,
+                'upload_type' => 'normal',
             ]);
 
         $this->tusServerMock->setCache($cacheMock);
@@ -294,6 +334,90 @@ class ServerTest extends TestCase
         $this->assertNull($response->getOriginalContent());
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals(49, $response->headers->get('upload-offset'));
+        $this->assertNull($response->headers->get('upload-concat'));
+        $this->assertEquals('1.0.0', $response->headers->get('tus-resumable'));
+        $this->assertEquals('no-store, private', $response->headers->get('cache-control'));
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::handleHead
+     * @covers ::getHeadersForHeadRequest
+     */
+    public function it_handles_head_request_for_partial_upload()
+    {
+        $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
+
+        $this->tusServerMock
+            ->getRequest()
+            ->getRequest()
+            ->server
+            ->add([
+                'REQUEST_METHOD' => 'HEAD',
+                'REQUEST_URI' => '/files/' . $checksum,
+            ]);
+
+        $cacheMock = m::mock(FileStore::class);
+        $cacheMock
+            ->shouldReceive('get')
+            ->once()
+            ->with($checksum)
+            ->andReturn([
+                'offset' => 49,
+                'upload_type' => 'partial',
+            ]);
+
+        $this->tusServerMock->setCache($cacheMock);
+
+        $response = $this->tusServerMock->handleHead();
+
+        $this->assertNull($response->getOriginalContent());
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(49, $response->headers->get('upload-offset'));
+        $this->assertEquals('partial', $response->headers->get('upload-concat'));
+        $this->assertEquals('1.0.0', $response->headers->get('tus-resumable'));
+        $this->assertEquals('no-store, private', $response->headers->get('cache-control'));
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::handleHead
+     * @covers ::getHeadersForHeadRequest
+     */
+    public function it_handles_head_request_for_final_upload()
+    {
+        $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
+
+        $this->tusServerMock
+            ->getRequest()
+            ->getRequest()
+            ->server
+            ->add([
+                'REQUEST_METHOD' => 'HEAD',
+                'REQUEST_URI' => '/files/' . $checksum,
+            ]);
+
+        $cacheMock = m::mock(FileStore::class);
+        $cacheMock
+            ->shouldReceive('get')
+            ->once()
+            ->with($checksum)
+            ->andReturn([
+                'offset' => 49,
+                'upload_type' => 'final',
+                'size' => 100,
+            ]);
+
+        $this->tusServerMock->setCache($cacheMock);
+
+        $response = $this->tusServerMock->handleHead();
+
+        $this->assertNull($response->getOriginalContent());
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertNull($response->headers->get('upload-offset'));
+        $this->assertEquals('final', $response->headers->get('upload-concat'));
         $this->assertEquals('1.0.0', $response->headers->get('tus-resumable'));
         $this->assertEquals('no-store, private', $response->headers->get('cache-control'));
     }
@@ -325,6 +449,160 @@ class ServerTest extends TestCase
      *
      * @covers ::handlePost
      */
+    public function it_calls_concatenation_for_final_upload()
+    {
+        $fileName  = 'file.txt';
+        $checksum  = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
+        $uploadDir = '/path/to/uploads';
+
+        $this->tusServerMock
+            ->getRequest()
+            ->getRequest()
+            ->server
+            ->add([
+                'REQUEST_METHOD' => 'POST',
+                'REQUEST_URI' => '/files',
+            ]);
+
+        $requestMock = m::mock(Request::class, ['file'])->makePartial();
+        $requestMock
+            ->getRequest()
+            ->headers
+            ->add([
+                'Upload-Metadata' => 'filename ' . base64_encode($fileName),
+                'Checksum' => $checksum,
+                'Upload-Length' => 10,
+                'Upload-Concat' => 'final;/files/a /files/b',
+            ]);
+
+        $requestMock
+            ->getRequest()
+            ->server
+            ->add([
+                'SERVER_NAME' => 'tus.local',
+                'SERVER_PORT' => 80,
+            ]);
+
+        $this->tusServerMock
+            ->shouldReceive('getRequest')
+            ->times(3)
+            ->andReturn($requestMock);
+
+        $this->tusServerMock->setUploadDir($uploadDir);
+
+        $this->tusServerMock
+            ->shouldReceive('handleConcatenation')
+            ->with($fileName, $uploadDir . '/' . $fileName)
+            ->once()
+            ->andReturn(new HttpResponse);
+
+        $this->assertInstanceOf(HttpResponse::class, $this->tusServerMock->handlePost());
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::handlePost
+     */
+    public function it_handles_post_for_partial_request()
+    {
+        $baseDir   = __DIR__ . '/../.tmp';
+        $fileName  = 'file.txt';
+        $checksum  = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a_partial';
+        $folder    = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
+        $location  = 'http://tus.local/.tmp/file.txt';
+        $expiresAt = 'Sat, 09 Dec 2017 00:00:00 GMT';
+
+        $this->tusServerMock->setUploadDir($baseDir);
+        $this->tusServerMock
+            ->getRequest()
+            ->getRequest()
+            ->server
+            ->add([
+                'REQUEST_METHOD' => 'POST',
+                'REQUEST_URI' => '/files',
+            ]);
+
+        $requestMock = m::mock(Request::class, ['file'])->makePartial();
+        $requestMock
+            ->getRequest()
+            ->headers
+            ->add([
+                'Upload-Length' => 10,
+                'Upload-Checksum' => $checksum,
+                'Upload-Metadata' => 'filename ' . base64_encode($fileName),
+                'Upload-Concat' => 'partial',
+            ]);
+
+        $requestMock
+            ->getRequest()
+            ->server
+            ->add([
+                'SERVER_NAME' => 'tus.local',
+                'SERVER_PORT' => 80,
+            ]);
+
+        $this->tusServerMock
+            ->shouldReceive('getRequest')
+            ->times(5)
+            ->andReturn($requestMock);
+
+        $this->tusServerMock
+            ->shouldReceive('getUploadChecksum')
+            ->once()
+            ->andReturn($checksum);
+
+        $cacheMock = m::mock(FileStore::class);
+        $cacheMock
+            ->shouldReceive('get')
+            ->once()
+            ->with($checksum)
+            ->andReturn([
+                'expires_at' => $expiresAt,
+            ]);
+
+        $cacheMock
+            ->shouldReceive('getTtl')
+            ->once()
+            ->andReturn(86400);
+
+        $cacheMock
+            ->shouldReceive('set')
+            ->once()
+            ->with($checksum, [
+                'name' => $fileName,
+                'size' => 10,
+                'offset' => 0,
+                'file_path' => "$baseDir/$folder/$fileName",
+                'location' => $location,
+                'created_at' => 'Fri, 08 Dec 2017 00:00:00 GMT',
+                'expires_at' => $expiresAt,
+                'upload_type' => 'partial',
+            ])
+            ->andReturn(null);
+
+        $this->tusServerMock->setCache($cacheMock);
+        $this->tusServerMock->getResponse()->createOnly(true);
+
+        $response = $this->tusServerMock->handlePost();
+
+        $this->assertEquals([
+            'data' => [
+                'checksum' => $checksum,
+            ],
+        ], $response->getOriginalContent());
+
+        $this->assertEquals(201, $response->getStatusCode());
+        $this->assertEquals($location, $response->headers->get('location'));
+        $this->assertEquals($expiresAt, $response->headers->get('upload-expires'));
+        $this->assertEquals('1.0.0', $response->headers->get('tus-resumable'));
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::handlePost
+     */
     public function it_handles_post_request()
     {
         $fileName  = 'file.txt';
@@ -347,7 +625,7 @@ class ServerTest extends TestCase
             ->headers
             ->add([
                 'Upload-Metadata' => 'filename ' . base64_encode($fileName),
-                'Checksum' => $checksum,
+                'Upload-Checksum' => $checksum,
                 'Upload-Length' => 10,
             ]);
 
@@ -361,7 +639,7 @@ class ServerTest extends TestCase
 
         $this->tusServerMock
             ->shouldReceive('getRequest')
-            ->times(3)
+            ->times(5)
             ->andReturn($requestMock);
 
         $this->tusServerMock
@@ -394,6 +672,7 @@ class ServerTest extends TestCase
                 'location' => $location,
                 'created_at' => 'Fri, 08 Dec 2017 00:00:00 GMT',
                 'expires_at' => $expiresAt,
+                'upload_type' => 'normal',
             ])
             ->andReturn(null);
 
@@ -412,6 +691,238 @@ class ServerTest extends TestCase
         $this->assertEquals($location, $response->headers->get('location'));
         $this->assertEquals($expiresAt, $response->headers->get('upload-expires'));
         $this->assertEquals('1.0.0', $response->headers->get('tus-resumable'));
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::handleConcatenation
+     * @covers ::getPartialsMeta
+     */
+    public function it_handles_concatenation_request()
+    {
+        $fileName = 'file.txt';
+        $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
+        $filePath = __DIR__ . '/../.tmp/';
+        $location = 'http://tus.local/uploads/file.txt';
+
+        $files = [
+            ['file_path' => $filePath . 'file_a', 'offset' => 10],
+            ['file_path' => $filePath . 'file_b', 'offset' => 20],
+        ];
+
+        $concatenatedFile = [
+            'name' => $fileName,
+            'offset' => 0,
+            'size' => 0,
+            'file_path' => $filePath . $fileName,
+            'location' => $location,
+        ];
+
+        $requestMock = m::mock(Request::class, ['file'])->makePartial();
+        $requestMock
+            ->getRequest()
+            ->headers
+            ->add([
+                'Upload-Length' => 10,
+                'Upload-Checksum' => 'sha256 ' . base64_encode($checksum),
+                'Upload-Concat' => 'final;file_a file_b',
+                'Upload-Metadata' => 'filename ' . base64_encode($fileName),
+            ]);
+
+        $requestMock
+            ->getRequest()
+            ->server
+            ->add([
+                'SERVER_NAME' => 'tus.local',
+                'SERVER_PORT' => 80,
+            ]);
+
+        $this->tusServerMock
+            ->shouldReceive('getRequest')
+            ->times(3)
+            ->andReturn($requestMock);
+
+        $cacheMock = m::mock(FileStore::class);
+        $cacheMock
+            ->shouldReceive('get')
+            ->once()
+            ->with('file_a')
+            ->andReturn($files[0]);
+
+        $cacheMock
+            ->shouldReceive('get')
+            ->once()
+            ->with('file_b')
+            ->andReturn($files[1]);
+
+        $cacheMock
+            ->shouldReceive('set')
+            ->once()
+            ->with($checksum, $concatenatedFile + ['upload_type' => 'final'])
+            ->andReturnNull();
+
+        $cacheMock
+            ->shouldReceive('deleteAll')
+            ->once()
+            ->with(['file_a', 'file_b'])
+            ->andReturn(true);
+
+        $this->tusServerMock->setCache($cacheMock);
+        $this->tusServerMock->getResponse()->createOnly(true);
+
+        $fileMock = m::mock(File::class, [$fileName, $cacheMock]);
+
+        $this->tusServerMock
+            ->shouldReceive('buildFile')
+            ->once()
+            ->with($concatenatedFile)
+            ->andReturn($fileMock);
+
+        $this->tusServerMock
+            ->shouldReceive('getChecksum')
+            ->once()
+            ->with($filePath . $fileName)
+            ->andReturn($checksum);
+
+        $fileMock
+            ->shouldReceive('setFilePath')
+            ->once()
+            ->with($filePath . $fileName)
+            ->andReturnSelf();
+
+        $fileMock
+            ->shouldReceive('setOffset')
+            ->once()
+            ->with(30)
+            ->andReturnSelf();
+
+        $fileMock
+            ->shouldReceive('merge')
+            ->once()
+            ->with($files)
+            ->andReturn(30);
+
+        $fileMock
+            ->shouldReceive('details')
+            ->once()
+            ->andReturn($concatenatedFile);
+
+        $fileMock
+            ->shouldReceive('delete')
+            ->once()
+            ->with([
+                $filePath . 'file_a',
+                $filePath . 'file_b',
+            ], true)
+            ->andReturn(true);
+
+        $response = $this->tusServerMock->handleConcatenation($fileName, $filePath . $fileName);
+
+        $this->assertEquals(201, $response->getStatusCode());
+        $this->assertEquals($location, $response->headers->get('location'));
+        $this->assertEquals('1.0.0', $response->headers->get('tus-resumable'));
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::handleConcatenation
+     * @covers ::getPartialsMeta
+     */
+    public function it_throws_460_for_checksum_mismatch_in_concatenation_request()
+    {
+        $fileName = 'file.txt';
+        $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
+        $filePath = __DIR__ . '/../.tmp/';
+        $location = 'http://tus.local/uploads/file.txt';
+        $files    = [
+            ['file_path' => $filePath . 'file_a', 'offset' => 10],
+            ['file_path' => $filePath . 'file_b', 'offset' => 20],
+        ];
+
+        $requestMock = m::mock(Request::class, ['file'])->makePartial();
+        $requestMock
+            ->getRequest()
+            ->headers
+            ->add([
+                'Upload-Length' => 10,
+                'Upload-Checksum' => 'sha256 ' . base64_encode('invalid'),
+                'Upload-Concat' => 'final;file_a file_b',
+                'Upload-Metadata' => 'filename ' . base64_encode($fileName),
+            ]);
+
+        $requestMock
+            ->getRequest()
+            ->server
+            ->add([
+                'SERVER_NAME' => 'tus.local',
+                'SERVER_PORT' => 80,
+            ]);
+
+        $this->tusServerMock
+            ->shouldReceive('getRequest')
+            ->times(3)
+            ->andReturn($requestMock);
+
+        $cacheMock = m::mock(FileStore::class);
+        $cacheMock
+            ->shouldReceive('get')
+            ->once()
+            ->with('file_a')
+            ->andReturn($files[0]);
+
+        $cacheMock
+            ->shouldReceive('get')
+            ->once()
+            ->with('file_b')
+            ->andReturn($files[1]);
+
+        $this->tusServerMock->setCache($cacheMock);
+        $this->tusServerMock->getResponse()->createOnly(true);
+
+        $fileMock = m::mock(File::class, [$fileName, $cacheMock]);
+
+        $this->tusServerMock
+            ->shouldReceive('buildFile')
+            ->once()
+            ->with([
+                'name' => $fileName,
+                'offset' => 0,
+                'size' => 0,
+                'file_path' => $filePath . $fileName,
+                'location' => $location,
+            ])
+            ->andReturn($fileMock);
+
+        $this->tusServerMock
+            ->shouldReceive('getChecksum')
+            ->once()
+            ->with($filePath . $fileName)
+            ->andReturn($checksum);
+
+        $fileMock
+            ->shouldReceive('setFilePath')
+            ->once()
+            ->with($filePath . $fileName)
+            ->andReturnSelf();
+
+        $fileMock
+            ->shouldReceive('setOffset')
+            ->once()
+            ->with(30)
+            ->andReturnSelf();
+
+        $fileMock
+            ->shouldReceive('merge')
+            ->once()
+            ->with($files)
+            ->andReturn(30);
+
+        $response = $this->tusServerMock->handleConcatenation($fileName, $filePath . $fileName);
+
+        $this->assertEquals(460, $response->getStatusCode());
+        $this->assertNull($response->getOriginalContent());
     }
 
     /**
@@ -467,6 +978,7 @@ class ServerTest extends TestCase
             'location' => $location,
             'created_at' => 'Fri, 08 Dec 2017 00:00:00 GMT',
             'expires_at' => $expiresAt,
+            'upload_type' => 'normal',
         ];
 
         $this->tusServerMock
@@ -505,7 +1017,7 @@ class ServerTest extends TestCase
         $cacheMock = m::mock(FileStore::class);
         $cacheMock
             ->shouldReceive('get')
-            ->twice()
+            ->once()
             ->with($checksum)
             ->andReturn($fileMeta);
 
@@ -538,6 +1050,7 @@ class ServerTest extends TestCase
             'location' => $location,
             'created_at' => 'Fri, 08 Dec 2017 00:00:00 GMT',
             'expires_at' => $expiresAt,
+            'upload_type' => 'normal',
         ];
 
         $this->tusServerMock
@@ -576,7 +1089,7 @@ class ServerTest extends TestCase
         $cacheMock = m::mock(FileStore::class);
         $cacheMock
             ->shouldReceive('get')
-            ->twice()
+            ->once()
             ->with($checksum)
             ->andReturn($fileMeta);
 
@@ -609,6 +1122,7 @@ class ServerTest extends TestCase
             'location' => $location,
             'created_at' => 'Fri, 08 Dec 2017 00:00:00 GMT',
             'expires_at' => $expiresAt,
+            'upload_type' => 'normal',
         ];
 
         $this->tusServerMock
@@ -647,7 +1161,7 @@ class ServerTest extends TestCase
         $cacheMock = m::mock(FileStore::class);
         $cacheMock
             ->shouldReceive('get')
-            ->twice()
+            ->once()
             ->with($checksum)
             ->andReturn($fileMeta);
 
@@ -657,6 +1171,54 @@ class ServerTest extends TestCase
         $response = $this->tusServerMock->handlePatch();
 
         $this->assertEquals(100, $response->getStatusCode());
+        $this->assertNull($response->getOriginalContent());
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::handlePatch
+     */
+    public function it_returns_403_for_patch_request_against_final_upload()
+    {
+        $fileName  = 'file.txt';
+        $fileSize  = 1024;
+        $checksum  = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
+        $location  = 'http://tus.local/uploads/file.txt';
+        $expiresAt = 'Sat, 09 Dec 2017 00:00:00 GMT';
+        $fileMeta  = [
+            'name' => $fileName,
+            'size' => $fileSize,
+            'offset' => 0,
+            'file_path' => dirname(__DIR__) . DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR . $fileName,
+            'location' => $location,
+            'created_at' => 'Fri, 08 Dec 2017 00:00:00 GMT',
+            'expires_at' => $expiresAt,
+            'upload_type' => 'final',
+        ];
+
+        $this->tusServerMock
+            ->getRequest()
+            ->getRequest()
+            ->server
+            ->add([
+                'REQUEST_METHOD' => 'PATCH',
+                'REQUEST_URI' => '/files/' . $checksum,
+            ]);
+
+        $cacheMock = m::mock(FileStore::class);
+        $cacheMock
+            ->shouldReceive('get')
+            ->once()
+            ->with($checksum)
+            ->andReturn($fileMeta);
+
+        $this->tusServerMock->setCache($cacheMock);
+        $this->tusServerMock->getResponse()->createOnly(true);
+
+        $response = $this->tusServerMock->handlePatch();
+
+        $this->assertEquals(403, $response->getStatusCode());
         $this->assertNull($response->getOriginalContent());
     }
 
@@ -680,6 +1242,7 @@ class ServerTest extends TestCase
             'location' => $location,
             'created_at' => 'Fri, 08 Dec 2017 00:00:00 GMT',
             'expires_at' => $expiresAt,
+            'upload_type' => 'normal',
         ];
 
         $this->tusServerMock
@@ -723,7 +1286,7 @@ class ServerTest extends TestCase
         $cacheMock = m::mock(FileStore::class);
         $cacheMock
             ->shouldReceive('get')
-            ->times(2)
+            ->once()
             ->with($checksum)
             ->andReturn($fileMeta);
 
@@ -756,6 +1319,7 @@ class ServerTest extends TestCase
             'location' => $location,
             'created_at' => 'Fri, 08 Dec 2017 00:00:00 GMT',
             'expires_at' => $expiresAt,
+            'upload_type' => 'normal',
         ];
 
         $this->tusServerMock
@@ -794,7 +1358,7 @@ class ServerTest extends TestCase
         $cacheMock = m::mock(FileStore::class);
         $cacheMock
             ->shouldReceive('get')
-            ->times(3)
+            ->twice()
             ->with($checksum)
             ->andReturn($fileMeta);
 
@@ -1085,6 +1649,39 @@ class ServerTest extends TestCase
         $this->assertEquals('termination', $response->headers->get('tus-extension'));
 
         $mock->disable();
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::getHeadersForHeadRequest
+     */
+    public function it_gets_required_headers_for_head_request()
+    {
+        $fileMeta = [
+            'offset' => '49',
+            'upload_type' => 'normal',
+            'size' => 100,
+        ];
+
+        $headers = [
+            'Upload-Offset' => 49,
+            'Cache-Control' => 'no-store',
+            'Tus-Resumable' => '1.0.0',
+        ];
+
+        $this->assertEquals($headers, $this->tusServerMock->getHeadersForHeadRequest($fileMeta));
+        $this->assertEquals(
+            $headers + ['Upload-Concat' => 'partial'],
+            $this->tusServerMock->getHeadersForHeadRequest(['upload_type' => 'partial'] + $fileMeta)
+        );
+
+        unset($headers['Upload-Offset']);
+
+        $this->assertEquals(
+            $headers + ['Upload-Concat' => 'final'],
+            $this->tusServerMock->getHeadersForHeadRequest(['upload_type' => 'final'] + $fileMeta)
+        );
     }
 
     /**
@@ -1395,6 +1992,64 @@ class ServerTest extends TestCase
         $this->tusServerMock->setCache($cacheMock);
 
         $this->assertEquals([], $this->tusServerMock->handleExpiration());
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::setUploadDir
+     * @covers ::getPathForPartialUpload
+     */
+    public function it_gets_path_for_partial_upload()
+    {
+        $baseDir   = __DIR__ . '/../.tmp';
+        $uploadDir = $baseDir . '/checksum/';
+
+        $this->tusServerMock->setUploadDir($baseDir);
+
+        $this->assertEquals(
+            $uploadDir,
+            $this->tusServerMock->getPathForPartialUpload('checksum_partial')
+        );
+
+        $this->assertTrue(file_exists($uploadDir));
+        $this->assertTrue(is_dir($uploadDir));
+
+        @rmdir($uploadDir);
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::getPartialsMeta
+     */
+    public function it_gets_partials_meta()
+    {
+        $filePath = __DIR__ . '/../.tmp/';
+        $partials = ['file_a', 'file_b'];
+
+        $files = [
+            ['file_path' => $filePath . 'file_a', 'offset' => 10],
+            ['file_path' => $filePath . 'file_b', 'offset' => 20],
+        ];
+
+        $cacheMock = m::mock(FileStore::class);
+        $cacheMock
+            ->shouldReceive('get')
+            ->once()
+            ->with('file_a')
+            ->andReturn($files[0]);
+
+        $cacheMock
+            ->shouldReceive('get')
+            ->once()
+            ->with('file_b')
+            ->andReturn($files[1]);
+
+        $this->tusServerMock->setCache($cacheMock);
+        $this->tusServerMock->getResponse()->createOnly(true);
+
+        $this->assertEquals($files, $this->tusServerMock->getPartialsMeta($partials));
     }
 
     /**

@@ -75,7 +75,7 @@ class RedisStore extends AbstractCache
     /**
      * {@inheritDoc}
      */
-    public function delete(string $key)
+    public function delete(string $key) : bool
     {
         if (false === strpos($key, self::TUS_REDIS_PREFIX)) {
             $key = self::TUS_REDIS_PREFIX . $key;

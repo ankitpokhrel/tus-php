@@ -303,6 +303,28 @@ class FileStoreTest extends TestCase
     /**
      * @test
      *
+     * @covers ::set
+     * @covers ::get
+     * @covers ::deleteAll
+     */
+    public function it_deletes_all_cache_keys()
+    {
+        $checksum1    = 'checksum-1';
+        $checksum2    = 'checksum-2';
+        $cacheContent = ['expires_at' => 'Fri, 08 Dec 2017 16:25:51 GMT', 'offset' => 100];
+
+        $this->fileStore->set($checksum1, $cacheContent);
+        $this->fileStore->set($checksum2, $cacheContent);
+
+        $this->assertTrue($this->fileStore->deleteAll([$checksum1, $checksum2]));
+        $this->assertFalse($this->fileStore->deleteAll([]));
+        $this->assertNull($this->fileStore->get($checksum1));
+        $this->assertNull($this->fileStore->get($checksum2));
+    }
+
+    /**
+     * @test
+     *
      * @covers ::keys
      */
     public function it_gets_cache_keys()

@@ -313,12 +313,7 @@ class File
      */
     public function open(string $filePath, string $mode)
     {
-        if (self::INPUT_STREAM !== $filePath &&
-            self::READ_BINARY === $mode &&
-            ! file_exists($filePath)
-        ) {
-            throw new FileException('File not found.');
-        }
+        $this->exists($filePath, $mode);
 
         $ptr = @fopen($filePath, $mode);
 
@@ -327,6 +322,29 @@ class File
         }
 
         return $ptr;
+    }
+
+    /**
+     * Check if file to read exists.
+     *
+     * @param string $filePath
+     * @param string $mode
+     *
+     * @throws FileException
+     *
+     * @return bool
+     */
+    public function exists(string $filePath, string $mode = self::READ_BINARY) : bool
+    {
+        if (self::INPUT_STREAM === $filePath) {
+            return true;
+        }
+
+        if (self::READ_BINARY === $mode && ! file_exists($filePath)) {
+            throw new FileException('File not found.');
+        }
+
+        return true;
     }
 
     /**
@@ -383,13 +401,110 @@ class File
      */
     public function write($handle, string $data, $length = null) : int
     {
-        $bytesWritten = fwrite($handle, $data, $length);
+        $bytesWritten = is_int($length) ? fwrite($handle, $data, $length) : fwrite($handle, $data);
 
         if (false === $bytesWritten) {
             throw new FileException('Cannot write to a file.');
         }
 
         return $bytesWritten;
+    }
+
+    /**
+     * Merge 2 or more files.
+     *
+     * @param array $files File data with meta info.
+     *
+     * @return int
+     */
+    public function merge(array $files) : int
+    {
+        $destination = $this->getFilePath();
+        $firstFile   = array_shift($files);
+
+        // First partial file can directly be copied.
+        $this->copy($firstFile['file_path'], $destination);
+
+        $this->offset   = $firstFile['offset'];
+        $this->fileSize = filesize($firstFile['file_path']);
+
+        $handle = $this->open($destination, self::APPEND_BINARY);
+
+        foreach ($files as $file) {
+            if ( ! file_exists($file['file_path'])) {
+                throw new FileException('File to be merged not found.');
+            }
+
+            $this->fileSize += $this->write($handle, file_get_contents($file['file_path']));
+
+            $this->offset += $file['offset'];
+        }
+
+        $this->close($handle);
+
+        return $this->fileSize;
+    }
+
+    /**
+     * Copy file from source to destination.
+     *
+     * @param string $source
+     * @param string $destination
+     *
+     * @return bool
+     */
+    public function copy(string $source, string $destination) : bool
+    {
+        $status = @copy($source, $destination);
+
+        if (false === $status) {
+            throw new FileException('Cannot copy source to destination.');
+        }
+
+        return $status;
+    }
+
+    /**
+     * Delete file and/or folder.
+     *
+     * @param array $files
+     * @param bool  $folder
+     *
+     * @return bool
+     */
+    public function delete(array $files, bool $folder = false) : bool
+    {
+        $status = $this->deleteFiles($files);
+
+        if ($status && $folder) {
+            return rmdir(dirname(current($files)));
+        }
+
+        return $status;
+    }
+
+    /**
+     * Delete files.
+     *
+     * @param array $files
+     *
+     * @return bool
+     */
+    public function deleteFiles(array $files)
+    {
+        if (empty($files)) {
+            return false;
+        }
+
+        $status = true;
+
+        foreach ($files as $file) {
+            if (file_exists($file)) {
+                $status = $status && unlink($file);
+            }
+        }
+
+        return $status;
     }
 
     /**

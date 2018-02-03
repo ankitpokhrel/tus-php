@@ -114,6 +114,22 @@ class RequestTest extends TestCase
     /**
      * @test
      *
+     * @covers ::extractFromHeader
+     */
+    public function it_extracts_data_from_header()
+    {
+        $this->request->getRequest()->headers->set('Upload-Metadata', 'filename test');
+        $this->request->getRequest()->headers->set('Upload-Concat', 'final;/files/a /files/b');
+
+        $this->assertEquals([], $this->request->extractFromHeader('Upload-Metadata', 'invalid'));
+        $this->assertEquals(['test'], $this->request->extractFromHeader('Upload-Metadata', 'filename'));
+        $this->assertEquals(['/files/a', '/files/b'], $this->request->extractFromHeader('Upload-Concat', 'final;'));
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::extractFromHeader
      * @covers ::extractFileName
      */
     public function it_extracts_file_name()
@@ -123,6 +139,47 @@ class RequestTest extends TestCase
         $this->request->getRequest()->headers->set('Upload-Metadata', 'filename ' . base64_encode($filename));
 
         $this->assertEquals($filename, $this->request->extractFileName());
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::extractFromHeader
+     * @covers ::extractPartials
+     */
+    public function it_extracts_partials()
+    {
+        $this->request->getRequest()->headers->set('Upload-Concat', 'final;/files/a /files/b');
+
+        $this->assertEquals(['/files/a', '/files/b'], $this->request->extractPartials());
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::isPartial
+     */
+    public function it_checks_if_a_request_is_partial()
+    {
+        $this->assertFalse($this->request->isPartial());
+
+        $this->request->getRequest()->headers->set('Upload-Concat', 'partial');
+
+        $this->assertTrue($this->request->isPartial());
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::isFinal
+     */
+    public function it_checks_if_a_request_is_final()
+    {
+        $this->assertFalse($this->request->isFinal());
+
+        $this->request->getRequest()->headers->set('Upload-Concat', 'final;/files/a /files/b');
+
+        $this->assertTrue($this->request->isFinal());
     }
 
     /**

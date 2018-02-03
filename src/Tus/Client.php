@@ -32,6 +32,12 @@ class Client extends AbstractTus
     /** @var string */
     protected $checksum;
 
+    /** @var int */
+    protected $partialOffset = -1;
+
+    /** @var bool */
+    protected $partial = false;
+
     /** @var string */
     protected $checksumAlgorithm = 'sha256';
 
@@ -80,6 +86,20 @@ class Client extends AbstractTus
     public function getFilePath()
     {
         return $this->filePath;
+    }
+
+    /**
+     * Set file name.
+     *
+     * @param string $name
+     *
+     * @return Client
+     */
+    public function setFileName(string $name) : self
+    {
+        $this->fileName = $name;
+
+        return $this;
     }
 
     /**
@@ -175,6 +195,41 @@ class Client extends AbstractTus
     }
 
     /**
+     * Check if this is a partial upload request.
+     *
+     * @return bool
+     */
+    public function isPartial() : bool
+    {
+        return $this->partial;
+    }
+
+    /**
+     * Get partial offset.
+     * @return int
+     */
+    public function getPartialOffset() : int
+    {
+        return $this->partialOffset;
+    }
+
+    /**
+     * Set offset and force this to be a partial upload request.
+     *
+     * @param int $offset
+     *
+     * @return $this
+     */
+    public function seek(int $offset)
+    {
+        $this->partialOffset = $offset;
+
+        $this->partial();
+
+        return $this;
+    }
+
+    /**
      * Upload file.
      *
      * @param int $bytes Bytes to upload
@@ -192,7 +247,7 @@ class Client extends AbstractTus
             // Check if this upload exists with HEAD request
             $this->sendHeadRequest($checksum);
         } catch (FileException | ClientException $e) {
-            $this->create();
+            $this->create($checksum);
         } catch (ConnectException $e) {
             throw new ConnectionException("Couldn't connect to server.");
         }
@@ -222,17 +277,55 @@ class Client extends AbstractTus
     /**
      * Create resource with POST request.
      *
+     * @param string $checksum
+     *
      * @throws FileException
      *
      * @return string
      */
-    public function create() : string
+    public function create(string $checksum) : string
+    {
+        $headers = [
+            'Upload-Length' => $this->fileSize,
+            'Upload-Checksum' => $this->getUploadChecksumHeader($checksum),
+            'Upload-Metadata' => 'filename ' . base64_encode($this->fileName),
+        ];
+
+        if ($this->isPartial()) {
+            $headers += ['Upload-Concat' => 'partial'];
+        }
+
+        $response = $this->getClient()->post($this->apiPath, [
+            'headers' => $headers,
+        ]);
+
+        $data       = json_decode($response->getBody(), true);
+        $checksum   = $data['data']['checksum'] ?? null;
+        $statusCode = $response->getStatusCode();
+
+        if (HttpResponse::HTTP_CREATED !== $statusCode || ! $checksum) {
+            throw new FileException('Unable to create resource.');
+        }
+
+        return $checksum;
+    }
+
+    /**
+     * Concatenate 2 or more partial uploads.
+     *
+     * @param string $checksum
+     * @param mixed  $partials
+     *
+     * @return string
+     */
+    public function concat(string $checksum, ...$partials) : string
     {
         $response = $this->getClient()->post($this->apiPath, [
             'headers' => [
                 'Upload-Length' => $this->fileSize,
-                'Upload-Checksum' => $this->getUploadChecksumHeader(),
+                'Upload-Checksum' => $this->getUploadChecksumHeader($checksum),
                 'Upload-Metadata' => 'filename ' . base64_encode($this->fileName),
+                'Upload-Concat' => self::UPLOAD_TYPE_FINAL . ';' . implode(' ', $partials),
             ],
         ]);
 
@@ -274,6 +367,28 @@ class Client extends AbstractTus
     }
 
     /**
+     * Set as partial request.
+     *
+     * @param bool $state
+     */
+    protected function partial(bool $state = true)
+    {
+        $this->partial = $state;
+
+        if ( ! $this->partial) {
+            return;
+        }
+
+        $checksum = $this->getChecksum();
+
+        if (false !== strpos($checksum, self::PARTIAL_UPLOAD_NAME_SEPARATOR)) {
+            list($checksum) = explode(self::PARTIAL_UPLOAD_NAME_SEPARATOR, $checksum);
+        }
+
+        $this->checksum = $checksum . uniqid(self::PARTIAL_UPLOAD_NAME_SEPARATOR);
+    }
+
+    /**
      * Send HEAD request.
      *
      * @param string $checksum
@@ -309,16 +424,21 @@ class Client extends AbstractTus
      */
     protected function sendPatchRequest(string $checksum, int $bytes) : int
     {
-        $data = $this->getData($checksum, $bytes);
+        $data    = $this->getData($checksum, $bytes);
+        $headers = [
+            'Content-Type' => 'application/offset+octet-stream',
+            'Content-Length' => strlen($data),
+            'Upload-Checksum' => $this->getUploadChecksumHeader($checksum),
+        ];
+
+        if ($this->isPartial()) {
+            $headers += ['Upload-Concat' => self::UPLOAD_TYPE_PARTIAL];
+        }
 
         try {
             $response = $this->getClient()->patch($this->apiPath . '/' . $checksum, [
                 'body' => $data,
-                'headers' => [
-                    'Content-Type' => 'application/offset+octet-stream',
-                    'Content-Length' => strlen($data),
-                    'Upload-Checksum' => $this->getUploadChecksumHeader(),
-                ],
+                'headers' => $headers,
             ]);
 
             return (int) current($response->getHeader('upload-offset'));
@@ -349,12 +469,16 @@ class Client extends AbstractTus
      */
     protected function getData(string $checksum, int $bytes) : string
     {
-        $file = new File;
+        $file   = new File;
+        $handle = $file->open($this->getFilePath(), $file::READ_BINARY);
+        $offset = $this->partialOffset;
 
-        $handle   = $file->open($this->getFilePath(), $file::READ_BINARY);
-        $fileMeta = $this->getCache()->get($checksum);
+        if ($offset < 0) {
+            $fileMeta = $this->getCache()->get($checksum);
+            $offset   = $fileMeta['offset'];
+        }
 
-        $file->seek($handle, $fileMeta['offset']);
+        $file->seek($handle, $offset);
 
         $data = $file->read($handle, $bytes);
 
@@ -366,10 +490,16 @@ class Client extends AbstractTus
     /**
      * Get upload checksum header.
      *
+     * @param string|null $checksum
+     *
      * @return string
      */
-    protected function getUploadChecksumHeader() : string
+    protected function getUploadChecksumHeader(string $checksum = null) : string
     {
-        return $this->getChecksumAlgorithm() . ' ' . base64_encode($this->getChecksum());
+        if (empty($checksum)) {
+            $checksum = $this->getChecksum();
+        }
+
+        return $this->getChecksumAlgorithm() . ' ' . base64_encode($checksum);
     }
 }

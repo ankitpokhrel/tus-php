@@ -92,7 +92,7 @@ $client->setChecksumAlgorithm('crc32');
 - [x] The Termination extension is implemented which is used to terminate completed and unfinished uploads allowing the Server to free up used resources.
 - [x] ~~Todo: Checksum extension~~ The Checksum extension is implemented, the server will use `sha256` algorithm by default to verify the upload.
 - [x] ~~Todo: Expiration extension~~ The Expiration extension is implemented, details below.
-- [ ] Todo: Concatenation extension
+- [x] ~~Todo: Concatenation extension~~ This Concatenation extension is implemented except that the server is not capable of handling unfinished concatenation.
 
 ### Expiration
 The Server is capable of removing expired but unfinished uploads. You can use following command manually or in a cron job to remove them.
@@ -110,6 +110,33 @@ eg:
 
 $ ./vendor/bin/tus tus:expired redis
 ```
+
+### Concatenation
+The Server is capable of concatenating multiple uploads into a single one enabling Clients to perform parallel uploads and to upload non-contiguous chunks.
+
+```php
+$client->file('/path/to/file', 'chunk_a.ext');
+
+// Actual file checksum
+$checksum = $client->getChecksum();
+
+// Upload 10000 bytes starting from 1000 bytes
+$bytesUploaded = $client->seek(1000)->upload(10000);
+$chunkAchecksum  = $client->getChecksum();
+
+// Upload 1000 bytes starting from 0 bytes
+$bytesUploaded = $client->setFileName('chunk_b.ext')->seek(0)->upload(1000);
+$chunkBchecksum = $client->getChecksum();
+
+// Upload remaining bytes starting from 11000 bytes (10000 +  1000)
+$bytesUploaded = $client->setFileName('chunk_c.ext')->seek(11000)->upload();
+$chunkCchecksum = $client->getChecksum();
+
+// Concatenate partial uploads
+$client->setFileName('actual_file.ext')->concat($checksum, $chunkAchecksum, $chunkBchecksum, $chunkCchecksum);
+```
+
+Additionally, the server will verify checksum against the merged file to make sure that the file is not corrupt.  
 
 ### Setting up dev environment and/or running example locally
 An ajax based example for this implementation can be found in `examples/` folder. You can either build and run it using docker or use kubernetes locally with minikube.

@@ -107,15 +107,26 @@ class ClientTest extends TestCase
     /**
      * @test
      *
+     * @covers ::setFileName
+     * @covers ::getFileName
+     */
+    public function it_sets_and_gets_filename()
+    {
+        $this->assertNull($this->tusClient->getFileName());
+        $this->assertInstanceOf(TusClient::class, $this->tusClient->setFileName('file.txt'));
+        $this->assertEquals('file.txt', $this->tusClient->getFileName());
+    }
+
+    /**
+     * @test
+     *
      * @covers ::getApiPath
      * @covers ::setApiPath
      */
     public function it_sets_and_gets_api_path()
     {
         $this->assertEquals('/files', $this->tusClient->getApiPath());
-
-        $this->tusClient->setApiPath('/api');
-
+        $this->assertInstanceOf(TusClient::class, $this->tusClient->setApiPath('/api'));
         $this->assertEquals('/api', $this->tusClient->getApiPath());
     }
 
@@ -151,16 +162,69 @@ class ClientTest extends TestCase
     /**
      * @test
      *
-     * @covers ::getChecksumAlgorithm
      * @covers ::setChecksumAlgorithm
+     * @covers ::getChecksumAlgorithm
      */
     public function it_sets_and_gets_checksum_algorithm()
     {
         $this->assertEquals('sha256', $this->tusClient->getChecksumAlgorithm());
-
-        $this->tusClient->setChecksumAlgorithm('crc32');
-
+        $this->assertInstanceOf(TusClient::class, $this->tusClient->setChecksumAlgorithm('crc32'));
         $this->assertEquals('crc32', $this->tusClient->getChecksumAlgorithm());
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::seek
+     * @covers ::partial
+     * @covers ::getPartialOffset
+     * @covers ::isPartial
+     */
+    public function it_sets_and_gets_partial()
+    {
+        $checksum = hash_file('sha256', __DIR__ . '/../Fixtures/data.txt');
+
+        $this->tusClientMock
+            ->shouldReceive('getChecksum')
+            ->once()
+            ->andReturn($checksum);
+
+        $this->assertFalse($this->tusClientMock->isPartial());
+        $this->assertInstanceOf(TusClient::class, $this->tusClientMock->seek(100));
+        $this->assertTrue($this->tusClientMock->isPartial());
+        $this->assertEquals(100, $this->tusClientMock->getPartialOffset());
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::isPartial
+     * @covers ::partial
+     */
+    public function it_set_state_only_for_partial_equals_false()
+    {
+        $this->assertFalse($this->tusClientMock->isPartial());
+        $this->assertNull($this->tusClientMock->partial(false));
+        $this->assertFalse($this->tusClientMock->isPartial());
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::partial
+     */
+    public function it_generates_unique_key_for_partial_checksum()
+    {
+        $checksum        = hash_file('sha256', __DIR__ . '/../Fixtures/data.txt');
+        $partialChecksum = $checksum . '_partial';
+
+        $this->tusClientMock
+            ->shouldReceive('getChecksum')
+            ->once()
+            ->andReturn($partialChecksum);
+
+        $this->assertNull($this->tusClientMock->partial());
+        $this->assertTrue($this->tusClientMock->isPartial());
     }
 
     /**
@@ -758,6 +822,64 @@ class ClientTest extends TestCase
     /**
      * @test
      *
+     * @covers ::sendPatchRequest
+     */
+    public function it_sends_a_partial_patch_request()
+    {
+        $bytes    = 12;
+        $data     = 'Hello World!';
+        $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
+
+        $this->tusClientMock
+            ->shouldReceive('getData')
+            ->once()
+            ->with($checksum, $bytes)
+            ->andReturn($data);
+
+        $this->tusClientMock
+            ->shouldReceive('getUploadChecksumHeader')
+            ->once()
+            ->andReturn($checksum);
+
+        $guzzleMock   = m::mock(Client::class);
+        $responseMock = m::mock(Response::class);
+
+        $this->tusClientMock
+            ->shouldReceive('getClient')
+            ->once()
+            ->andReturn($guzzleMock);
+
+        $this->tusClientMock
+            ->shouldReceive('isPartial')
+            ->once()
+            ->andReturn(true);
+
+        $guzzleMock
+            ->shouldReceive('patch')
+            ->once()
+            ->with('/files/' . $checksum, [
+                'body' => $data,
+                'headers' => [
+                    'Content-Type' => 'application/offset+octet-stream',
+                    'Content-Length' => mb_strlen($data),
+                    'Upload-Checksum' => $checksum,
+                    'Upload-Concat' => 'partial',
+                ],
+            ])
+            ->andReturn($responseMock);
+
+        $responseMock
+            ->shouldReceive('getHeader')
+            ->once()
+            ->with('upload-offset')
+            ->andReturn([$bytes]);
+
+        $this->assertEquals($bytes, $this->tusClientMock->sendPatchRequest($checksum, $bytes));
+    }
+
+    /**
+     * @test
+     *
      * @covers ::create
      */
     public function it_creates_a_resource_with_post_request()
@@ -795,13 +917,68 @@ class ClientTest extends TestCase
             ->with('/files', [
                 'headers' => [
                     'Upload-Length' => filesize($filePath),
-                    'Upload-Checksum' => 'sha256 ' . base64_encode(hash_file('sha256', $filePath)),
+                    'Upload-Checksum' => 'sha256 ' . base64_encode($checksum),
                     'Upload-Metadata' => 'filename ' . base64_encode($fileName),
                 ],
             ])
             ->andReturn($responseMock);
 
-        $this->assertEquals($checksum, $this->tusClientMock->create());
+        $this->assertEquals($checksum, $this->tusClientMock->create($checksum));
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::create
+     */
+    public function it_creates_a_partial_resource_with_post_request()
+    {
+        $checksum     = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
+        $filePath     = __DIR__ . '/../Fixtures/empty.txt';
+        $fileName     = 'file.txt';
+        $guzzleMock   = m::mock(Client::class);
+        $responseMock = m::mock(Response::class);
+
+        $responseMock
+            ->shouldReceive('getStatusCode')
+            ->once()
+            ->andReturn(201);
+
+        $responseMock
+            ->shouldReceive('getBody')
+            ->once()
+            ->andReturn(json_encode([
+                'data' => [
+                    'checksum' => $checksum,
+                ],
+            ]));
+
+        $this->tusClientMock
+            ->shouldReceive('getClient')
+            ->once()
+            ->andReturn($guzzleMock);
+
+        $this->tusClientMock
+            ->shouldReceive('isPartial')
+            ->once()
+            ->andReturn(true);
+
+        $this->tusClientMock->file($filePath, $fileName);
+
+        $guzzleMock
+            ->shouldReceive('post')
+            ->once()
+            ->with('/files', [
+                'headers' => [
+                    'Upload-Length' => filesize($filePath),
+                    'Upload-Checksum' => 'sha256 ' . base64_encode($checksum),
+                    'Upload-Metadata' => 'filename ' . base64_encode($fileName),
+                    'Upload-Concat' => 'partial',
+                ],
+            ])
+            ->andReturn($responseMock);
+
+        $this->assertEquals($checksum, $this->tusClientMock->create($checksum));
     }
 
     /**
@@ -816,6 +993,7 @@ class ClientTest extends TestCase
     {
         $filePath     = __DIR__ . '/../Fixtures/empty.txt';
         $fileName     = 'file.txt';
+        $checksum     = hash_file('sha256', $filePath);
         $guzzleMock   = m::mock(Client::class);
         $responseMock = m::mock(Response::class);
 
@@ -842,13 +1020,13 @@ class ClientTest extends TestCase
             ->with('/files', [
                 'headers' => [
                     'Upload-Length' => filesize($filePath),
-                    'Upload-Checksum' => 'sha256 ' . base64_encode(hash_file('sha256', $filePath)),
+                    'Upload-Checksum' => 'sha256 ' . base64_encode($checksum),
                     'Upload-Metadata' => 'filename ' . base64_encode($fileName),
                 ],
             ])
             ->andReturn($responseMock);
 
-        $this->tusClientMock->create();
+        $this->tusClientMock->create($checksum);
     }
 
     /**
@@ -900,7 +1078,165 @@ class ClientTest extends TestCase
             ])
             ->andReturn($responseMock);
 
-        $this->tusClientMock->create();
+        $this->tusClientMock->create('');
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::concat
+     */
+    public function it_creates_a_concat_resource_with_post_request()
+    {
+        $checksum     = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
+        $filePath     = __DIR__ . '/../Fixtures/empty.txt';
+        $fileName     = 'file.txt';
+        $guzzleMock   = m::mock(Client::class);
+        $responseMock = m::mock(Response::class);
+        $partials     = ['/files/a', '/files/b', 'files/c'];
+
+        $responseMock
+            ->shouldReceive('getStatusCode')
+            ->once()
+            ->andReturn(201);
+
+        $responseMock
+            ->shouldReceive('getBody')
+            ->once()
+            ->andReturn(json_encode([
+                'data' => [
+                    'checksum' => $checksum,
+                ],
+            ]));
+
+        $this->tusClientMock
+            ->shouldReceive('getClient')
+            ->once()
+            ->andReturn($guzzleMock);
+
+        $this->tusClientMock->file($filePath, $fileName);
+
+        $guzzleMock
+            ->shouldReceive('post')
+            ->once()
+            ->with('/files', [
+                'headers' => [
+                    'Upload-Length' => filesize($filePath),
+                    'Upload-Checksum' => 'sha256 ' . base64_encode($checksum),
+                    'Upload-Metadata' => 'filename ' . base64_encode($fileName),
+                    'Upload-Concat' => 'final;' . implode(' ', $partials),
+                ],
+            ])
+            ->andReturn($responseMock);
+
+        $this->assertEquals(
+            $checksum,
+            $this->tusClientMock->concat($checksum, $partials[0], $partials[1], $partials[2])
+        );
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::concat
+     *
+     * @expectedException \TusPhp\Exception\FileException
+     * @expectedExceptionMessage Unable to create resource.
+     */
+    public function it_throws_exception_when_unable_to_create_concat_resource()
+    {
+        $filePath     = __DIR__ . '/../Fixtures/empty.txt';
+        $fileName     = 'file.txt';
+        $checksum     = hash_file('sha256', $filePath);
+        $guzzleMock   = m::mock(Client::class);
+        $responseMock = m::mock(Response::class);
+        $partials     = ['/files/a', '/files/b', 'files/c'];
+
+        $responseMock
+            ->shouldReceive('getBody')
+            ->once()
+            ->andReturn(null);
+
+        $responseMock
+            ->shouldReceive('getStatusCode')
+            ->once()
+            ->andReturn(400);
+
+        $this->tusClientMock
+            ->shouldReceive('getClient')
+            ->once()
+            ->andReturn($guzzleMock);
+
+        $this->tusClientMock->file($filePath, $fileName);
+
+        $guzzleMock
+            ->shouldReceive('post')
+            ->once()
+            ->with('/files', [
+                'headers' => [
+                    'Upload-Length' => filesize($filePath),
+                    'Upload-Checksum' => 'sha256 ' . base64_encode($checksum),
+                    'Upload-Metadata' => 'filename ' . base64_encode($fileName),
+                    'Upload-Concat' => 'final;' . implode(' ', $partials),
+                ],
+            ])
+            ->andReturn($responseMock);
+
+        $this->tusClientMock->concat($checksum, $partials[0], $partials[1], $partials[2]);
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::concat
+     *
+     * @expectedException \TusPhp\Exception\FileException
+     * @expectedExceptionMessage Unable to create resource.
+     */
+    public function it_throws_exception_when_unable_to_get_checksum_in_concat()
+    {
+        $filePath     = __DIR__ . '/../Fixtures/empty.txt';
+        $fileName     = 'file.txt';
+        $guzzleMock   = m::mock(Client::class);
+        $responseMock = m::mock(Response::class);
+        $partials     = ['/files/a', '/files/b', 'files/c'];
+
+        $responseMock
+            ->shouldReceive('getBody')
+            ->once()
+            ->andReturn(null);
+
+        $responseMock
+            ->shouldReceive('getStatusCode')
+            ->once()
+            ->andReturn(201);
+
+        $this->tusClientMock
+            ->shouldReceive('getClient')
+            ->once()
+            ->andReturn($guzzleMock);
+
+        $this->tusClientMock
+            ->shouldReceive('getChecksum')
+            ->once()
+            ->andReturn('');
+
+        $this->tusClientMock->file($filePath, $fileName);
+
+        $guzzleMock
+            ->shouldReceive('post')
+            ->once()
+            ->with('/files', [
+                'headers' => [
+                    'Upload-Length' => filesize($filePath),
+                    'Upload-Checksum' => 'sha256 ',
+                    'Upload-Metadata' => 'filename ' . base64_encode($fileName),
+                    'Upload-Concat' => 'final;' . implode(' ', $partials),
+                ],
+            ])
+            ->andReturn($responseMock);
+
+        $this->tusClientMock->concat('', $partials[0], $partials[1], $partials[2]);
     }
 
     /**

@@ -8,6 +8,7 @@ use phpmock\MockBuilder;
 use TusPhp\Cache\FileStore;
 use TusPhp\Cache\CacheFactory;
 use PHPUnit\Framework\TestCase;
+use TusPhp\Test\Fixtures\FileFixture;
 
 /**
  * @coversDefaultClass \TusPhp\File
@@ -164,6 +165,7 @@ class FileTest extends TestCase
      * @test
      *
      * @covers ::open
+     * @covers ::exists
      *
      * @expectedException \TusPhp\Exception\FileException
      * @expectedExceptionMessage File not found.
@@ -177,6 +179,7 @@ class FileTest extends TestCase
      * @test
      *
      * @covers ::open
+     * @covers ::exists
      *
      * @expectedException \TusPhp\Exception\FileException
      * @expectedExceptionMessageRegExp  /Unable to open [a-zA-Z0-9-\/.]+/
@@ -194,6 +197,7 @@ class FileTest extends TestCase
      * @test
      *
      * @covers ::open
+     * @covers ::exists
      * @covers ::close
      */
     public function it_opens_a_file()
@@ -205,6 +209,31 @@ class FileTest extends TestCase
         $this->assertInternalType('resource', $resource);
 
         $this->file->close($resource);
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::exists
+     */
+    public function it_checks_if_file_exists_based_on_mode()
+    {
+        $this->assertTrue($this->file->exists('php://input'));
+        $this->assertTrue($this->file->exists(__DIR__ . '/Fixtures/empty.txt'));
+        $this->assertTrue($this->file->exists(__DIR__ . '/Fixtures/invalid.txt', 'wb+'));
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::exists
+     *
+     * @expectedException \TusPhp\Exception\FileException
+     * @expectedExceptionMessage File not found.
+     */
+    public function it_throws_file_exception_if_file_doesnt_exists_for_read_mode()
+    {
+        $this->assertFalse($this->file->exists(__DIR__ . '/Fixtures/invalid.txt'));
     }
 
     /**
@@ -370,6 +399,164 @@ class FileTest extends TestCase
         $this->file->close($handle);
 
         @unlink($file);
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::merge
+     *
+     * @expectedException \TusPhp\Exception\FileException
+     * @expectedExceptionMessage File to be merged not found.
+     */
+    public function it_throws_file_exception_if_file_to_merge_doesnt_exist()
+    {
+        $path  = __DIR__ . '/.tmp/fld';
+        $files = [
+            ['file_path' => "$path/1", 'offset' => 10],
+        ];
+
+        FileFixture::makeFilesAndFolder($path, $files);
+
+        array_push($files, ['file_path' => "$path/invalid", 'offset' => 0]);
+
+        $mergedFilePath = $path . '/../file.txt';
+
+        $this->file->setFilePath($mergedFilePath)->merge($files);
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::copy
+     * @covers ::merge
+     */
+    public function it_merges_two_or_more_files() : string
+    {
+        $path  = __DIR__ . '/.tmp/fld';
+        $files = [
+            ['file_path' => "$path/1", 'offset' => 10],
+            ['file_path' => "$path/2", 'offset' => 20],
+            ['file_path' => "$path/3", 'offset' => 30],
+        ];
+
+        FileFixture::makeFilesAndFolder($path, $files);
+
+        $mergedFilePath = $path . '/../file.txt';
+
+        $this->file->setFilePath($mergedFilePath)->merge($files);
+
+        $this->assertTrue(file_exists($mergedFilePath));
+        $this->assertEquals('123', file_get_contents($mergedFilePath));
+        $this->assertEquals(60, $this->file->getOffset());
+        $this->assertEquals(3, $this->file->getFileSize());
+
+        @unlink($mergedFilePath);
+
+        return $path;
+    }
+
+    /**
+     * @test
+     *
+     * @depends it_merges_two_or_more_files
+     *
+     * @covers ::delete
+     */
+    public function it_deletes_all_files_and_folder(string $path)
+    {
+        $files = [
+            "$path/1",
+            "$path/2",
+            "$path/3",
+        ];
+
+        $this->file->delete($files, true);
+
+        $this->assertFalse(file_exists($path));
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::copy
+     * @covers ::merge
+     *
+     * @expectedException \TusPhp\Exception\FileException
+     * @expectedExceptionMessage Cannot copy source to destination.
+     */
+    public function it_throws_file_exception_if_it_cannot_copy_file()
+    {
+        $path  = __DIR__ . '/.tmp/fld';
+        $files = [
+            ['file_path' => "$path/invalid", 'offset' => 10],
+        ];
+
+        $this->file->merge($files);
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::delete
+     * @covers ::deleteFiles
+     */
+    public function it_deletes_files_only() : string
+    {
+        $path = __DIR__ . '/.tmp/fld';
+
+        $files = [
+            "$path/1",
+            "$path/2",
+            "$path/3",
+        ];
+
+        FileFixture::makeFilesAndFolder($path, [
+            ['file_path' => "$path/1", 'offset' => 10],
+            ['file_path' => "$path/2", 'offset' => 20],
+            ['file_path' => "$path/3", 'offset' => 30],
+        ]);
+
+        $this->file->delete($files);
+
+        foreach ($files as $file) {
+            $this->assertFalse(file_exists($file));
+        }
+
+        $this->assertTrue(file_exists($path));
+        $this->assertTrue(is_dir($path));
+
+        return $path;
+    }
+
+    /**
+     * @test
+     *
+     * @depends it_deletes_files_only
+     *
+     * @covers ::delete
+     * @covers ::deleteFiles
+     */
+    public function it_doesnt_delete_folder_if_file_path_is_not_given(string $path)
+    {
+        $this->file->delete([], true);
+
+        $this->assertTrue(file_exists($path));
+    }
+
+    /**
+     * @test
+     *
+     * @depends it_deletes_files_only
+     *
+     * @covers ::delete
+     * @covers ::deleteFiles
+     */
+    public function it_deletes_empty_folder(string $path)
+    {
+        $this->file->delete(["$path/1"], true);
+
+        $this->assertFalse(file_exists($path));
     }
 
     /**
