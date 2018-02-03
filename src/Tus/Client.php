@@ -314,7 +314,7 @@ class Client extends AbstractTus
      * Concatenate 2 or more partial uploads.
      *
      * @param string $checksum
-     * @param array  $partials
+     * @param mixed  $partials
      *
      * @return string
      */
