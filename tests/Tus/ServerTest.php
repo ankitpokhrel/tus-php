@@ -282,7 +282,7 @@ class ServerTest extends TestCase
         $cacheMock = m::mock(FileStore::class);
         $cacheMock
             ->shouldReceive('get')
-            ->twice()
+            ->once()
             ->with($checksum)
             ->andReturn([
                 'name' => 'file.txt',
@@ -317,7 +317,7 @@ class ServerTest extends TestCase
         $cacheMock = m::mock(FileStore::class);
         $cacheMock
             ->shouldReceive('get')
-            ->twice()
+            ->once()
             ->with($checksum)
             ->andReturn([
                 'offset' => 49,
@@ -357,7 +357,7 @@ class ServerTest extends TestCase
         $cacheMock = m::mock(FileStore::class);
         $cacheMock
             ->shouldReceive('get')
-            ->twice()
+            ->once()
             ->with($checksum)
             ->andReturn([
                 'offset' => 49,
@@ -397,11 +397,12 @@ class ServerTest extends TestCase
         $cacheMock = m::mock(FileStore::class);
         $cacheMock
             ->shouldReceive('get')
-            ->twice()
+            ->once()
             ->with($checksum)
             ->andReturn([
                 'offset' => 49,
                 'upload_type' => 'final',
+                'size' => 100,
             ]);
 
         $this->tusServerMock->setCache($cacheMock);
@@ -410,7 +411,7 @@ class ServerTest extends TestCase
 
         $this->assertNull($response->getOriginalContent());
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals(49, $response->headers->get('upload-offset'));
+        $this->assertNull($response->headers->get('upload-offset'));
         $this->assertEquals('final', $response->headers->get('upload-concat'));
         $this->assertEquals('1.0.0', $response->headers->get('tus-resumable'));
         $this->assertEquals('no-store, private', $response->headers->get('cache-control'));

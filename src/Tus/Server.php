@@ -195,12 +195,11 @@ class Server extends AbstractTus
     {
         $checksum = $this->request->checksum();
 
-        if ( ! $this->cache->get($checksum)) {
+        if ( ! $fileMeta = $this->cache->get($checksum)) {
             return $this->response->send(null, HttpResponse::HTTP_NOT_FOUND);
         }
 
-        $fileMeta = $this->cache->get($checksum);
-        $offset   = $fileMeta['offset'] ?? false;
+        $offset = $fileMeta['offset'] ?? false;
 
         if (false === $offset) {
             return $this->response->send(null, HttpResponse::HTTP_GONE);
@@ -211,6 +210,10 @@ class Server extends AbstractTus
             'Cache-Control' => 'no-store',
             'Tus-Resumable' => self::TUS_PROTOCOL_VERSION,
         ];
+
+        if (self::UPLOAD_TYPE_FINAL === $fileMeta['upload_type'] && $fileMeta['size'] !== $fileMeta['offset']) {
+            unset($headers['Upload-Offset']);
+        }
 
         if (self::UPLOAD_TYPE_NORMAL !== $fileMeta['upload_type']) {
             $headers += ['Upload-Concat' => $fileMeta['upload_type']];
