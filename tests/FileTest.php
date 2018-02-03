@@ -165,6 +165,7 @@ class FileTest extends TestCase
      * @test
      *
      * @covers ::open
+     * @covers ::exists
      *
      * @expectedException \TusPhp\Exception\FileException
      * @expectedExceptionMessage File not found.
@@ -178,6 +179,7 @@ class FileTest extends TestCase
      * @test
      *
      * @covers ::open
+     * @covers ::exists
      *
      * @expectedException \TusPhp\Exception\FileException
      * @expectedExceptionMessageRegExp  /Unable to open [a-zA-Z0-9-\/.]+/
@@ -195,6 +197,7 @@ class FileTest extends TestCase
      * @test
      *
      * @covers ::open
+     * @covers ::exists
      * @covers ::close
      */
     public function it_opens_a_file()
@@ -206,6 +209,31 @@ class FileTest extends TestCase
         $this->assertInternalType('resource', $resource);
 
         $this->file->close($resource);
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::exists
+     */
+    public function it_checks_if_file_exists_based_on_mode()
+    {
+        $this->assertTrue($this->file->exists('php://input'));
+        $this->assertTrue($this->file->exists(__DIR__ . '/Fixtures/empty.txt'));
+        $this->assertTrue($this->file->exists(__DIR__ . '/Fixtures/invalid.txt', 'wb+'));
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::exists
+     *
+     * @expectedException \TusPhp\Exception\FileException
+     * @expectedExceptionMessage File not found.
+     */
+    public function it_throws_file_exception_if_file_doesnt_exists_for_read_mode()
+    {
+        $this->assertFalse($this->file->exists(__DIR__ . '/Fixtures/invalid.txt'));
     }
 
     /**

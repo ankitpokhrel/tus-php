@@ -231,6 +231,7 @@ class ServerTest extends TestCase
      * @test
      *
      * @covers ::handleHead
+     * @covers ::getHeadersForHeadRequest
      */
     public function it_sends_404_for_invalid_checksum_in_head_method()
     {
@@ -265,6 +266,7 @@ class ServerTest extends TestCase
      * @test
      *
      * @covers ::handleHead
+     * @covers ::getHeadersForHeadRequest
      */
     public function it_returns_410_if_no_offset_is_set()
     {
@@ -300,6 +302,7 @@ class ServerTest extends TestCase
      * @test
      *
      * @covers ::handleHead
+     * @covers ::getHeadersForHeadRequest
      */
     public function it_handles_head_request()
     {
@@ -340,6 +343,7 @@ class ServerTest extends TestCase
      * @test
      *
      * @covers ::handleHead
+     * @covers ::getHeadersForHeadRequest
      */
     public function it_handles_head_request_for_partial_upload()
     {
@@ -380,6 +384,7 @@ class ServerTest extends TestCase
      * @test
      *
      * @covers ::handleHead
+     * @covers ::getHeadersForHeadRequest
      */
     public function it_handles_head_request_for_final_upload()
     {
@@ -1644,6 +1649,39 @@ class ServerTest extends TestCase
         $this->assertEquals('termination', $response->headers->get('tus-extension'));
 
         $mock->disable();
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::getHeadersForHeadRequest
+     */
+    public function it_gets_required_headers_for_head_request()
+    {
+        $fileMeta = [
+            'offset' => '49',
+            'upload_type' => 'normal',
+            'size' => 100,
+        ];
+
+        $headers = [
+            'Upload-Offset' => 49,
+            'Cache-Control' => 'no-store',
+            'Tus-Resumable' => '1.0.0',
+        ];
+
+        $this->assertEquals($headers, $this->tusServerMock->getHeadersForHeadRequest($fileMeta));
+        $this->assertEquals(
+            $headers + ['Upload-Concat' => 'partial'],
+            $this->tusServerMock->getHeadersForHeadRequest(['upload_type' => 'partial'] + $fileMeta)
+        );
+
+        unset($headers['Upload-Offset']);
+
+        $this->assertEquals(
+            $headers + ['Upload-Concat' => 'final'],
+            $this->tusServerMock->getHeadersForHeadRequest(['upload_type' => 'final'] + $fileMeta)
+        );
     }
 
     /**

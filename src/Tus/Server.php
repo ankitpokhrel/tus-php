@@ -205,21 +205,7 @@ class Server extends AbstractTus
             return $this->response->send(null, HttpResponse::HTTP_GONE);
         }
 
-        $headers = [
-            'Upload-Offset' => (int) $offset,
-            'Cache-Control' => 'no-store',
-            'Tus-Resumable' => self::TUS_PROTOCOL_VERSION,
-        ];
-
-        if (self::UPLOAD_TYPE_FINAL === $fileMeta['upload_type'] && $fileMeta['size'] !== $fileMeta['offset']) {
-            unset($headers['Upload-Offset']);
-        }
-
-        if (self::UPLOAD_TYPE_NORMAL !== $fileMeta['upload_type']) {
-            $headers += ['Upload-Concat' => $fileMeta['upload_type']];
-        }
-
-        return $this->response->send(null, HttpResponse::HTTP_OK, $headers);
+        return $this->response->send(null, HttpResponse::HTTP_OK, $this->getHeadersForHeadRequest($fileMeta));
     }
 
     /**
@@ -282,9 +268,9 @@ class Server extends AbstractTus
     protected function handleConcatenation(string $fileName, string $filePath) : HttpResponse
     {
         $partials  = $this->getRequest()->extractPartials();
-        $location  = $this->getRequest()->url() . '/' . basename($this->uploadDir) . '/' . $fileName;
         $files     = $this->getPartialsMeta($partials);
         $filePaths = array_column($files, 'file_path');
+        $location  = $this->getRequest()->url() . '/' . basename($this->uploadDir) . '/' . $fileName;
 
         $file = $this->buildFile([
             'name' => $fileName,
@@ -418,6 +404,32 @@ class Server extends AbstractTus
             'Tus-Resumable' => self::TUS_PROTOCOL_VERSION,
             'Tus-Extension' => self::TUS_EXTENSION_TERMINATION,
         ]);
+    }
+
+    /**
+     * Get required headers for head request.
+     *
+     * @param array $fileMeta
+     *
+     * @return array
+     */
+    protected function getHeadersForHeadRequest(array $fileMeta) : array
+    {
+        $headers = [
+            'Upload-Offset' => (int) $fileMeta['offset'],
+            'Cache-Control' => 'no-store',
+            'Tus-Resumable' => self::TUS_PROTOCOL_VERSION,
+        ];
+
+        if (self::UPLOAD_TYPE_FINAL === $fileMeta['upload_type'] && $fileMeta['size'] !== $fileMeta['offset']) {
+            unset($headers['Upload-Offset']);
+        }
+
+        if (self::UPLOAD_TYPE_NORMAL !== $fileMeta['upload_type']) {
+            $headers += ['Upload-Concat' => $fileMeta['upload_type']];
+        }
+
+        return $headers;
     }
 
     /**
@@ -558,13 +570,11 @@ class Server extends AbstractTus
                 continue;
             }
 
-            $cacheDeleted = $this->cache->delete($key);
-
-            if ( ! $cacheDeleted) {
+            if ( ! $this->cache->delete($key)) {
                 continue;
             }
 
-            if (file_exists($fileMeta['file_path']) && is_writable($fileMeta['file_path'])) {
+            if (is_writable($fileMeta['file_path'])) {
                 unlink($fileMeta['file_path']);
             }
 

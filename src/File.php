@@ -313,12 +313,7 @@ class File
      */
     public function open(string $filePath, string $mode)
     {
-        if (self::INPUT_STREAM !== $filePath &&
-            self::READ_BINARY === $mode &&
-            ! file_exists($filePath)
-        ) {
-            throw new FileException('File not found.');
-        }
+        $this->exists($filePath, $mode);
 
         $ptr = @fopen($filePath, $mode);
 
@@ -327,6 +322,29 @@ class File
         }
 
         return $ptr;
+    }
+
+    /**
+     * Check if file to read exists.
+     *
+     * @param string $filePath
+     * @param string $mode
+     *
+     * @throws FileException
+     *
+     * @return bool
+     */
+    public function exists(string $filePath, string $mode = self::READ_BINARY) : bool
+    {
+        if (self::INPUT_STREAM === $filePath) {
+            return true;
+        }
+
+        if (self::READ_BINARY === $mode && ! file_exists($filePath)) {
+            throw new FileException('File not found.');
+        }
+
+        return true;
     }
 
     /**
@@ -474,7 +492,11 @@ class File
      */
     public function deleteFiles(array $files)
     {
-        $status = empty($files) ? false : true;
+        if (empty($files)) {
+            return false;
+        }
+
+        $status = true;
 
         foreach ($files as $file) {
             if (file_exists($file)) {
