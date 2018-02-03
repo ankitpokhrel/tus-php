@@ -361,9 +361,7 @@ class Server extends AbstractTus
             return $this->response->send('400 bad request.', HttpResponse::HTTP_BAD_REQUEST);
         }
 
-        $fileMeta = $this->cache->get($checksum);
-
-        if ( ! $fileMeta) {
+        if ( ! $fileMeta = $this->cache->get($checksum)) {
             return $this->response->send('404 upload not found.', HttpResponse::HTTP_NOT_FOUND);
         }
 
