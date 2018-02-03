@@ -281,17 +281,10 @@ class Server extends AbstractTus
      */
     protected function handleConcatenation(string $fileName, string $filePath) : HttpResponse
     {
-        $files     = [];
-        $filePaths = [];
         $partials  = $this->getRequest()->extractPartials();
         $location  = $this->getRequest()->url() . '/' . basename($this->uploadDir) . '/' . $fileName;
-
-        foreach ($partials as $partial) {
-            $fileMeta = $this->getCache()->get($partial);
-
-            $files[]     = $fileMeta;
-            $filePaths[] = $fileMeta['file_path'];
-        }
+        $files     = $this->getPartialsMeta($partials);
+        $filePaths = array_column($files, 'file_path');
 
         $file = $this->buildFile([
             'name' => $fileName,
@@ -526,6 +519,26 @@ class Server extends AbstractTus
         }
 
         return $path;
+    }
+
+    /**
+     * Get metadata of partials.
+     *
+     * @param array $partials
+     *
+     * @return array
+     */
+    protected function getPartialsMeta(array $partials)
+    {
+        $files = [];
+
+        foreach ($partials as $partial) {
+            $fileMeta = $this->getCache()->get($partial);
+
+            $files[] = $fileMeta;
+        }
+
+        return $files;
     }
 
     /**

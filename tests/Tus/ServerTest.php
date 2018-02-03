@@ -692,6 +692,7 @@ class ServerTest extends TestCase
      * @test
      *
      * @covers ::handleConcatenation
+     * @covers ::getPartialsMeta
      */
     public function it_handles_concatenation_request()
     {
@@ -742,19 +743,13 @@ class ServerTest extends TestCase
             ->shouldReceive('get')
             ->once()
             ->with('file_a')
-            ->andReturn([
-                'file_path' => $filePath . 'file_a',
-                'offset' => 10,
-            ]);
+            ->andReturn($files[0]);
 
         $cacheMock
             ->shouldReceive('get')
             ->once()
             ->with('file_b')
-            ->andReturn([
-                'file_path' => $filePath . 'file_b',
-                'offset' => 20,
-            ]);
+            ->andReturn($files[1]);
 
         $cacheMock
             ->shouldReceive('set')
@@ -828,6 +823,7 @@ class ServerTest extends TestCase
      * @test
      *
      * @covers ::handleConcatenation
+     * @covers ::getPartialsMeta
      */
     public function it_throws_460_for_checksum_mismatch_in_concatenation_request()
     {
@@ -869,19 +865,13 @@ class ServerTest extends TestCase
             ->shouldReceive('get')
             ->once()
             ->with('file_a')
-            ->andReturn([
-                'file_path' => $filePath . 'file_a',
-                'offset' => 10,
-            ]);
+            ->andReturn($files[0]);
 
         $cacheMock
             ->shouldReceive('get')
             ->once()
             ->with('file_b')
-            ->andReturn([
-                'file_path' => $filePath . 'file_b',
-                'offset' => 20,
-            ]);
+            ->andReturn($files[1]);
 
         $this->tusServerMock->setCache($cacheMock);
         $this->tusServerMock->getResponse()->createOnly(true);
@@ -1988,6 +1978,40 @@ class ServerTest extends TestCase
         $this->assertTrue(is_dir($uploadDir));
 
         @rmdir($uploadDir);
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::getPartialsMeta
+     */
+    public function it_gets_partials_meta()
+    {
+        $filePath = __DIR__ . '/../.tmp/';
+        $partials = ['file_a', 'file_b'];
+
+        $files = [
+            ['file_path' => $filePath . 'file_a', 'offset' => 10],
+            ['file_path' => $filePath . 'file_b', 'offset' => 20],
+        ];
+
+        $cacheMock = m::mock(FileStore::class);
+        $cacheMock
+            ->shouldReceive('get')
+            ->once()
+            ->with('file_a')
+            ->andReturn($files[0]);
+
+        $cacheMock
+            ->shouldReceive('get')
+            ->once()
+            ->with('file_b')
+            ->andReturn($files[1]);
+
+        $this->tusServerMock->setCache($cacheMock);
+        $this->tusServerMock->getResponse()->createOnly(true);
+
+        $this->assertEquals($files, $this->tusServerMock->getPartialsMeta($partials));
     }
 
     /**
