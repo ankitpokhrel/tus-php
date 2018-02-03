@@ -112,7 +112,7 @@ $ ./vendor/bin/tus tus:expired redis
 ```
 
 ### Concatenation
-This Server is capable to concatenate multiple uploads into a single one enabling Clients to perform parallel uploads and to upload non-contiguous chunks.
+The Server is capable of concatenating multiple uploads into a single one enabling Clients to perform parallel uploads and to upload non-contiguous chunks.
 
 ```php
 $client->file('/path/to/file', 'chunk_a.ext');
