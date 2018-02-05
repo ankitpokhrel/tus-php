@@ -218,9 +218,9 @@ class Client extends AbstractTus
      *
      * @param int $offset
      *
-     * @return $this
+     * @return self
      */
-    public function seek(int $offset)
+    public function seek(int $offset) : self
     {
         $this->partialOffset = $offset;
 
