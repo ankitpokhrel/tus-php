@@ -7,6 +7,9 @@ abstract class AbstractCache implements Cacheable
     /** @var int TTL in secs (default 1 day) */
     protected $ttl = 86400;
 
+    /** @var string Prefix for cache keys */
+    protected $prefix = 'tus:';
+
     /**
      * Set time to live.
      *
@@ -23,6 +26,30 @@ abstract class AbstractCache implements Cacheable
     public function getTtl() : int
     {
         return $this->ttl;
+    }
+
+    /**
+     * Set cache prefix.
+     *
+     * @param string $prefix
+     *
+     * @return Cacheable
+     */
+    public function setPrefix(string $prefix) : Cacheable
+    {
+        $this->prefix = $prefix;
+
+        return $this;
+    }
+
+    /**
+     * Get cache prefix.
+     *
+     * @return string
+     */
+    public function getPrefix() : string
+    {
+        return $this->prefix;
     }
 
     /**

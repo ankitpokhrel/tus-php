@@ -7,9 +7,6 @@ use Predis\Client as RedisClient;
 
 class RedisStore extends AbstractCache
 {
-    /** @const string Prefix for redis keys */
-    const TUS_REDIS_PREFIX = 'tus:';
-
     /** @var RedisClient */
     protected $redis;
 
@@ -38,8 +35,10 @@ class RedisStore extends AbstractCache
      */
     public function get(string $key, bool $withExpired = false)
     {
-        if (false === strpos($key, self::TUS_REDIS_PREFIX)) {
-            $key = self::TUS_REDIS_PREFIX . $key;
+        $prefix = $this->getPrefix();
+
+        if (false === strpos($key, $prefix)) {
+            $key = $prefix . $key;
         }
 
         $contents = $this->redis->get($key);
@@ -67,7 +66,7 @@ class RedisStore extends AbstractCache
             array_push($contents, $value);
         }
 
-        $status = $this->redis->set(self::TUS_REDIS_PREFIX . $key, json_encode($contents));
+        $status = $this->redis->set($this->getPrefix() . $key, json_encode($contents));
 
         return 'OK' === $status->getPayload();
     }
@@ -77,8 +76,10 @@ class RedisStore extends AbstractCache
      */
     public function delete(string $key) : bool
     {
-        if (false === strpos($key, self::TUS_REDIS_PREFIX)) {
-            $key = self::TUS_REDIS_PREFIX . $key;
+        $prefix = $this->getPrefix();
+
+        if (false === strpos($key, $prefix)) {
+            $key = $prefix . $key;
         }
 
         return $this->redis->del($key) > 0;
@@ -89,6 +90,6 @@ class RedisStore extends AbstractCache
      */
     public function keys() : array
     {
-        return $this->redis->keys(self::TUS_REDIS_PREFIX . '*');
+        return $this->redis->keys($this->getPrefix() . '*');
     }
 }

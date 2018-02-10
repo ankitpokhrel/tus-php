@@ -58,4 +58,20 @@ interface Cacheable
      * @return array
      */
     public function keys() : array;
+
+    /**
+     * Set cache prefix.
+     *
+     * @param string $prefix
+     *
+     * @return self
+     */
+    public function setPrefix(string $prefix) : self;
+
+    /**
+     * Get cache prefix.
+     *
+     * @return string
+     */
+    public function getPrefix() : string;
 }
