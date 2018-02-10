@@ -89,6 +89,19 @@ class RedisStoreTest extends TestCase
     /**
      * @test
      *
+     * @covers ::setPrefix
+     * @covers ::getPrefix
+     */
+    public function it_sets_and_gets_redis_cache_prefix()
+    {
+        $this->assertEquals('tus:', static::$redisStore->getPrefix());
+        $this->assertInstanceOf(RedisStore::class, static::$redisStore->setPrefix('redis:'));
+        $this->assertEquals('redis:', static::$redisStore->getPrefix());
+    }
+
+    /**
+     * @test
+     *
      * @covers ::set
      * @covers ::get
      * @covers ::setTtl
@@ -229,7 +242,7 @@ class RedisStoreTest extends TestCase
     public function it_gets_cache_keys()
     {
         $this->assertTrue(static::$redisStore->set($this->checksum, []));
-        $this->assertEquals([static::$redisStore::TUS_REDIS_PREFIX . $this->checksum], static::$redisStore->keys());
+        $this->assertEquals([static::$redisStore->getPrefix() . $this->checksum], static::$redisStore->keys());
     }
 
     /**

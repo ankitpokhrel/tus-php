@@ -59,6 +59,19 @@ class FileStoreTest extends TestCase
     /**
      * @test
      *
+     * @covers ::setPrefix
+     * @covers ::getPrefix
+     */
+    public function it_sets_and_gets_file_cache_prefix()
+    {
+        $this->assertEquals('tus:', $this->fileStore->getPrefix());
+        $this->assertInstanceOf(FileStore::class, $this->fileStore->setPrefix('file:'));
+        $this->assertEquals('file:', $this->fileStore->getPrefix());
+    }
+
+    /**
+     * @test
+     *
      * @covers ::__construct
      * @covers ::getCacheDir
      */
