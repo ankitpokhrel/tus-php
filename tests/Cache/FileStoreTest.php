@@ -285,7 +285,7 @@ class FileStoreTest extends TestCase
 
         $checksum = 'a8502d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3u01';
         $content  = ['size' => 200];
-        $expected = [$this->checksum => $cacheContent] + [$checksum => $content];
+        $expected = ['tus:' . $this->checksum => $cacheContent] + ['tus:' . $checksum => $content];
 
         $this->fileStore->set($checksum, $content);
 
@@ -306,7 +306,7 @@ class FileStoreTest extends TestCase
 
         $this->fileStore->set($this->checksum, $cacheContent);
 
-        $this->assertEquals([$this->checksum => $cacheContent], $this->fileStore->getCacheContents());
+        $this->assertEquals(['tus:' . $this->checksum => $cacheContent], $this->fileStore->getCacheContents());
 
         $this->assertFalse($this->fileStore->delete('invalid-checksum'));
         $this->assertTrue($this->fileStore->delete($this->checksum));
@@ -344,7 +344,7 @@ class FileStoreTest extends TestCase
     {
         $this->fileStore->set($this->checksum, []);
 
-        $this->assertEquals([$this->checksum], $this->fileStore->keys());
+        $this->assertEquals(['tus:' . $this->checksum], $this->fileStore->keys());
     }
 
     /**
@@ -357,6 +357,24 @@ class FileStoreTest extends TestCase
         $this->fileStore->setCacheFile('/path/to/invalid/file');
 
         $this->assertEquals([], $this->fileStore->keys());
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::getActualCacheKey
+     * @covers ::setPrefix
+     */
+    public function it_gets_actual_cache_key()
+    {
+        $this->assertEquals('tus:cache-key', $this->fileStore->getActualCacheKey('cache-key'));
+        $this->assertEquals('tus:cache-key', $this->fileStore->getActualCacheKey('tus:cache-key'));
+
+        $this->assertInstanceOf(FileStore::class, $this->fileStore->setPrefix('hello:'));
+
+        $this->assertEquals('hello:cache-key', $this->fileStore->getActualCacheKey('cache-key'));
+        $this->assertEquals('hello:cache-key', $this->fileStore->getActualCacheKey('hello:cache-key'));
+
     }
 
     /**

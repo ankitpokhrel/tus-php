@@ -102,6 +102,7 @@ class FileStore extends AbstractCache
      */
     public function get(string $key, bool $withExpired = false)
     {
+        $key      = $this->getActualCacheKey($key);
         $contents = $this->getCacheContents();
 
         if (empty($contents[$key])) {
@@ -120,6 +121,7 @@ class FileStore extends AbstractCache
      */
     public function set(string $key, $value)
     {
+        $key       = $this->getActualCacheKey($key);
         $cacheFile = $this->getCacheFile();
 
         if ( ! file_exists($cacheFile) || ! $this->isValid($key)) {
@@ -142,6 +144,7 @@ class FileStore extends AbstractCache
      */
     public function delete(string $key) : bool
     {
+        $key      = $this->getActualCacheKey($key);
         $contents = $this->getCacheContents();
 
         if (isset($contents[$key])) {
@@ -176,6 +179,7 @@ class FileStore extends AbstractCache
      */
     public function isValid(string $key) : bool
     {
+        $key  = $this->getActualCacheKey($key);
         $meta = $this->getCacheContents()[$key] ?? [];
 
         if (empty($meta['expires_at'])) {
@@ -199,5 +203,23 @@ class FileStore extends AbstractCache
         }
 
         return json_decode(file_get_contents($cacheFile), true) ?? [];
+    }
+
+    /**
+     * Get actual cache key with prefix.
+     *
+     * @param string $key
+     *
+     * @return string
+     */
+    public function getActualCacheKey(string $key) : string
+    {
+        $prefix = $this->getPrefix();
+
+        if (false === strpos($key, $prefix)) {
+            $key = $prefix . $key;
+        }
+
+        return $key;
     }
 }
