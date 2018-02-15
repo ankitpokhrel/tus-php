@@ -73,7 +73,7 @@ class FileStoreTest extends TestCase
      * @test
      *
      * @covers ::__construct
-     * @covers ::getCacheDir
+     * @covers ::getCacheFile
      */
     public function it_sets_default_cache_dir_and_file()
     {
@@ -83,6 +83,24 @@ class FileStoreTest extends TestCase
         $fileStore = new FileStore;
 
         $this->assertEquals($defaultCacheDir . $defaultCacheFile, $fileStore->getCacheFile());
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::__construct
+     * @covers ::getCacheFile
+     */
+    public function it_sets_cache_dir_and_file()
+    {
+        $cacheDir  = '.temp' . DS;
+        $cacheFile = 'cache_file.cache';
+
+        $fileCache = new FileStore($cacheDir);
+        $fileStore = new FileStore($cacheDir, $cacheFile);
+
+        $this->assertEquals($cacheDir . $this->fileStore::DEFAULT_CACHE_FILE, $fileCache->getCacheFile());
+        $this->assertEquals($cacheDir . $cacheFile, $fileStore->getCacheFile());
     }
 
     /**

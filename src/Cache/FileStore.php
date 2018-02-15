@@ -6,6 +6,9 @@ use Carbon\Carbon;
 
 class FileStore extends AbstractCache
 {
+    /** @const string */
+    const DEFAULT_CACHE_FILE = 'tus_php.cache';
+
     /** @var string */
     protected $cacheDir;
 
@@ -15,10 +18,12 @@ class FileStore extends AbstractCache
     /**
      * FileStore constructor.
      */
-    public function __construct()
+    public function __construct(string $cacheDir = null, string $cacheFile = self::DEFAULT_CACHE_FILE)
     {
-        $this->setCacheDir(dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . '.cache' . DIRECTORY_SEPARATOR);
-        $this->setCacheFile('tus_php.cache');
+        $cacheDir = $cacheDir ?? dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . '.cache' . DIRECTORY_SEPARATOR;
+
+        $this->setCacheDir($cacheDir);
+        $this->setCacheFile($cacheFile);
     }
 
     /**
