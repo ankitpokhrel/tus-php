@@ -90,9 +90,9 @@ $client->setChecksumAlgorithm('crc32');
 ### Extension support
 - [x] The Creation extension is mostly implemented and is used for creating the upload. Deferring the upload's length is not possible at the moment.
 - [x] The Termination extension is implemented which is used to terminate completed and unfinished uploads allowing the Server to free up used resources.
-- [x] ~~Todo: Checksum extension~~ The Checksum extension is implemented, the server will use `sha256` algorithm by default to verify the upload.
-- [x] ~~Todo: Expiration extension~~ The Expiration extension is implemented, details below.
-- [x] ~~Todo: Concatenation extension~~ This Concatenation extension is implemented except that the server is not capable of handling unfinished concatenation.
+- [x] The Checksum extension is implemented, the server will use `sha256` algorithm by default to verify the upload.
+- [x] The Expiration extension is implemented, details below.
+- [x] This Concatenation extension is implemented except that the server is not capable of handling unfinished concatenation.
 
 ### Expiration
 The Server is capable of removing expired but unfinished uploads. You can use following command manually or in a cron job to remove them.
