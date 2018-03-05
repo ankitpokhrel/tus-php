@@ -36,6 +36,9 @@ class Server extends AbstractTus
     /** @const string Default checksum algorithm */
     const DEFAULT_CHECKSUM_ALGORITHM = 'sha256';
 
+    /** @const int 24 hours access control max age header */
+    const HEADER_ACCESS_CONTROL_MAX_AGE = 86400;
+
     /** @var Request */
     protected $request;
 
@@ -172,7 +175,11 @@ class Server extends AbstractTus
             null,
             HttpResponse::HTTP_OK,
             [
+                'Access-Control-Allow-Origin' => $this->request->header('Origin'),
                 'Allow' => $this->request->allowedHttpVerbs(),
+                'Access-Control-Allow-Methods' => $this->request->allowedHttpVerbs(),
+                'Access-Control-Allow-Headers' => 'Origin, X-Requested-With, Content-Type, Upload-Length, Upload-Offset, Tus-Resumable, Upload-Metadata',
+                'Access-Control-Max-Age' => self::HEADER_ACCESS_CONTROL_MAX_AGE,
                 'Tus-Version' => self::TUS_PROTOCOL_VERSION,
                 'Tus-Extension' => implode(',', [
                     self::TUS_EXTENSION_CREATION,

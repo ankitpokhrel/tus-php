@@ -219,8 +219,15 @@ class ServerTest extends TestCase
         $response = $this->tusServerMock->handleOptions();
         $headers  = $response->headers->all();
 
+        $this->assertNull(current($headers['access-control-allow-origin']));
         $this->assertEquals(self::ALLOWED_HTTP_VERBS, $headers['allow']);
+        $this->assertEquals(self::ALLOWED_HTTP_VERBS, $headers['access-control-allow-methods']);
+        $this->assertEquals(86400, current($headers['access-control-max-age']));
         $this->assertEquals('1.0.0', current($headers['tus-version']));
+        $this->assertEquals(
+            'Origin, X-Requested-With, Content-Type, Upload-Length, Upload-Offset, Tus-Resumable, Upload-Metadata',
+            current($headers['access-control-allow-headers'])
+        );
         $this->assertEquals(
             'creation,termination,checksum,expiration,concatenation',
             current($headers['tus-extension'])
