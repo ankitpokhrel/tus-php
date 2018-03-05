@@ -170,7 +170,7 @@ class RequestTest extends TestCase
         $this->request
             ->getRequest()
             ->headers
-            ->set('Upload-Metadata', 'filename ' . base64_encode($filename) . ',type image,accept jpeg');
+            ->set('Upload-Metadata', 'name ' . base64_encode($filename) . ',type image,accept jpeg');
 
         $this->assertEquals($filename, $this->request->extractFileName());
     }
