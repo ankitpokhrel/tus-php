@@ -144,6 +144,40 @@ class RequestTest extends TestCase
     /**
      * @test
      *
+     * @covers ::extractFileName
+     */
+    public function it_extracts_file_name_from_concatenated_headers()
+    {
+        $filename = 'file.txt';
+
+        $this->request
+            ->getRequest()
+            ->headers
+            ->set('Upload-Metadata', 'filename ' . base64_encode($filename) . ',type image');
+
+        $this->assertEquals($filename, $this->request->extractFileName());
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::extractFileName
+     */
+    public function it_extracts_file_name_from_multiple_concatenated_headers()
+    {
+        $filename = 'file.txt';
+
+        $this->request
+            ->getRequest()
+            ->headers
+            ->set('Upload-Metadata', 'filename ' . base64_encode($filename) . ',type image,accept jpeg');
+
+        $this->assertEquals($filename, $this->request->extractFileName());
+    }
+
+    /**
+     * @test
+     *
      * @covers ::extractFromHeader
      * @covers ::extractPartials
      */

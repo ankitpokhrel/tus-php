@@ -105,7 +105,17 @@ class Request
      */
     public function extractFileName()
     {
-        $file = current($this->extractFromHeader('Upload-Metadata', 'filename'));
+        $key   = 'Upload-Metadata';
+        $value = 'filename';
+
+        $meta = $this->header($key);
+
+        if (false !== strpos($meta, ',')) {
+            $pieces = explode(',', $meta);
+            $file   = trim(str_replace($value, '', $pieces[0]));
+        } else {
+            $file = current($this->extractFromHeader($key, $value));
+        }
 
         return $file ? base64_decode($file) : null;
     }
