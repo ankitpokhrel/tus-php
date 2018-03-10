@@ -16,10 +16,10 @@ $client = new \TusPhp\Tus\Client('http://tus-php-server', 'redis');
 if ( ! empty($_FILES)) {
     $status   = 'new';
     $fileMeta = $_FILES['tus_file'];
+    $checksum = hash_file('md5', $fileMeta['tmp_name']);
 
     try {
-        $offset   = $client->file($fileMeta['tmp_name'])->getOffset();
-        $checksum = $client->getChecksum();
+        $offset = $client->setKey($checksum)->file($fileMeta['tmp_name'])->getOffset();
 
         if (false !== $offset) {
             $status = $offset >= $fileMeta['size'] ? 'uploaded' : 'resume';

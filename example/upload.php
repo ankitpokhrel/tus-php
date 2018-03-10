@@ -14,11 +14,10 @@ $client = new \TusPhp\Tus\Client('http://tus-php-server', 'redis');
 
 if ( ! empty($_FILES)) {
     $fileMeta = $_FILES['tus_file'];
+    $checksum = hash_file('md5', $fileMeta['tmp_name']);
 
     try {
-        $client->file($fileMeta['tmp_name'], time() . '_' . $fileMeta['name']);
-
-        $checksum = $client->getChecksum();
+        $client->setKey($checksum)->file($fileMeta['tmp_name'], time() . '_' . $fileMeta['name']);
 
         $bytesUploaded = $client->upload(5000000); // Chunk of 5 mb
 
@@ -39,6 +38,6 @@ if ( ! empty($_FILES)) {
     echo json_encode([
         'status' => 'error',
         'bytes_uploaded' => -1,
-        'error' => 'No input!'
+        'error' => 'No input!',
     ]);
 }
