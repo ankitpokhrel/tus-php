@@ -23,6 +23,9 @@ class File
     const APPEND_BINARY = 'ab+';
 
     /** @var string */
+    protected $key;
+
+    /** @var string */
     protected $checksum;
 
     /** @var string */
@@ -121,6 +124,30 @@ class File
     public function getFileSize() : int
     {
         return $this->fileSize;
+    }
+
+    /**
+     * Set key.
+     *
+     * @param string $key
+     *
+     * @return File
+     */
+    public function setKey(string $key) : self
+    {
+        $this->key = $key;
+
+        return $this;
+    }
+
+    /**
+     * Get key.
+     *
+     * @return string
+     */
+    public function getKey() : string
+    {
+        return $this->key;
     }
 
     /**
@@ -242,6 +269,7 @@ class File
             'name' => $this->name,
             'size' => $this->fileSize,
             'offset' => $this->offset,
+            'checksum' => $this->checksum,
             'location' => $this->location,
             'file_path' => $this->filePath,
             'created_at' => $now->format($this->cache::RFC_7231),
@@ -266,9 +294,9 @@ class File
             return $bytesWritten;
         }
 
-        $input    = $this->open($this->getInputStream(), self::READ_BINARY);
-        $output   = $this->open($this->getFilePath(), self::APPEND_BINARY);
-        $checksum = $this->getChecksum();
+        $input  = $this->open($this->getInputStream(), self::READ_BINARY);
+        $output = $this->open($this->getFilePath(), self::APPEND_BINARY);
+        $key    = $this->getKey();
 
         try {
             $this->seek($output, $bytesWritten);
@@ -283,7 +311,7 @@ class File
 
                 $bytesWritten += $bytes;
 
-                $this->cache->set($checksum, ['offset' => $bytesWritten]);
+                $this->cache->set($key, ['offset' => $bytesWritten]);
 
                 if ($bytesWritten > $totalBytes) {
                     throw new OutOfRangeException('The uploaded file is corrupt.');

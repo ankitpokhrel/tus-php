@@ -30,9 +30,11 @@ class Request
     }
 
     /**
+     * Get upload key from url.
+     *
      * @return null|string
      */
-    public function checksum()
+    public function key()
     {
         return $this->request->segment(2);
     }

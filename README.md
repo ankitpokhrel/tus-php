@@ -47,7 +47,9 @@ Client can be used for creating, resuming and/or deleting uploads.
 ```php
 $client = new \TusPhp\Tus\Client($baseUrl, 'redis'); // Leave second parameter empty for file based cache
 
-$client->file('/path/to/file', 'filename.ext');
+$key = 'your unique key';
+
+$client->setKey($key)->file('/path/to/file', 'filename.ext');
 
 // Create and upload a chunk of 1mb
 $bytesUploaded = $client->upload(1000000); 
@@ -69,9 +71,7 @@ $offset = $client->getOffset(); // 2000000 bytes or 2mb
 Delete partial upload from cache.
 
 ```php
-$checksum = $client->getChecksum();
-
-$client->delete($checksum);
+$client->delete($key);
 ```
 
 By default the client uses `/files` as a api path. You can change it with `setApiPath` method.
@@ -122,18 +122,18 @@ $checksum = $client->getChecksum();
 
 // Upload 10000 bytes starting from 1000 bytes
 $bytesUploaded = $client->seek(1000)->upload(10000);
-$chunkAchecksum  = $client->getChecksum();
+$chunkAkey     = $client->getKey();
 
 // Upload 1000 bytes starting from 0 bytes
 $bytesUploaded = $client->setFileName('chunk_b.ext')->seek(0)->upload(1000);
-$chunkBchecksum = $client->getChecksum();
+$chunkBkey     = $client->getKey();
 
 // Upload remaining bytes starting from 11000 bytes (10000 +  1000)
 $bytesUploaded = $client->setFileName('chunk_c.ext')->seek(11000)->upload();
-$chunkCchecksum = $client->getChecksum();
+$chunkCkey     = $client->getKey();
 
 // Concatenate partial uploads
-$client->setFileName('actual_file.ext')->concat($checksum, $chunkAchecksum, $chunkBchecksum, $chunkCchecksum);
+$client->setFileName('actual_file.ext')->concat($checksum, $chunkAkey, $chunkBkey, $chunkCkey);
 ```
 
 Additionally, the server will verify checksum against the merged file to make sure that the file is not corrupt.  

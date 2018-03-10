@@ -162,6 +162,20 @@ class ClientTest extends TestCase
     /**
      * @test
      *
+     * @covers ::setKey
+     * @covers ::getKey
+     */
+    public function it_sets_and_gets_key()
+    {
+        $key = uniqid();
+
+        $this->assertInstanceOf(TusClient::class, $this->tusClient->setKey($key));
+        $this->assertEquals($key, $this->tusClient->getKey());
+    }
+
+    /**
+     * @test
+     *
      * @covers ::setChecksumAlgorithm
      * @covers ::getChecksumAlgorithm
      */
@@ -182,12 +196,12 @@ class ClientTest extends TestCase
      */
     public function it_sets_and_gets_partial()
     {
-        $checksum = hash_file('sha256', __DIR__ . '/../Fixtures/data.txt');
+        $key = uniqid();
 
         $this->tusClientMock
-            ->shouldReceive('getChecksum')
+            ->shouldReceive('getKey')
             ->once()
-            ->andReturn($checksum);
+            ->andReturn($key);
 
         $this->assertFalse($this->tusClientMock->isPartial());
         $this->assertInstanceOf(TusClient::class, $this->tusClientMock->seek(100));
@@ -215,13 +229,13 @@ class ClientTest extends TestCase
      */
     public function it_generates_unique_key_for_partial_checksum()
     {
-        $checksum        = hash_file('sha256', __DIR__ . '/../Fixtures/data.txt');
-        $partialChecksum = $checksum . '_partial';
+        $actualKey  = uniqid();
+        $partialKey = $actualKey . '_partial';
 
         $this->tusClientMock
-            ->shouldReceive('getChecksum')
+            ->shouldReceive('getKey')
             ->once()
-            ->andReturn($partialChecksum);
+            ->andReturn($partialKey);
 
         $this->assertNull($this->tusClientMock->partial());
         $this->assertTrue($this->tusClientMock->isPartial());
@@ -234,24 +248,24 @@ class ClientTest extends TestCase
      */
     public function it_uploads_a_file()
     {
-        $bytes    = 100;
-        $checksum = hash_file('sha256', __DIR__ . '/../Fixtures/data.txt');
+        $bytes = 100;
+        $key   = uniqid();
 
         $this->tusClientMock
-            ->shouldReceive('getChecksum')
+            ->shouldReceive('getKey')
             ->once()
-            ->andReturn($checksum);
+            ->andReturn($key);
 
         $this->tusClientMock
             ->shouldReceive('sendHeadRequest')
             ->once()
-            ->with($checksum)
+            ->with($key)
             ->andReturn(0);
 
         $this->tusClientMock
             ->shouldReceive('sendPatchRequest')
             ->once()
-            ->with($checksum, $bytes)
+            ->with($key, $bytes)
             ->andReturn($bytes);
 
         $this->assertEquals($bytes, $this->tusClientMock->upload($bytes));
@@ -264,13 +278,13 @@ class ClientTest extends TestCase
      */
     public function it_uploads_full_file_if_size_is_not_given()
     {
-        $bytes    = 100;
-        $checksum = hash_file('sha256', __DIR__ . '/../Fixtures/data.txt');
+        $bytes = 100;
+        $key   = uniqid();
 
         $this->tusClientMock
-            ->shouldReceive('getChecksum')
+            ->shouldReceive('getKey')
             ->once()
-            ->andReturn($checksum);
+            ->andReturn($key);
 
         $this->tusClientMock
             ->shouldReceive('getFileSize')
@@ -280,13 +294,13 @@ class ClientTest extends TestCase
         $this->tusClientMock
             ->shouldReceive('sendHeadRequest')
             ->once()
-            ->with($checksum)
+            ->with($key)
             ->andReturn(0);
 
         $this->tusClientMock
             ->shouldReceive('sendPatchRequest')
             ->once()
-            ->with($checksum, $bytes)
+            ->with($key, $bytes)
             ->andReturn($bytes);
 
         $this->assertEquals($bytes, $this->tusClientMock->upload());
@@ -299,29 +313,29 @@ class ClientTest extends TestCase
      */
     public function it_creates_and_then_uploads_a_file_in_file_exception()
     {
-        $bytes    = 100;
-        $checksum = hash_file('sha256', __DIR__ . '/../Fixtures/data.txt');
+        $bytes = 100;
+        $key   = uniqid();
 
         $this->tusClientMock
-            ->shouldReceive('getChecksum')
+            ->shouldReceive('getKey')
             ->once()
-            ->andReturn($checksum);
+            ->andReturn($key);
 
         $this->tusClientMock
             ->shouldReceive('sendHeadRequest')
             ->once()
-            ->with($checksum)
+            ->with($key)
             ->andThrow(new FileException);
 
         $this->tusClientMock
             ->shouldReceive('create')
             ->once()
-            ->andReturn($checksum);
+            ->andReturn($key);
 
         $this->tusClientMock
             ->shouldReceive('sendPatchRequest')
             ->once()
-            ->with($checksum, $bytes)
+            ->with($key, $bytes)
             ->andReturn($bytes);
 
         $this->assertEquals($bytes, $this->tusClientMock->upload($bytes));
@@ -334,29 +348,29 @@ class ClientTest extends TestCase
      */
     public function it_creates_and_then_uploads_a_file_in_client_exception()
     {
-        $bytes    = 100;
-        $checksum = hash_file('sha256', __DIR__ . '/../Fixtures/data.txt');
+        $bytes = 100;
+        $key   = uniqid();
 
         $this->tusClientMock
-            ->shouldReceive('getChecksum')
+            ->shouldReceive('getKey')
             ->once()
-            ->andReturn($checksum);
+            ->andReturn($key);
 
         $this->tusClientMock
             ->shouldReceive('sendHeadRequest')
             ->once()
-            ->with($checksum)
+            ->with($key)
             ->andThrow(m::mock(ClientException::class));
 
         $this->tusClientMock
             ->shouldReceive('create')
             ->once()
-            ->andReturn($checksum);
+            ->andReturn($key);
 
         $this->tusClientMock
             ->shouldReceive('sendPatchRequest')
             ->once()
-            ->with($checksum, $bytes)
+            ->with($key, $bytes)
             ->andReturn($bytes);
 
         $this->assertEquals($bytes, $this->tusClientMock->upload($bytes));
@@ -372,18 +386,17 @@ class ClientTest extends TestCase
      */
     public function it_throws_connection_exception_for_network_issues()
     {
-        $file     = __DIR__ . '/../Fixtures/data.txt';
-        $checksum = hash_file('sha256', $file);
+        $key = uniqid();
 
         $this->tusClientMock
-            ->shouldReceive('getFilePath')
+            ->shouldReceive('getKey')
             ->once()
-            ->andReturn($file);
+            ->andReturn($key);
 
         $this->tusClientMock
             ->shouldReceive('sendHeadRequest')
             ->once()
-            ->with($checksum)
+            ->with($key)
             ->andThrow(m::mock(ConnectException::class));
 
         $this->tusClientMock->upload(100);
@@ -396,20 +409,20 @@ class ClientTest extends TestCase
      */
     public function it_returns_false_for_file_exception_in_get_offset()
     {
-        $checksum = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
+        $key = uniqid();
 
         $this->tusClientMock
-            ->shouldReceive('getChecksum')
+            ->shouldReceive('getKey')
             ->once()
-            ->andReturn($checksum);
+            ->andReturn($key);
 
         $this->tusClientMock
             ->shouldReceive('sendHeadRequest')
             ->once()
-            ->with($checksum)
+            ->with($key)
             ->andThrow(new FileException);
 
-        $this->assertFalse($this->tusClientMock->getOffset($checksum));
+        $this->assertFalse($this->tusClientMock->getOffset($key));
     }
 
     /**
@@ -419,20 +432,20 @@ class ClientTest extends TestCase
      */
     public function it_returns_false_for_client_exception_in_get_offset()
     {
-        $checksum = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
+        $key = uniqid();
 
         $this->tusClientMock
-            ->shouldReceive('getChecksum')
+            ->shouldReceive('getKey')
             ->once()
-            ->andReturn($checksum);
+            ->andReturn($key);
 
         $this->tusClientMock
             ->shouldReceive('sendHeadRequest')
             ->once()
-            ->with($checksum)
+            ->with($key)
             ->andThrow(m::mock(ClientException::class));
 
-        $this->assertFalse($this->tusClientMock->getOffset($checksum));
+        $this->assertFalse($this->tusClientMock->getOffset($key));
     }
 
     /**
@@ -442,20 +455,20 @@ class ClientTest extends TestCase
      */
     public function it_gets_offset_for_partially_uploaded_resource()
     {
-        $checksum = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
+        $key = uniqid();
 
         $this->tusClientMock
-            ->shouldReceive('getChecksum')
+            ->shouldReceive('getKey')
             ->once()
-            ->andReturn($checksum);
+            ->andReturn($key);
 
         $this->tusClientMock
             ->shouldReceive('sendHeadRequest')
             ->once()
-            ->with($checksum)
+            ->with($key)
             ->andReturn(100);
 
-        $this->assertEquals(100, $this->tusClientMock->getOffset($checksum));
+        $this->assertEquals(100, $this->tusClientMock->getOffset($key));
     }
 
     /**
@@ -884,6 +897,7 @@ class ClientTest extends TestCase
      */
     public function it_creates_a_resource_with_post_request()
     {
+        $key          = uniqid();
         $checksum     = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
         $filePath     = __DIR__ . '/../Fixtures/empty.txt';
         $fileName     = 'file.txt';
@@ -905,6 +919,11 @@ class ClientTest extends TestCase
             ]));
 
         $this->tusClientMock
+            ->shouldReceive('getChecksum')
+            ->once()
+            ->andReturn($checksum);
+
+        $this->tusClientMock
             ->shouldReceive('getClient')
             ->once()
             ->andReturn($guzzleMock);
@@ -917,13 +936,14 @@ class ClientTest extends TestCase
             ->with('/files', [
                 'headers' => [
                     'Upload-Length' => filesize($filePath),
+                    'Upload-Key' => base64_encode($key),
                     'Upload-Checksum' => 'sha256 ' . base64_encode($checksum),
                     'Upload-Metadata' => 'filename ' . base64_encode($fileName),
                 ],
             ])
             ->andReturn($responseMock);
 
-        $this->assertEquals($checksum, $this->tusClientMock->create($checksum));
+        $this->assertEquals($checksum, $this->tusClientMock->create($key));
     }
 
     /**
@@ -933,6 +953,7 @@ class ClientTest extends TestCase
      */
     public function it_creates_a_partial_resource_with_post_request()
     {
+        $key          = uniqid();
         $checksum     = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
         $filePath     = __DIR__ . '/../Fixtures/empty.txt';
         $fileName     = 'file.txt';
@@ -952,6 +973,11 @@ class ClientTest extends TestCase
                     'checksum' => $checksum,
                 ],
             ]));
+
+        $this->tusClientMock
+            ->shouldReceive('getChecksum')
+            ->once()
+            ->andReturn($checksum);
 
         $this->tusClientMock
             ->shouldReceive('getClient')
@@ -971,6 +997,7 @@ class ClientTest extends TestCase
             ->with('/files', [
                 'headers' => [
                     'Upload-Length' => filesize($filePath),
+                    'Upload-Key' => base64_encode($key),
                     'Upload-Checksum' => 'sha256 ' . base64_encode($checksum),
                     'Upload-Metadata' => 'filename ' . base64_encode($fileName),
                     'Upload-Concat' => 'partial',
@@ -978,7 +1005,7 @@ class ClientTest extends TestCase
             ])
             ->andReturn($responseMock);
 
-        $this->assertEquals($checksum, $this->tusClientMock->create($checksum));
+        $this->assertEquals($checksum, $this->tusClientMock->create($key));
     }
 
     /**
@@ -991,6 +1018,7 @@ class ClientTest extends TestCase
      */
     public function it_throws_exception_when_unable_to_create_resource()
     {
+        $key          = uniqid();
         $filePath     = __DIR__ . '/../Fixtures/empty.txt';
         $fileName     = 'file.txt';
         $checksum     = hash_file('sha256', $filePath);
@@ -1008,6 +1036,11 @@ class ClientTest extends TestCase
             ->andReturn(400);
 
         $this->tusClientMock
+            ->shouldReceive('getChecksum')
+            ->once()
+            ->andReturn($checksum);
+
+        $this->tusClientMock
             ->shouldReceive('getClient')
             ->once()
             ->andReturn($guzzleMock);
@@ -1020,13 +1053,14 @@ class ClientTest extends TestCase
             ->with('/files', [
                 'headers' => [
                     'Upload-Length' => filesize($filePath),
+                    'Upload-Key' => base64_encode($key),
                     'Upload-Checksum' => 'sha256 ' . base64_encode($checksum),
                     'Upload-Metadata' => 'filename ' . base64_encode($fileName),
                 ],
             ])
             ->andReturn($responseMock);
 
-        $this->tusClientMock->create($checksum);
+        $this->tusClientMock->create($key);
     }
 
     /**
@@ -1072,6 +1106,7 @@ class ClientTest extends TestCase
             ->with('/files', [
                 'headers' => [
                     'Upload-Length' => filesize($filePath),
+                    'Upload-Key' => base64_encode(''),
                     'Upload-Checksum' => 'sha256 ',
                     'Upload-Metadata' => 'filename ' . base64_encode($fileName),
                 ],
@@ -1088,6 +1123,7 @@ class ClientTest extends TestCase
      */
     public function it_creates_a_concat_resource_with_post_request()
     {
+        $key          = uniqid();
         $checksum     = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
         $filePath     = __DIR__ . '/../Fixtures/empty.txt';
         $fileName     = 'file.txt';
@@ -1110,6 +1146,11 @@ class ClientTest extends TestCase
             ]));
 
         $this->tusClientMock
+            ->shouldReceive('getChecksum')
+            ->once()
+            ->andReturn($checksum);
+
+        $this->tusClientMock
             ->shouldReceive('getClient')
             ->once()
             ->andReturn($guzzleMock);
@@ -1122,6 +1163,7 @@ class ClientTest extends TestCase
             ->with('/files', [
                 'headers' => [
                     'Upload-Length' => filesize($filePath),
+                    'Upload-Key' => base64_encode($key),
                     'Upload-Checksum' => 'sha256 ' . base64_encode($checksum),
                     'Upload-Metadata' => 'filename ' . base64_encode($fileName),
                     'Upload-Concat' => 'final;' . implode(' ', $partials),
@@ -1131,7 +1173,7 @@ class ClientTest extends TestCase
 
         $this->assertEquals(
             $checksum,
-            $this->tusClientMock->concat($checksum, $partials[0], $partials[1], $partials[2])
+            $this->tusClientMock->concat($key, $partials[0], $partials[1], $partials[2])
         );
     }
 
@@ -1145,6 +1187,7 @@ class ClientTest extends TestCase
      */
     public function it_throws_exception_when_unable_to_create_concat_resource()
     {
+        $key          = uniqid();
         $filePath     = __DIR__ . '/../Fixtures/empty.txt';
         $fileName     = 'file.txt';
         $checksum     = hash_file('sha256', $filePath);
@@ -1163,6 +1206,11 @@ class ClientTest extends TestCase
             ->andReturn(400);
 
         $this->tusClientMock
+            ->shouldReceive('getChecksum')
+            ->once()
+            ->andReturn($checksum);
+
+        $this->tusClientMock
             ->shouldReceive('getClient')
             ->once()
             ->andReturn($guzzleMock);
@@ -1175,6 +1223,7 @@ class ClientTest extends TestCase
             ->with('/files', [
                 'headers' => [
                     'Upload-Length' => filesize($filePath),
+                    'Upload-Key' => base64_encode($key),
                     'Upload-Checksum' => 'sha256 ' . base64_encode($checksum),
                     'Upload-Metadata' => 'filename ' . base64_encode($fileName),
                     'Upload-Concat' => 'final;' . implode(' ', $partials),
@@ -1182,7 +1231,7 @@ class ClientTest extends TestCase
             ])
             ->andReturn($responseMock);
 
-        $this->tusClientMock->concat($checksum, $partials[0], $partials[1], $partials[2]);
+        $this->tusClientMock->concat($key, $partials[0], $partials[1], $partials[2]);
     }
 
     /**
@@ -1229,6 +1278,7 @@ class ClientTest extends TestCase
             ->with('/files', [
                 'headers' => [
                     'Upload-Length' => filesize($filePath),
+                    'Upload-Key' => base64_encode(''),
                     'Upload-Checksum' => 'sha256 ',
                     'Upload-Metadata' => 'filename ' . base64_encode($fileName),
                     'Upload-Concat' => 'final;' . implode(' ', $partials),

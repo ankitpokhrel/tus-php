@@ -10,24 +10,24 @@ $client = new \TusPhp\Tus\Client('http://tus-php-server', 'redis');
 
 if ( ! empty($_FILES)) {
     $fileMeta = $_FILES['tus_file'];
+    $checksum = hash_file('md5', $fileMeta['tmp_name']);
 
     try {
-        $client->file($fileMeta['tmp_name'], 'chunk_a');
-        $checksum = $client->getChecksum();
+        $client->setKey($checksum)->file($fileMeta['tmp_name'], 'chunk_a');
 
         // Upload  10000 bytes starting from 1000 byte
         $bytesUploaded = $client->seek(1000)->upload(10000);
-        $partialChunk1 = $client->getChecksum();
+        $partialKey1   = $client->getKey();
 
         // Upload first 1000 bytes
         $bytesUploaded = $client->setFileName('chunk_b')->seek(0)->upload(1000);
-        $partialChunk2 = $client->getChecksum();
+        $partialKey2   = $client->getKey();
 
         // Upload remaining bytes starting from 11000 bytes (10000 + 1000)
         $bytesUploaded = $client->setFileName('chunk_c')->seek(11000)->upload();
-        $partialChunk3 = $client->getChecksum();
+        $partialKey3   = $client->getKey();
 
-        $client->setFileName($fileMeta['name'])->concat($checksum, $partialChunk2, $partialChunk1, $partialChunk3);
+        $client->setFileName($fileMeta['name'])->concat($checksum, $partialKey2, $partialKey1, $partialKey3);
 
         echo json_encode([
             'status' => 'uploading',
