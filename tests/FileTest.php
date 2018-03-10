@@ -30,8 +30,7 @@ class FileTest extends TestCase
     {
         $this->file = new File('tus.txt', CacheFactory::make());
 
-        $this->file->setMeta(100, 1024, '/path/to/file.txt', 'http://tus.local/uploads/file.txt');
-
+        $this->assertInstanceOf(File::class, $this->file->setMeta(100, 1024, '/path/to/file.txt', 'http://tus.local/uploads/file.txt'));
         $this->mockBuilder = (new MockBuilder)->setNamespace('\TusPhp');
     }
 
@@ -67,8 +66,7 @@ class FileTest extends TestCase
     {
         $this->assertEquals('tus.txt', $this->file->getName());
 
-        $this->file->setName('file.txt');
-
+        $this->assertInstanceOf(File::class, $this->file->setName('file.txt'));
         $this->assertEquals('file.txt', $this->file->getName());
     }
 
@@ -82,8 +80,7 @@ class FileTest extends TestCase
     {
         $this->assertEquals(1024, $this->file->getFileSize());
 
-        $this->file->setFileSize(2056);
-
+        $this->assertInstanceOf(File::class, $this->file->setFileSize(2056));
         $this->assertEquals(2056, $this->file->getFileSize());
     }
 
@@ -97,9 +94,22 @@ class FileTest extends TestCase
     {
         $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
 
-        $this->file->setChecksum($checksum);
-
+        $this->assertInstanceOf(File::class, $this->file->setChecksum($checksum));
         $this->assertEquals($checksum, $this->file->getChecksum());
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::setKey
+     * @covers ::getKey
+     */
+    public function it_sets_and_gets_key()
+    {
+        $key = uniqid();
+
+        $this->assertInstanceOf(File::class, $this->file->setKey($key));
+        $this->assertEquals($key, $this->file->getKey());
     }
 
     /**
@@ -111,9 +121,7 @@ class FileTest extends TestCase
     public function it_sets_and_gets_offset()
     {
         $this->assertEquals(100, $this->file->getOffset());
-
-        $this->file->setOffset(500);
-
+        $this->assertInstanceOf(File::class, $this->file->setOffset(500));
         $this->assertEquals(500, $this->file->getOffset());
     }
 
@@ -129,8 +137,7 @@ class FileTest extends TestCase
 
         $location = 'http://tus.local/uploads/file.pdf';
 
-        $this->file->setLocation($location);
-
+        $this->assertInstanceOf(File::class, $this->file->setLocation($location));
         $this->assertEquals($location, $this->file->getLocation());
     }
 
@@ -146,8 +153,7 @@ class FileTest extends TestCase
 
         $filePath = '/path/to/file.pdf';
 
-        $this->file->setFilePath($filePath);
-
+        $this->assertInstanceOf(File::class, $this->file->setFilePath($filePath));
         $this->assertEquals($filePath, $this->file->getFilePath());
     }
 

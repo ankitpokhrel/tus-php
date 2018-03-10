@@ -1876,7 +1876,7 @@ class ServerTest extends TestCase
      *
      * @covers ::getClientChecksum
      */
-    public function it_returns_404_for_invalid_checksum_in_header()
+    public function it_returns_400_for_invalid_checksum_in_header()
     {
         $mockBuilder = (new MockBuilder())->setNamespace('\TusPhp\Tus');
 
@@ -1923,6 +1923,37 @@ class ServerTest extends TestCase
             ->set('Upload-Checksum', 'sha1 ' . base64_encode($checksum));
 
         $this->assertEquals($checksum, $this->tusServerMock->getClientChecksum());
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::getUploadKey
+     */
+    public function it_returns_400_for_no_upload_key_in_header()
+    {
+        $response = $this->tusServerMock->getUploadKey();
+
+        $this->assertEquals(400, $response->getStatusCode());
+        $this->assertNull($response->getOriginalContent());
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::getUploadKey
+     */
+    public function it_gets_upload_key_from_header()
+    {
+        $key = uniqid();
+
+        $this->tusServerMock
+            ->getRequest()
+            ->getRequest()
+            ->headers
+            ->set('Upload-Key', base64_encode($key));
+
+        $this->assertEquals($key, $this->tusServerMock->getUploadKey());
     }
 
     /**

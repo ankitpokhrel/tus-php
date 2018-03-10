@@ -162,6 +162,20 @@ class ClientTest extends TestCase
     /**
      * @test
      *
+     * @covers ::setKey
+     * @covers ::getKey
+     */
+    public function it_sets_and_gets_key()
+    {
+        $key = uniqid();
+
+        $this->assertInstanceOf(TusClient::class, $this->tusClient->setKey($key));
+        $this->assertEquals($key, $this->tusClient->getKey());
+    }
+
+    /**
+     * @test
+     *
      * @covers ::setChecksumAlgorithm
      * @covers ::getChecksumAlgorithm
      */
