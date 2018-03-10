@@ -101,14 +101,14 @@ class ServerTest extends TestCase
     /**
      * @test
      *
-     * @covers ::getChecksum
+     * @covers ::getServerChecksum
      */
     public function it_gets_a_checksum()
     {
         $filePath = __DIR__ . '/../Fixtures/empty.txt';
         $checksum = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
 
-        $this->assertEquals($checksum, $this->tusServer->getChecksum($filePath));
+        $this->assertEquals($checksum, $this->tusServer->getServerChecksum($filePath));
     }
 
     /**
@@ -225,7 +225,7 @@ class ServerTest extends TestCase
         $this->assertEquals(86400, current($headers['access-control-max-age']));
         $this->assertEquals('1.0.0', current($headers['tus-version']));
         $this->assertEquals(
-            'Origin, X-Requested-With, Content-Type, Upload-Length, Upload-Offset, Tus-Resumable, Upload-Metadata',
+            'Origin, X-Requested-With, Content-Type, Upload-Key, Upload-Checksum, Upload-Length, Upload-Offset, Tus-Resumable, Upload-Metadata',
             current($headers['access-control-allow-headers'])
         );
         $this->assertEquals(
@@ -513,12 +513,14 @@ class ServerTest extends TestCase
      */
     public function it_handles_post_for_partial_request()
     {
-        $baseDir   = __DIR__ . '/../.tmp';
-        $fileName  = 'file.txt';
-        $checksum  = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a_partial';
-        $folder    = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
-        $location  = 'http://tus.local/.tmp/file.txt';
-        $expiresAt = 'Sat, 09 Dec 2017 00:00:00 GMT';
+        $key        = uniqid();
+        $partialKey = $key . '_partial';
+        $baseDir    = __DIR__ . '/../.tmp';
+        $fileName   = 'file.txt';
+        $checksum   = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
+        $folder     = $key;
+        $location   = 'http://tus.local/.tmp/file.txt';
+        $expiresAt  = 'Sat, 09 Dec 2017 00:00:00 GMT';
 
         $this->tusServerMock->setUploadDir($baseDir);
         $this->tusServerMock
@@ -550,12 +552,17 @@ class ServerTest extends TestCase
             ]);
 
         $this->tusServerMock
+            ->shouldReceive('getUploadKey')
+            ->once()
+            ->andReturn($partialKey);
+
+        $this->tusServerMock
             ->shouldReceive('getRequest')
             ->times(5)
             ->andReturn($requestMock);
 
         $this->tusServerMock
-            ->shouldReceive('getUploadChecksum')
+            ->shouldReceive('getClientChecksum')
             ->once()
             ->andReturn($checksum);
 
@@ -563,7 +570,7 @@ class ServerTest extends TestCase
         $cacheMock
             ->shouldReceive('get')
             ->once()
-            ->with($checksum)
+            ->with($partialKey)
             ->andReturn([
                 'expires_at' => $expiresAt,
             ]);
@@ -576,12 +583,13 @@ class ServerTest extends TestCase
         $cacheMock
             ->shouldReceive('set')
             ->once()
-            ->with($checksum, [
+            ->with($partialKey, [
                 'name' => $fileName,
                 'size' => 10,
                 'offset' => 0,
-                'file_path' => "$baseDir/$folder/$fileName",
+                'checksum' => $checksum,
                 'location' => $location,
+                'file_path' => "$baseDir/$folder/$fileName",
                 'created_at' => 'Fri, 08 Dec 2017 00:00:00 GMT',
                 'expires_at' => $expiresAt,
                 'upload_type' => 'partial',
@@ -612,6 +620,7 @@ class ServerTest extends TestCase
      */
     public function it_handles_post_request()
     {
+        $key       = uniqid();
         $fileName  = 'file.txt';
         $checksum  = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
         $location  = 'http://tus.local/uploads/file.txt';
@@ -650,7 +659,12 @@ class ServerTest extends TestCase
             ->andReturn($requestMock);
 
         $this->tusServerMock
-            ->shouldReceive('getUploadChecksum')
+            ->shouldReceive('getUploadKey')
+            ->once()
+            ->andReturn($key);
+
+        $this->tusServerMock
+            ->shouldReceive('getClientChecksum')
             ->once()
             ->andReturn($checksum);
 
@@ -658,7 +672,7 @@ class ServerTest extends TestCase
         $cacheMock
             ->shouldReceive('get')
             ->once()
-            ->with($checksum)
+            ->with($key)
             ->andReturn([
                 'expires_at' => $expiresAt,
             ]);
@@ -671,12 +685,13 @@ class ServerTest extends TestCase
         $cacheMock
             ->shouldReceive('set')
             ->once()
-            ->with($checksum, [
+            ->with($key, [
                 'name' => $fileName,
                 'size' => 10,
                 'offset' => 0,
-                'file_path' => dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . $fileName,
+                'checksum' => $checksum,
                 'location' => $location,
+                'file_path' => dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . $fileName,
                 'created_at' => 'Fri, 08 Dec 2017 00:00:00 GMT',
                 'expires_at' => $expiresAt,
                 'upload_type' => 'normal',
@@ -708,6 +723,7 @@ class ServerTest extends TestCase
      */
     public function it_handles_concatenation_request()
     {
+        $key      = uniqid();
         $fileName = 'file.txt';
         $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
         $filePath = __DIR__ . '/../.tmp/';
@@ -766,7 +782,7 @@ class ServerTest extends TestCase
         $cacheMock
             ->shouldReceive('set')
             ->once()
-            ->with($checksum, $concatenatedFile + ['upload_type' => 'final'])
+            ->with($key, $concatenatedFile + ['upload_type' => 'final'])
             ->andReturnNull();
 
         $cacheMock
@@ -787,10 +803,15 @@ class ServerTest extends TestCase
             ->andReturn($fileMock);
 
         $this->tusServerMock
-            ->shouldReceive('getChecksum')
+            ->shouldReceive('getServerChecksum')
             ->once()
             ->with($filePath . $fileName)
             ->andReturn($checksum);
+
+        $this->tusServerMock
+            ->shouldReceive('getUploadKey')
+            ->once()
+            ->andReturn($key);
 
         $fileMock
             ->shouldReceive('setFilePath')
@@ -903,7 +924,7 @@ class ServerTest extends TestCase
             ->andReturn($fileMock);
 
         $this->tusServerMock
-            ->shouldReceive('getChecksum')
+            ->shouldReceive('getServerChecksum')
             ->once()
             ->with($filePath . $fileName)
             ->andReturn($checksum);
@@ -972,6 +993,7 @@ class ServerTest extends TestCase
      */
     public function it_returns_422_for_file_exception()
     {
+        $key       = uniqid();
         $fileName  = 'file.txt';
         $fileSize  = 1024;
         $checksum  = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
@@ -981,6 +1003,7 @@ class ServerTest extends TestCase
             'name' => $fileName,
             'size' => $fileSize,
             'offset' => 0,
+            'checksum' => $checksum,
             'file_path' => dirname(__DIR__) . DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR . $fileName,
             'location' => $location,
             'created_at' => 'Fri, 08 Dec 2017 00:00:00 GMT',
@@ -994,10 +1017,16 @@ class ServerTest extends TestCase
             ->server
             ->add([
                 'REQUEST_METHOD' => 'PATCH',
-                'REQUEST_URI' => '/files/' . $checksum,
+                'REQUEST_URI' => '/files/' . $key,
             ]);
 
         $fileMock = m::mock(File::class);
+        $fileMock
+            ->shouldReceive('setKey')
+            ->once()
+            ->with($key)
+            ->andReturnSelf();
+
         $fileMock
             ->shouldReceive('setChecksum')
             ->once()
@@ -1025,7 +1054,7 @@ class ServerTest extends TestCase
         $cacheMock
             ->shouldReceive('get')
             ->once()
-            ->with($checksum)
+            ->with($key)
             ->andReturn($fileMeta);
 
         $this->tusServerMock->setCache($cacheMock);
@@ -1044,6 +1073,7 @@ class ServerTest extends TestCase
      */
     public function it_returns_416_for_corrupt_upload()
     {
+        $key       = uniqid();
         $fileName  = 'file.txt';
         $fileSize  = 1024;
         $checksum  = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
@@ -1053,6 +1083,7 @@ class ServerTest extends TestCase
             'name' => $fileName,
             'size' => $fileSize,
             'offset' => 0,
+            'checksum' => $checksum,
             'file_path' => dirname(__DIR__) . DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR . $fileName,
             'location' => $location,
             'created_at' => 'Fri, 08 Dec 2017 00:00:00 GMT',
@@ -1066,10 +1097,16 @@ class ServerTest extends TestCase
             ->server
             ->add([
                 'REQUEST_METHOD' => 'PATCH',
-                'REQUEST_URI' => '/files/' . $checksum,
+                'REQUEST_URI' => '/files/' . $key,
             ]);
 
         $fileMock = m::mock(File::class);
+        $fileMock
+            ->shouldReceive('setKey')
+            ->once()
+            ->with($key)
+            ->andReturnSelf();
+
         $fileMock
             ->shouldReceive('setChecksum')
             ->once()
@@ -1097,7 +1134,7 @@ class ServerTest extends TestCase
         $cacheMock
             ->shouldReceive('get')
             ->once()
-            ->with($checksum)
+            ->with($key)
             ->andReturn($fileMeta);
 
         $this->tusServerMock->setCache($cacheMock);
@@ -1116,6 +1153,7 @@ class ServerTest extends TestCase
      */
     public function it_returns_100_for_aborted_upload()
     {
+        $key       = uniqid();
         $fileName  = 'file.txt';
         $fileSize  = 1024;
         $checksum  = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
@@ -1125,6 +1163,7 @@ class ServerTest extends TestCase
             'name' => $fileName,
             'size' => $fileSize,
             'offset' => 0,
+            'checksum' => $checksum,
             'file_path' => dirname(__DIR__) . DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR . $fileName,
             'location' => $location,
             'created_at' => 'Fri, 08 Dec 2017 00:00:00 GMT',
@@ -1138,10 +1177,16 @@ class ServerTest extends TestCase
             ->server
             ->add([
                 'REQUEST_METHOD' => 'PATCH',
-                'REQUEST_URI' => '/files/' . $checksum,
+                'REQUEST_URI' => '/files/' . $key,
             ]);
 
         $fileMock = m::mock(File::class);
+        $fileMock
+            ->shouldReceive('setKey')
+            ->once()
+            ->with($key)
+            ->andReturnSelf();
+
         $fileMock
             ->shouldReceive('setChecksum')
             ->once()
@@ -1169,7 +1214,7 @@ class ServerTest extends TestCase
         $cacheMock
             ->shouldReceive('get')
             ->once()
-            ->with($checksum)
+            ->with($key)
             ->andReturn($fileMeta);
 
         $this->tusServerMock->setCache($cacheMock);
@@ -1236,16 +1281,18 @@ class ServerTest extends TestCase
      */
     public function it_returns_460_for_corrupt_upload()
     {
+        $key       = uniqid();
         $fileName  = 'file.txt';
         $fileSize  = 1024;
-        $checksum  = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
+        $checksum  = 'invalid';
         $location  = 'http://tus.local/uploads/file.txt';
         $expiresAt = 'Sat, 09 Dec 2017 00:00:00 GMT';
         $fileMeta  = [
             'name' => $fileName,
             'size' => $fileSize,
             'offset' => 0,
-            'file_path' => dirname(__DIR__) . DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR . $fileName,
+            'checksum' => $checksum,
+            'file_path' => __DIR__ . '/../Fixtures/empty.txt',
             'location' => $location,
             'created_at' => 'Fri, 08 Dec 2017 00:00:00 GMT',
             'expires_at' => $expiresAt,
@@ -1258,15 +1305,16 @@ class ServerTest extends TestCase
             ->server
             ->add([
                 'REQUEST_METHOD' => 'PATCH',
-                'REQUEST_URI' => '/files/' . $checksum,
+                'REQUEST_URI' => '/files/' . $key,
             ]);
 
-        $this->tusServerMock
-            ->shouldReceive('getUploadChecksum')
-            ->once()
-            ->andReturn('invalid');
-
         $fileMock = m::mock(File::class);
+        $fileMock
+            ->shouldReceive('setKey')
+            ->once()
+            ->with($key)
+            ->andReturnSelf();
+
         $fileMock
             ->shouldReceive('setChecksum')
             ->once()
@@ -1294,7 +1342,7 @@ class ServerTest extends TestCase
         $cacheMock
             ->shouldReceive('get')
             ->once()
-            ->with($checksum)
+            ->with($key)
             ->andReturn($fileMeta);
 
         $this->tusServerMock->setCache($cacheMock);
@@ -1313,6 +1361,7 @@ class ServerTest extends TestCase
      */
     public function it_handles_patch_request()
     {
+        $key       = uniqid();
         $fileName  = 'file.txt';
         $fileSize  = 1024;
         $checksum  = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
@@ -1322,6 +1371,7 @@ class ServerTest extends TestCase
             'name' => $fileName,
             'size' => $fileSize,
             'offset' => 0,
+            'checksum' => $checksum,
             'file_path' => dirname(__DIR__) . DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR . $fileName,
             'location' => $location,
             'created_at' => 'Fri, 08 Dec 2017 00:00:00 GMT',
@@ -1335,10 +1385,16 @@ class ServerTest extends TestCase
             ->server
             ->add([
                 'REQUEST_METHOD' => 'PATCH',
-                'REQUEST_URI' => '/files/' . $checksum,
+                'REQUEST_URI' => '/files/' . $key,
             ]);
 
         $fileMock = m::mock(File::class);
+        $fileMock
+            ->shouldReceive('setKey')
+            ->once()
+            ->with($key)
+            ->andReturnSelf();
+
         $fileMock
             ->shouldReceive('setChecksum')
             ->once()
@@ -1366,7 +1422,7 @@ class ServerTest extends TestCase
         $cacheMock
             ->shouldReceive('get')
             ->twice()
-            ->with($checksum)
+            ->with($key)
             ->andReturn($fileMeta);
 
         $this->tusServerMock->setCache($cacheMock);
@@ -1764,11 +1820,11 @@ class ServerTest extends TestCase
     /**
      * @test
      *
-     * @covers ::getUploadChecksum
+     * @covers ::getClientChecksum
      */
     public function it_returns_400_if_upload_checksum_header_is_not_present()
     {
-        $response = $this->tusServerMock->getUploadChecksum();
+        $response = $this->tusServerMock->getClientChecksum();
 
         $this->assertEquals(400, $response->getStatusCode());
         $this->assertNull($response->getOriginalContent());
@@ -1779,7 +1835,7 @@ class ServerTest extends TestCase
      *
      * @runInSeparateProcess
      *
-     * @covers ::getUploadChecksum
+     * @covers ::getClientChecksum
      */
     public function it_returns_404_for_unsupported_hash_algorithm()
     {
@@ -1805,7 +1861,7 @@ class ServerTest extends TestCase
             ->headers
             ->set('Upload-Checksum', 'sha1 ' . base64_encode($checksum));
 
-        $response = $this->tusServerMock->getUploadChecksum();
+        $response = $this->tusServerMock->getClientChecksum();
 
         $this->assertEquals(400, $response->getStatusCode());
         $this->assertNull($response->getOriginalContent());
@@ -1818,7 +1874,7 @@ class ServerTest extends TestCase
      *
      * @runInSeparateProcess
      *
-     * @covers ::getUploadChecksum
+     * @covers ::getClientChecksum
      */
     public function it_returns_404_for_invalid_checksum_in_header()
     {
@@ -1842,7 +1898,7 @@ class ServerTest extends TestCase
             ->headers
             ->set('Upload-Checksum', 'sha1 invalid');
 
-        $response = $this->tusServerMock->getUploadChecksum();
+        $response = $this->tusServerMock->getClientChecksum();
 
         $this->assertEquals(400, $response->getStatusCode());
         $this->assertNull($response->getOriginalContent());
@@ -1853,7 +1909,7 @@ class ServerTest extends TestCase
     /**
      * @test
      *
-     * @covers ::getUploadChecksum
+     * @covers ::getClientChecksum
      */
     public function it_gets_upload_checksum_from_header()
     {
@@ -1866,7 +1922,7 @@ class ServerTest extends TestCase
             ->headers
             ->set('Upload-Checksum', 'sha1 ' . base64_encode($checksum));
 
-        $this->assertEquals($checksum, $this->tusServerMock->getUploadChecksum());
+        $this->assertEquals($checksum, $this->tusServerMock->getClientChecksum());
     }
 
     /**

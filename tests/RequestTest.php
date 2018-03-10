@@ -46,7 +46,7 @@ class RequestTest extends TestCase
     /**
      * @test
      *
-     * @covers ::checksum
+     * @covers ::key
      */
     public function it_should_return_checksum_from_request_url()
     {
@@ -54,7 +54,7 @@ class RequestTest extends TestCase
 
         $this->request->getRequest()->server->set('REQUEST_URI', '/files/' . $checksum);
 
-        $this->assertEquals($checksum, $this->request->checksum());
+        $this->assertEquals($checksum, $this->request->key());
     }
 
     /**
