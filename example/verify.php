@@ -16,10 +16,10 @@ $client = new \TusPhp\Tus\Client('http://tus-php-server', 'redis');
 if ( ! empty($_FILES)) {
     $status   = 'new';
     $fileMeta = $_FILES['tus_file'];
-    $checksum = hash_file('md5', $fileMeta['tmp_name']);
+    $uploadKey = hash_file('md5', $fileMeta['tmp_name']);
 
     try {
-        $offset = $client->setKey($checksum)->file($fileMeta['tmp_name'])->getOffset();
+        $offset = $client->setKey($uploadKey)->file($fileMeta['tmp_name'])->getOffset();
 
         if (false !== $offset) {
             $status = $offset >= $fileMeta['size'] ? 'uploaded' : 'resume';
@@ -30,7 +30,7 @@ if ( ! empty($_FILES)) {
         echo json_encode([
             'status' => $status,
             'bytes_uploaded' => $offset,
-            'checksum' => $checksum,
+            'checksum' => $client->getChecksum(),
         ]);
     } catch (ConnectionException | ConnectException $e) {
         echo json_encode([

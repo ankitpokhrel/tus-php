@@ -13,18 +13,18 @@ use TusPhp\Exception\Exception as TusException;
 $client = new \TusPhp\Tus\Client('http://tus-php-server', 'redis');
 
 if ( ! empty($_FILES)) {
-    $fileMeta = $_FILES['tus_file'];
-    $checksum = hash_file('md5', $fileMeta['tmp_name']);
+    $fileMeta  = $_FILES['tus_file'];
+    $uploadKey = hash_file('md5', $fileMeta['tmp_name']);
 
     try {
-        $client->setKey($checksum)->file($fileMeta['tmp_name'], time() . '_' . $fileMeta['name']);
+        $client->setKey($uploadKey)->file($fileMeta['tmp_name'], time() . '_' . $fileMeta['name']);
 
         $bytesUploaded = $client->upload(5000000); // Chunk of 5 mb
 
         echo json_encode([
             'status' => 'uploading',
             'bytes_uploaded' => $bytesUploaded,
-            'checksum' => $checksum,
+            'checksum' => $client->getChecksum(),
         ]);
     } catch (ConnectionException | FileException | TusException $e) {
         echo json_encode([
