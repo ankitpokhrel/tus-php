@@ -111,7 +111,7 @@ class Server extends AbstractTus
      *
      * @return string
      */
-    public function getChecksum(string $filePath)
+    public function getServerChecksum(string $filePath)
     {
         return hash_file($this->getChecksumAlgorithm(), $filePath);
     }
@@ -178,7 +178,7 @@ class Server extends AbstractTus
                 'Access-Control-Allow-Origin' => $this->request->header('Origin'),
                 'Allow' => $this->request->allowedHttpVerbs(),
                 'Access-Control-Allow-Methods' => $this->request->allowedHttpVerbs(),
-                'Access-Control-Allow-Headers' => 'Origin, X-Requested-With, Content-Type, Upload-Length, Upload-Offset, Tus-Resumable, Upload-Metadata',
+                'Access-Control-Allow-Headers' => 'Origin, X-Requested-With, Content-Type, Upload-Key, Upload-Checksum, Upload-Length, Upload-Offset, Tus-Resumable, Upload-Metadata',
                 'Access-Control-Max-Age' => self::HEADER_ACCESS_CONTROL_MAX_AGE,
                 'Tus-Version' => self::TUS_PROTOCOL_VERSION,
                 'Tus-Extension' => implode(',', [
@@ -200,9 +200,9 @@ class Server extends AbstractTus
      */
     protected function handleHead() : HttpResponse
     {
-        $checksum = $this->request->checksum();
+        $key = $this->request->key();
 
-        if ( ! $fileMeta = $this->cache->get($checksum)) {
+        if ( ! $fileMeta = $this->cache->get($key)) {
             return $this->response->send(null, HttpResponse::HTTP_NOT_FOUND);
         }
 
@@ -229,18 +229,19 @@ class Server extends AbstractTus
             return $this->response->send(null, HttpResponse::HTTP_BAD_REQUEST);
         }
 
-        $checksum = $this->getUploadChecksum();
-        $filePath = $this->uploadDir . DIRECTORY_SEPARATOR . $fileName;
+        $uploadKey = $this->getUploadKey();
+        $filePath  = $this->uploadDir . DIRECTORY_SEPARATOR . $fileName;
 
         if ($this->getRequest()->isFinal()) {
             return $this->handleConcatenation($fileName, $filePath);
         }
 
         if ($this->getRequest()->isPartial()) {
-            $filePath   = $this->getPathForPartialUpload($checksum) . $fileName;
+            $filePath   = $this->getPathForPartialUpload($uploadKey) . $fileName;
             $uploadType = self::UPLOAD_TYPE_PARTIAL;
         }
 
+        $checksum = $this->getClientChecksum();
         $location = $this->getRequest()->url() . '/' . basename($this->uploadDir) . '/' . $fileName;
 
         $file = $this->buildFile([
@@ -251,14 +252,14 @@ class Server extends AbstractTus
             'location' => $location,
         ])->setChecksum($checksum);
 
-        $this->cache->set($checksum, $file->details() + ['upload_type' => $uploadType]);
+        $this->cache->set($uploadKey, $file->details() + ['upload_type' => $uploadType]);
 
         return $this->response->send(
             ['data' => ['checksum' => $checksum]],
             HttpResponse::HTTP_CREATED,
             [
                 'Location' => $location,
-                'Upload-Expires' => $this->cache->get($checksum)['expires_at'],
+                'Upload-Expires' => $this->cache->get($uploadKey)['expires_at'],
                 'Tus-Resumable' => self::TUS_PROTOCOL_VERSION,
             ]
         );
@@ -290,13 +291,13 @@ class Server extends AbstractTus
         $file->setOffset($file->merge($files));
 
         // Verify checksum.
-        $checksum = $this->getChecksum($filePath);
+        $checksum = $this->getServerChecksum($filePath);
 
-        if ($checksum !== $this->getUploadChecksum()) {
+        if ($checksum !== $this->getClientChecksum()) {
             return $this->response->send(null, self::HTTP_CHECKSUM_MISMATCH);
         }
 
-        $this->cache->set($checksum, $file->details() + ['upload_type' => self::UPLOAD_TYPE_FINAL]);
+        $this->cache->set($this->getUploadKey(), $file->details() + ['upload_type' => self::UPLOAD_TYPE_FINAL]);
 
         // Cleanup.
         if ($file->delete($filePaths, true)) {
@@ -320,9 +321,9 @@ class Server extends AbstractTus
      */
     protected function handlePatch() : HttpResponse
     {
-        $checksum = $this->request->checksum();
+        $uploadKey = $this->request->key();
 
-        if ( ! $meta = $this->cache->get($checksum)) {
+        if ( ! $meta = $this->cache->get($uploadKey)) {
             return $this->response->send(null, HttpResponse::HTTP_GONE);
         }
 
@@ -330,14 +331,17 @@ class Server extends AbstractTus
             return $this->response->send(null, HttpResponse::HTTP_FORBIDDEN);
         }
 
-        $file = $this->buildFile($meta);
+        $file     = $this->buildFile($meta);
+        $checksum = $meta['checksum'];
 
         try {
             $fileSize = $file->getFileSize();
-            $offset   = $file->setChecksum($checksum)->upload($fileSize);
+            $offset   = $file->setKey($uploadKey)
+                             ->setChecksum($checksum)
+                             ->upload($fileSize);
 
             // If upload is done, verify checksum.
-            if ($offset === $fileSize && $checksum !== $this->getUploadChecksum()) {
+            if ($offset === $fileSize && $checksum !== $this->getServerChecksum($meta['file_path'])) {
                 return $this->response->send(null, self::HTTP_CHECKSUM_MISMATCH);
             }
         } catch (FileException $e) {
@@ -349,7 +353,7 @@ class Server extends AbstractTus
         }
 
         return $this->response->send(null, HttpResponse::HTTP_NO_CONTENT, [
-            'Upload-Expires' => $this->cache->get($checksum)['expires_at'],
+            'Upload-Expires' => $this->cache->get($uploadKey)['expires_at'],
             'Upload-Offset' => $offset,
             'Tus-Resumable' => self::TUS_PROTOCOL_VERSION,
         ]);
@@ -362,13 +366,13 @@ class Server extends AbstractTus
      */
     protected function handleGet()
     {
-        $checksum = $this->request->checksum();
+        $key = $this->request->key();
 
-        if (empty($checksum)) {
+        if (empty($key)) {
             return $this->response->send('400 bad request.', HttpResponse::HTTP_BAD_REQUEST);
         }
 
-        if ( ! $fileMeta = $this->cache->get($checksum)) {
+        if ( ! $fileMeta = $this->cache->get($key)) {
             return $this->response->send('404 upload not found.', HttpResponse::HTTP_NOT_FOUND);
         }
 
@@ -389,15 +393,15 @@ class Server extends AbstractTus
      */
     protected function handleDelete() : HttpResponse
     {
-        $checksum = $this->request->checksum();
-        $fileMeta = $this->cache->get($checksum);
+        $key      = $this->request->key();
+        $fileMeta = $this->cache->get($key);
         $resource = $fileMeta['file_path'] ?? null;
 
         if ( ! $resource) {
             return $this->response->send(null, HttpResponse::HTTP_NOT_FOUND);
         }
 
-        $isDeleted = $this->cache->delete($checksum);
+        $isDeleted = $this->cache->delete($key);
 
         if ( ! $isDeleted || ! file_exists($resource)) {
             return $this->response->send(null, HttpResponse::HTTP_GONE);
@@ -477,11 +481,27 @@ class Server extends AbstractTus
     }
 
     /**
+     * Get upload key from header.
+     *
+     * @return string|HttpResponse
+     */
+    protected function getUploadKey()
+    {
+        $key = $this->getRequest()->header('Upload-Key');
+
+        if (empty($key)) {
+            return $this->response->send(null, HttpResponse::HTTP_BAD_REQUEST);
+        }
+
+        return base64_decode($key);
+    }
+
+    /**
      * Verify and get upload checksum from header.
      *
      * @return string|HttpResponse
      */
-    protected function getUploadChecksum()
+    protected function getClientChecksum()
     {
         $checksumHeader = $this->getRequest()->header('Upload-Checksum');
 
@@ -521,15 +541,15 @@ class Server extends AbstractTus
     /**
      * Get path for partial upload.
      *
-     * @param string $checksum
+     * @param string $key
      *
      * @return string
      */
-    protected function getPathForPartialUpload(string $checksum) : string
+    protected function getPathForPartialUpload(string $key) : string
     {
-        list($actualChecksum) = explode(self::PARTIAL_UPLOAD_NAME_SEPARATOR, $checksum);
+        list($actualKey) = explode(self::PARTIAL_UPLOAD_NAME_SEPARATOR, $key);
 
-        $path = $this->uploadDir . DIRECTORY_SEPARATOR . $actualChecksum . DIRECTORY_SEPARATOR;
+        $path = $this->uploadDir . DIRECTORY_SEPARATOR . $actualKey . DIRECTORY_SEPARATOR;
 
         if ( ! file_exists($path)) {
             mkdir($path);

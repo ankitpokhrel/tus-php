@@ -30,6 +30,9 @@ class Client extends AbstractTus
     protected $fileName;
 
     /** @var string */
+    protected $key;
+
+    /** @var string */
     protected $checksum;
 
     /** @var int */
@@ -171,6 +174,30 @@ class Client extends AbstractTus
     }
 
     /**
+     * Set key.
+     *
+     * @param string $key
+     *
+     * @return Client
+     */
+    public function setKey(string $key) : self
+    {
+        $this->key = $key;
+
+        return $this;
+    }
+
+    /**
+     * Get key.
+     *
+     * @return string
+     */
+    public function getKey() : string
+    {
+        return $this->key;
+    }
+
+    /**
      * Set checksum algorithm.
      *
      * @param string $algorithm
@@ -240,20 +267,20 @@ class Client extends AbstractTus
      */
     public function upload(int $bytes = -1) : int
     {
-        $bytes    = $bytes < 0 ? $this->getFileSize() : $bytes;
-        $checksum = $this->getChecksum();
+        $bytes = $bytes < 0 ? $this->getFileSize() : $bytes;
+        $key   = $this->getKey();
 
         try {
             // Check if this upload exists with HEAD request
-            $this->sendHeadRequest($checksum);
+            $this->sendHeadRequest($key);
         } catch (FileException | ClientException $e) {
-            $this->create($checksum);
+            $this->create($key);
         } catch (ConnectException $e) {
             throw new ConnectionException("Couldn't connect to server.");
         }
 
         // Now, resume upload with PATCH request
-        return $this->sendPatchRequest($checksum, $bytes);
+        return $this->sendPatchRequest($key, $bytes);
     }
 
     /**
@@ -263,10 +290,10 @@ class Client extends AbstractTus
      */
     public function getOffset()
     {
-        $checksum = $this->getChecksum();
+        $key = $this->getKey();
 
         try {
-            $offset = $this->sendHeadRequest($checksum);
+            $offset = $this->sendHeadRequest($key);
         } catch (FileException | ClientException $e) {
             return false;
         }
@@ -277,17 +304,18 @@ class Client extends AbstractTus
     /**
      * Create resource with POST request.
      *
-     * @param string $checksum
+     * @param string $key
      *
      * @throws FileException
      *
      * @return string
      */
-    public function create(string $checksum) : string
+    public function create(string $key) : string
     {
         $headers = [
             'Upload-Length' => $this->fileSize,
-            'Upload-Checksum' => $this->getUploadChecksumHeader($checksum),
+            'Upload-Key' => base64_encode($key),
+            'Upload-Checksum' => $this->getUploadChecksumHeader(),
             'Upload-Metadata' => 'filename ' . base64_encode($this->fileName),
         ];
 
@@ -313,17 +341,18 @@ class Client extends AbstractTus
     /**
      * Concatenate 2 or more partial uploads.
      *
-     * @param string $checksum
+     * @param string $key
      * @param mixed  $partials
      *
      * @return string
      */
-    public function concat(string $checksum, ...$partials) : string
+    public function concat(string $key, ...$partials) : string
     {
         $response = $this->getClient()->post($this->apiPath, [
             'headers' => [
                 'Upload-Length' => $this->fileSize,
-                'Upload-Checksum' => $this->getUploadChecksumHeader($checksum),
+                'Upload-Key' => base64_encode($key),
+                'Upload-Checksum' => $this->getUploadChecksumHeader(),
                 'Upload-Metadata' => 'filename ' . base64_encode($this->fileName),
                 'Upload-Concat' => self::UPLOAD_TYPE_FINAL . ';' . implode(' ', $partials),
             ],
@@ -343,16 +372,16 @@ class Client extends AbstractTus
     /**
      * Send DELETE request.
      *
-     * @param string $checksum
+     * @param string $key
      *
      * @throws FileException
      *
      * @return void
      */
-    public function delete(string $checksum)
+    public function delete(string $key)
     {
         try {
-            $this->getClient()->delete($this->apiPath . '/' . $checksum, [
+            $this->getClient()->delete($this->apiPath . '/' . $key, [
                 'headers' => [
                     'Tus-Resumable' => self::TUS_PROTOCOL_VERSION,
                 ],
@@ -379,27 +408,27 @@ class Client extends AbstractTus
             return;
         }
 
-        $checksum = $this->getChecksum();
+        $key = $this->getKey();
 
-        if (false !== strpos($checksum, self::PARTIAL_UPLOAD_NAME_SEPARATOR)) {
-            list($checksum) = explode(self::PARTIAL_UPLOAD_NAME_SEPARATOR, $checksum);
+        if (false !== strpos($key, self::PARTIAL_UPLOAD_NAME_SEPARATOR)) {
+            list($key) = explode(self::PARTIAL_UPLOAD_NAME_SEPARATOR, $key);
         }
 
-        $this->checksum = $checksum . uniqid(self::PARTIAL_UPLOAD_NAME_SEPARATOR);
+        $this->key = $key . uniqid(self::PARTIAL_UPLOAD_NAME_SEPARATOR);
     }
 
     /**
      * Send HEAD request.
      *
-     * @param string $checksum
+     * @param string $key
      *
      * @throws FileException
      *
      * @return int
      */
-    protected function sendHeadRequest(string $checksum) : int
+    protected function sendHeadRequest(string $key) : int
     {
-        $response = $this->getClient()->head($this->apiPath . '/' . $checksum);
+        $response = $this->getClient()->head($this->apiPath . '/' . $key);
 
         $statusCode = $response->getStatusCode();
 
@@ -413,7 +442,7 @@ class Client extends AbstractTus
     /**
      * Send PATCH request.
      *
-     * @param string $checksum
+     * @param string $key
      * @param int    $bytes
      *
      * @throws Exception
@@ -422,13 +451,13 @@ class Client extends AbstractTus
      *
      * @return int
      */
-    protected function sendPatchRequest(string $checksum, int $bytes) : int
+    protected function sendPatchRequest(string $key, int $bytes) : int
     {
-        $data    = $this->getData($checksum, $bytes);
+        $data    = $this->getData($key, $bytes);
         $headers = [
             'Content-Type' => 'application/offset+octet-stream',
             'Content-Length' => strlen($data),
-            'Upload-Checksum' => $this->getUploadChecksumHeader($checksum),
+            'Upload-Checksum' => $this->getUploadChecksumHeader(),
         ];
 
         if ($this->isPartial()) {
@@ -436,7 +465,7 @@ class Client extends AbstractTus
         }
 
         try {
-            $response = $this->getClient()->patch($this->apiPath . '/' . $checksum, [
+            $response = $this->getClient()->patch($this->apiPath . '/' . $key, [
                 'body' => $data,
                 'headers' => $headers,
             ]);
@@ -462,19 +491,19 @@ class Client extends AbstractTus
     /**
      * Get X bytes of data from file.
      *
-     * @param string $checksum
+     * @param string $key
      * @param int    $bytes
      *
      * @return string
      */
-    protected function getData(string $checksum, int $bytes) : string
+    protected function getData(string $key, int $bytes) : string
     {
         $file   = new File;
         $handle = $file->open($this->getFilePath(), $file::READ_BINARY);
         $offset = $this->partialOffset;
 
         if ($offset < 0) {
-            $fileMeta = $this->getCache()->get($checksum);
+            $fileMeta = $this->getCache()->get($key);
             $offset   = $fileMeta['offset'];
         }
 
@@ -490,16 +519,10 @@ class Client extends AbstractTus
     /**
      * Get upload checksum header.
      *
-     * @param string|null $checksum
-     *
      * @return string
      */
-    protected function getUploadChecksumHeader(string $checksum = null) : string
+    protected function getUploadChecksumHeader() : string
     {
-        if (empty($checksum)) {
-            $checksum = $this->getChecksum();
-        }
-
-        return $this->getChecksumAlgorithm() . ' ' . base64_encode($checksum);
+        return $this->getChecksumAlgorithm() . ' ' . base64_encode($this->getChecksum());
     }
 }
