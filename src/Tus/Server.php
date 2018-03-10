@@ -336,9 +336,7 @@ class Server extends AbstractTus
 
         try {
             $fileSize = $file->getFileSize();
-            $offset   = $file->setKey($uploadKey)
-                             ->setChecksum($checksum)
-                             ->upload($fileSize);
+            $offset   = $file->setKey($uploadKey)->setChecksum($checksum)->upload($fileSize);
 
             // If upload is done, verify checksum.
             if ($offset === $fileSize && $checksum !== $this->getServerChecksum($meta['file_path'])) {
