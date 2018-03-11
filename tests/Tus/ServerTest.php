@@ -262,7 +262,7 @@ class ServerTest extends TestCase
         $this->assertEquals(86400, current($headers['access-control-max-age']));
         $this->assertEquals('1.0.0', current($headers['tus-version']));
         $this->assertEquals(
-            'Origin, X-Requested-With, Content-Type, Upload-Key, Upload-Checksum, Upload-Length, Upload-Offset, Tus-Resumable, Location, Upload-Metadata',
+            'Origin, X-Requested-With, Content-Type, Upload-Key, Upload-Checksum, Upload-Length, Upload-Offset, Tus-Resumable, Upload-Metadata',
             current($headers['access-control-allow-headers'])
         );
         $this->assertEquals(
