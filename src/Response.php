@@ -15,6 +15,9 @@ class Response
     /** @var bool */
     protected $createOnly = false;
 
+    /** @var array */
+    protected $headers = [];
+
     /**
      * Response constructor.
      */
@@ -38,6 +41,30 @@ class Response
     }
 
     /**
+     * Set global headers.
+     *
+     * @param array $headers
+     *
+     * @return Response
+     */
+    public function setHeaders(array $headers) : self
+    {
+        $this->headers = $headers;
+
+        return $this;
+    }
+
+    /**
+     * Get global headers.
+     *
+     * @return array
+     */
+    public function getHeaders() : array
+    {
+        return $this->headers;
+    }
+
+    /**
      * Get create only.
      *
      * @return bool
@@ -58,6 +85,8 @@ class Response
      */
     public function send($content, int $status = HttpResponse::HTTP_OK, array $headers = []) : HttpResponse
     {
+        $headers = array_merge($this->headers, $headers);
+
         $response = $this->response->create($content, $status, $headers);
 
         return $this->createOnly ? $response : $response->send();

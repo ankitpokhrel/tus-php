@@ -29,6 +29,9 @@ class ServerTest extends TestCase
     /** @var \Mockery mock */
     protected $tusServerMock;
 
+    /** @var array */
+    protected $globalHeaders;
+
     /**
      * Prepare vars.
      *
@@ -56,6 +59,18 @@ class ServerTest extends TestCase
         $this->tusServerMock
             ->shouldReceive('__call')
             ->andReturn(null);
+
+        $this->globalHeaders = [
+            'Access-Control-Allow-Origin' => null,
+            'Access-Control-Allow-Methods' => implode(',', self::ALLOWED_HTTP_VERBS),
+            'Access-Control-Allow-Headers' => 'Origin, X-Requested-With, Content-Type, Upload-Key, Upload-Checksum, Upload-Length, Upload-Offset, Tus-Resumable, Upload-Metadata',
+            'Access-Control-Max-Age' => 86400,
+            'Tus-Resumable' => '1.0.0',
+        ];
+
+        $this->tusServerMock
+            ->getResponse()
+            ->setHeaders($this->globalHeaders);
 
         parent::setUp();
     }
@@ -155,9 +170,15 @@ class ServerTest extends TestCase
      *
      * @covers ::serve
      */
-    public function it_calls_proper_handle_method()
+    public function it_calls_proper_handle_method_and_global_headers()
     {
+        $globalHeaders = $this->globalHeaders;
+
         foreach (self::ALLOWED_HTTP_VERBS as $method) {
+            if ('OPTIONS' === $method) {
+                unset($globalHeaders['Tus-Resumable']);
+            }
+
             $tusServerMock = m::mock(TusServer::class)
                               ->shouldAllowMockingProtectedMethods()
                               ->makePartial();
@@ -174,6 +195,19 @@ class ServerTest extends TestCase
                 ->shouldReceive('exit')
                 ->once()
                 ->andReturn(null);
+
+            $responseMock = m::mock(Response::class)->makePartial();
+
+            $responseMock
+                ->shouldReceive('setHeaders')
+                ->once()
+                ->with($globalHeaders)
+                ->andReturnSelf();
+
+            $tusServerMock
+                ->shouldReceive('getResponse')
+                ->once()
+                ->andReturn($responseMock);
 
             $tusServerMock
                 ->getRequest()
@@ -220,8 +254,8 @@ class ServerTest extends TestCase
         $headers  = $response->headers->all();
 
         $this->assertNull(current($headers['access-control-allow-origin']));
-        $this->assertEquals(self::ALLOWED_HTTP_VERBS, $headers['allow']);
-        $this->assertEquals(self::ALLOWED_HTTP_VERBS, $headers['access-control-allow-methods']);
+        $this->assertEquals(implode(',', self::ALLOWED_HTTP_VERBS), current($headers['allow']));
+        $this->assertEquals(implode(',', self::ALLOWED_HTTP_VERBS), current($headers['access-control-allow-methods']));
         $this->assertEquals(86400, current($headers['access-control-max-age']));
         $this->assertEquals('1.0.0', current($headers['tus-version']));
         $this->assertEquals(
@@ -1730,7 +1764,6 @@ class ServerTest extends TestCase
         $headers = [
             'Upload-Offset' => 49,
             'Cache-Control' => 'no-store',
-            'Tus-Resumable' => '1.0.0',
         ];
 
         $this->assertEquals($headers, $this->tusServerMock->getHeadersForHeadRequest($fileMeta));

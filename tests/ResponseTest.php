@@ -42,15 +42,39 @@ class ResponseTest extends TestCase
     /**
      * @test
      *
+     * @covers ::__construct
+     * @covers ::setHeaders
+     * @covers ::getHeaders
+     */
+    public function it_sets_and_gets_global_headers()
+    {
+        $this->assertEquals([], $this->response->getHeaders());
+
+        $headers = [
+            'Access-Control-Allow-Origin' => '*',
+            'Access-Control-Max-Age' => 86400,
+        ];
+
+        $this->assertInstanceOf(Response::class, $this->response->setHeaders($headers));
+        $this->assertEquals($headers, $this->response->getHeaders());
+    }
+
+    /**
+     * @test
+     *
      * @covers ::send
      */
     public function it_sends_a_response()
     {
         $content  = '204 No Content';
-        $response = $this->response->createOnly(true)->send($content, 204, ['Offset' => 100]);
+        $response = $this->response
+            ->createOnly(true)
+            ->setHeaders(['Access-Control-Max-Age' => 86400])
+            ->send($content, 204, ['Offset' => 100]);
 
         $this->assertEquals(204, $response->getStatusCode());
         $this->assertEquals($content, $response->getContent());
+        $this->assertEquals(86400, $response->headers->get('Access-Control-Max-Age'));
         $this->assertEquals(100, $response->headers->get('Offset'));
     }
 

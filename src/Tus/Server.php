@@ -10,6 +10,7 @@ use TusPhp\Cache\Cacheable;
 use TusPhp\Exception\FileException;
 use TusPhp\Exception\ConnectionException;
 use TusPhp\Exception\OutOfRangeException;
+use Illuminate\Http\Request as HttpRequest;
 use Illuminate\Http\Response as HttpResponse;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
@@ -141,13 +142,27 @@ class Server extends AbstractTus
      */
     public function serve()
     {
-        $method = $this->getRequest()->method();
+        $requestMethod    = $this->getRequest()->method();
+        $allowedHttpVerbs = $this->getRequest()->allowedHttpVerbs();
 
-        if ( ! in_array($method, $this->request->allowedHttpVerbs())) {
+        $globalHeaders = [
+            'Access-Control-Allow-Origin' => $this->request->header('Origin'),
+            'Access-Control-Allow-Methods' => implode(',', $allowedHttpVerbs),
+            'Access-Control-Allow-Headers' => 'Origin, X-Requested-With, Content-Type, Upload-Key, Upload-Checksum, Upload-Length, Upload-Offset, Tus-Resumable, Upload-Metadata',
+            'Access-Control-Max-Age' => self::HEADER_ACCESS_CONTROL_MAX_AGE,
+        ];
+
+        if (HttpRequest::METHOD_OPTIONS !== $requestMethod) {
+            $globalHeaders['Tus-Resumable'] = self::TUS_PROTOCOL_VERSION;
+        }
+
+        $this->getResponse()->setHeaders($globalHeaders);
+
+        if ( ! in_array($requestMethod, $allowedHttpVerbs)) {
             return $this->response->send(null, HttpResponse::HTTP_METHOD_NOT_ALLOWED);
         }
 
-        $method = 'handle' . ucfirst(strtolower($method));
+        $method = 'handle' . ucfirst(strtolower($requestMethod));
 
         $this->{$method}();
 
@@ -175,11 +190,7 @@ class Server extends AbstractTus
             null,
             HttpResponse::HTTP_OK,
             [
-                'Access-Control-Allow-Origin' => $this->request->header('Origin'),
-                'Allow' => $this->request->allowedHttpVerbs(),
-                'Access-Control-Allow-Methods' => $this->request->allowedHttpVerbs(),
-                'Access-Control-Allow-Headers' => 'Origin, X-Requested-With, Content-Type, Upload-Key, Upload-Checksum, Upload-Length, Upload-Offset, Tus-Resumable, Upload-Metadata',
-                'Access-Control-Max-Age' => self::HEADER_ACCESS_CONTROL_MAX_AGE,
+                'Allow' => implode(',', $this->request->allowedHttpVerbs()),
                 'Tus-Version' => self::TUS_PROTOCOL_VERSION,
                 'Tus-Extension' => implode(',', [
                     self::TUS_EXTENSION_CREATION,
@@ -258,9 +269,9 @@ class Server extends AbstractTus
             ['data' => ['checksum' => $checksum]],
             HttpResponse::HTTP_CREATED,
             [
+                'Access-Control-Expose-Headers' => 'Location',
                 'Location' => $location,
                 'Upload-Expires' => $this->cache->get($uploadKey)['expires_at'],
-                'Tus-Resumable' => self::TUS_PROTOCOL_VERSION,
             ]
         );
     }
@@ -308,8 +319,8 @@ class Server extends AbstractTus
             ['data' => ['checksum' => $checksum]],
             HttpResponse::HTTP_CREATED,
             [
+                'Access-Control-Expose-Headers' => 'Location',
                 'Location' => $location,
-                'Tus-Resumable' => self::TUS_PROTOCOL_VERSION,
             ]
         );
     }
@@ -353,7 +364,6 @@ class Server extends AbstractTus
         return $this->response->send(null, HttpResponse::HTTP_NO_CONTENT, [
             'Upload-Expires' => $this->cache->get($uploadKey)['expires_at'],
             'Upload-Offset' => $offset,
-            'Tus-Resumable' => self::TUS_PROTOCOL_VERSION,
         ]);
     }
 
@@ -408,7 +418,6 @@ class Server extends AbstractTus
         unlink($resource);
 
         return $this->response->send(null, HttpResponse::HTTP_NO_CONTENT, [
-            'Tus-Resumable' => self::TUS_PROTOCOL_VERSION,
             'Tus-Extension' => self::TUS_EXTENSION_TERMINATION,
         ]);
     }
@@ -425,7 +434,6 @@ class Server extends AbstractTus
         $headers = [
             'Upload-Offset' => (int) $fileMeta['offset'],
             'Cache-Control' => 'no-store',
-            'Tus-Resumable' => self::TUS_PROTOCOL_VERSION,
         ];
 
         if (self::UPLOAD_TYPE_FINAL === $fileMeta['upload_type'] && $fileMeta['size'] !== $fileMeta['offset']) {
