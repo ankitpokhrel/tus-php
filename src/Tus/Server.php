@@ -140,6 +140,42 @@ class Server extends AbstractTus
     }
 
     /**
+     * Set upload key.
+     *
+     * @param string $key
+     *
+     * @return Server
+     */
+    public function setUploadKey(string $key) : self
+    {
+        $this->uploadKey = $key;
+
+        return $this;
+    }
+
+    /**
+     * Get upload key from header.
+     *
+     * @return string|HttpResponse
+     */
+    public function getUploadKey()
+    {
+        if ( ! empty($this->uploadKey)) {
+            return $this->uploadKey;
+        }
+
+        $key = $this->getRequest()->header('Upload-Key') ?? Uuid::uuid4()->toString();
+
+        if (empty($key)) {
+            return $this->response->send(null, HttpResponse::HTTP_BAD_REQUEST);
+        }
+
+        $this->uploadKey = $key;
+
+        return $this->uploadKey;
+    }
+
+    /**
      * Handle all HTTP request.
      *
      * @return null|HttpResponse
@@ -291,9 +327,10 @@ class Server extends AbstractTus
     protected function handleConcatenation(string $fileName, string $filePath) : HttpResponse
     {
         $partials  = $this->getRequest()->extractPartials();
+        $uploadKey = $this->getUploadKey();
         $files     = $this->getPartialsMeta($partials);
         $filePaths = array_column($files, 'file_path');
-        $location  = $this->getRequest()->url() . $this->getApiPath() . '/' . $this->getUploadKey();
+        $location  = $this->getRequest()->url() . $this->getApiPath() . '/' . $uploadKey;
 
         $file = $this->buildFile([
             'name' => $fileName,
@@ -312,7 +349,7 @@ class Server extends AbstractTus
             return $this->response->send(null, self::HTTP_CHECKSUM_MISMATCH);
         }
 
-        $this->cache->set($this->getUploadKey(), $file->details() + ['upload_type' => self::UPLOAD_TYPE_FINAL]);
+        $this->cache->set($uploadKey, $file->details() + ['upload_type' => self::UPLOAD_TYPE_FINAL]);
 
         // Cleanup.
         if ($file->delete($filePaths, true)) {
@@ -488,28 +525,6 @@ class Server extends AbstractTus
         }
 
         return implode(',', $algorithms);
-    }
-
-    /**
-     * Get upload key from header.
-     *
-     * @return string|HttpResponse
-     */
-    protected function getUploadKey()
-    {
-        if ( ! empty($this->uploadKey)) {
-            return $this->uploadKey;
-        }
-
-        $key = $this->getRequest()->header('Upload-Key') ?? Uuid::uuid4();
-
-        if (empty($key)) {
-            return $this->response->send(null, HttpResponse::HTTP_BAD_REQUEST);
-        }
-
-        $this->uploadKey = $key;
-
-        return $this->uploadKey;
     }
 
     /**

@@ -324,7 +324,7 @@ class Client extends AbstractTus
         $response = $this->getClient()->post($this->apiPath, [
             'headers' => [
                 'Upload-Length' => $this->fileSize,
-                'Upload-Key' => base64_encode($key),
+                'Upload-Key' => $key,
                 'Upload-Checksum' => $this->getUploadChecksumHeader(),
                 'Upload-Metadata' => 'filename ' . base64_encode($this->fileName),
                 'Upload-Concat' => self::UPLOAD_TYPE_FINAL . ';' . implode(' ', $partials),
