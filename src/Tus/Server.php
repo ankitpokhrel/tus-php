@@ -188,9 +188,10 @@ class Server extends AbstractTus
         $globalHeaders = [
             'Access-Control-Allow-Origin' => $this->request->header('Origin'),
             'Access-Control-Allow-Methods' => implode(',', $allowedHttpVerbs),
-            'Access-Control-Allow-Headers' => 'Origin, X-Requested-With, Content-Type, Upload-Key, Upload-Checksum, Upload-Length, Upload-Offset, Tus-Resumable, Location, Upload-Metadata',
-            'Access-Control-Max-Age' => self::HEADER_ACCESS_CONTROL_MAX_AGE,
+            'Access-Control-Allow-Headers' => 'Origin, X-Requested-With, Content-Type, Upload-Key, Upload-Checksum, Upload-Length, Upload-Offset, Tus-Resumable, Upload-Metadata',
             'Access-Control-Expose-Headers' => 'Upload-Key, Upload-Checksum, Upload-Length, Upload-Offset, Upload-Metadata, Location',
+            'Access-Control-Max-Age' => self::HEADER_ACCESS_CONTROL_MAX_AGE,
+            'X-Content-Type-Options' => 'nosniff',
         ];
 
         if (HttpRequest::METHOD_OPTIONS !== $requestMethod) {

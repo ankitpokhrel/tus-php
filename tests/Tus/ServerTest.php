@@ -64,9 +64,10 @@ class ServerTest extends TestCase
         $this->globalHeaders = [
             'Access-Control-Allow-Origin' => null,
             'Access-Control-Allow-Methods' => implode(',', self::ALLOWED_HTTP_VERBS),
-            'Access-Control-Allow-Headers' => 'Origin, X-Requested-With, Content-Type, Upload-Key, Upload-Checksum, Upload-Length, Upload-Offset, Tus-Resumable, Location, Upload-Metadata',
+            'Access-Control-Allow-Headers' => 'Origin, X-Requested-With, Content-Type, Upload-Key, Upload-Checksum, Upload-Length, Upload-Offset, Tus-Resumable, Upload-Metadata',
             'Access-Control-Expose-Headers' => 'Upload-Key, Upload-Checksum, Upload-Length, Upload-Offset, Upload-Metadata, Location',
             'Access-Control-Max-Age' => 86400,
+            'X-Content-Type-Options' => 'nosniff',
             'Tus-Resumable' => '1.0.0',
         ];
 
