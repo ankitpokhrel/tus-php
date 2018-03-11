@@ -6,6 +6,7 @@ use TusPhp\File;
 use Carbon\Carbon;
 use TusPhp\Request;
 use TusPhp\Response;
+use Ramsey\Uuid\Uuid;
 use TusPhp\Cache\Cacheable;
 use TusPhp\Exception\FileException;
 use TusPhp\Exception\ConnectionException;
@@ -48,6 +49,9 @@ class Server extends AbstractTus
 
     /** @var string */
     protected $uploadDir;
+
+    /** @var string */
+    protected $uploadKey;
 
     /**
      * TusServer constructor.
@@ -493,13 +497,19 @@ class Server extends AbstractTus
      */
     protected function getUploadKey()
     {
-        $key = $this->getRequest()->header('Upload-Key');
+        if ( ! empty($this->uploadKey)) {
+            return $this->uploadKey;
+        }
+
+        $key = $this->getRequest()->header('Upload-Key') ?? Uuid::uuid4();
 
         if (empty($key)) {
             return $this->response->send(null, HttpResponse::HTTP_BAD_REQUEST);
         }
 
-        return base64_decode($key);
+        $this->uploadKey = $key;
+
+        return $this->uploadKey;
     }
 
     /**

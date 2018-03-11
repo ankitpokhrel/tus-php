@@ -287,7 +287,7 @@ class Client extends AbstractTus
     {
         $headers = [
             'Upload-Length' => $this->fileSize,
-            'Upload-Key' => base64_encode($key),
+            'Upload-Key' => $key,
             'Upload-Checksum' => $this->getUploadChecksumHeader(),
             'Upload-Metadata' => 'filename ' . base64_encode($this->fileName),
         ];
