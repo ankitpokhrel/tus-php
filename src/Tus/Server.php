@@ -148,8 +148,9 @@ class Server extends AbstractTus
         $globalHeaders = [
             'Access-Control-Allow-Origin' => $this->request->header('Origin'),
             'Access-Control-Allow-Methods' => implode(',', $allowedHttpVerbs),
-            'Access-Control-Allow-Headers' => 'Origin, X-Requested-With, Content-Type, Upload-Key, Upload-Checksum, Upload-Length, Upload-Offset, Tus-Resumable, Upload-Metadata',
+            'Access-Control-Allow-Headers' => 'Origin, X-Requested-With, Content-Type, Upload-Key, Upload-Checksum, Upload-Length, Upload-Offset, Tus-Resumable, Location, Upload-Metadata',
             'Access-Control-Max-Age' => self::HEADER_ACCESS_CONTROL_MAX_AGE,
+            'Access-Control-Expose-Headers' => 'Upload-Key, Upload-Checksum, Upload-Length, Upload-Offset, Upload-Metadata, Location',
         ];
 
         if (HttpRequest::METHOD_OPTIONS !== $requestMethod) {
@@ -253,7 +254,7 @@ class Server extends AbstractTus
         }
 
         $checksum = $this->getClientChecksum();
-        $location = $this->getRequest()->url() . '/' . basename($this->uploadDir) . '/' . $fileName;
+        $location = $location = $this->getRequest()->url() . $this->getApiPath() . '/' . $uploadKey;
 
         $file = $this->buildFile([
             'name' => $fileName,
@@ -269,7 +270,6 @@ class Server extends AbstractTus
             ['data' => ['checksum' => $checksum]],
             HttpResponse::HTTP_CREATED,
             [
-                'Access-Control-Expose-Headers' => 'Location',
                 'Location' => $location,
                 'Upload-Expires' => $this->cache->get($uploadKey)['expires_at'],
             ]
@@ -289,7 +289,7 @@ class Server extends AbstractTus
         $partials  = $this->getRequest()->extractPartials();
         $files     = $this->getPartialsMeta($partials);
         $filePaths = array_column($files, 'file_path');
-        $location  = $this->getRequest()->url() . '/' . basename($this->uploadDir) . '/' . $fileName;
+        $location  = $this->getRequest()->url() . $this->getApiPath() . '/' . $this->getUploadKey();
 
         $file = $this->buildFile([
             'name' => $fileName,
@@ -319,7 +319,6 @@ class Server extends AbstractTus
             ['data' => ['checksum' => $checksum]],
             HttpResponse::HTTP_CREATED,
             [
-                'Access-Control-Expose-Headers' => 'Location',
                 'Location' => $location,
             ]
         );
@@ -350,7 +349,7 @@ class Server extends AbstractTus
             $offset   = $file->setKey($uploadKey)->setChecksum($checksum)->upload($fileSize);
 
             // If upload is done, verify checksum.
-            if ($offset === $fileSize && $checksum !== $this->getServerChecksum($meta['file_path'])) {
+            if ($offset === $fileSize && ! empty($checksum) && $checksum !== $this->getServerChecksum($meta['file_path'])) {
                 return $this->response->send(null, self::HTTP_CHECKSUM_MISMATCH);
             }
         } catch (FileException $e) {
@@ -432,6 +431,7 @@ class Server extends AbstractTus
     protected function getHeadersForHeadRequest(array $fileMeta) : array
     {
         $headers = [
+            'Upload-Length' => (int) $fileMeta['size'],
             'Upload-Offset' => (int) $fileMeta['offset'],
             'Cache-Control' => 'no-store',
         ];
@@ -512,7 +512,7 @@ class Server extends AbstractTus
         $checksumHeader = $this->getRequest()->header('Upload-Checksum');
 
         if (empty($checksumHeader)) {
-            return $this->response->send(null, HttpResponse::HTTP_BAD_REQUEST);
+            return '';
         }
 
         list($checksumAlgorithm, $checksum) = explode(' ', $checksumHeader);

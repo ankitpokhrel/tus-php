@@ -18,9 +18,6 @@ class Client extends AbstractTus
     protected $client;
 
     /** @var string */
-    protected $apiPath = '/files';
-
-    /** @var string */
     protected $filePath;
 
     /** @var int */
@@ -123,30 +120,6 @@ class Client extends AbstractTus
     public function getFileSize()
     {
         return $this->fileSize;
-    }
-
-    /**
-     * Set API path.
-     *
-     * @param string $path
-     *
-     * @return Client
-     */
-    public function setApiPath(string $path) : self
-    {
-        $this->apiPath = $path;
-
-        return $this;
-    }
-
-    /**
-     * Get API path.
-     *
-     * @return string
-     */
-    public function getApiPath() : string
-    {
-        return $this->apiPath;
     }
 
     /**
