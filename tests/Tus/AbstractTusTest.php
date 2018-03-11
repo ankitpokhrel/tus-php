@@ -45,4 +45,17 @@ class AbstractTusTest extends TestCase
         $this->assertInstanceOf(TusServer::class, $this->tus->setCache($fileStore));
         $this->assertInstanceOf(FileStore::class, $this->tus->getCache());
     }
+
+    /**
+     * @test
+     *
+     * @covers ::getApiPath
+     * @covers ::setApiPath
+     */
+    public function it_sets_and_gets_api_path()
+    {
+        $this->assertEquals('/files', $this->tus->getApiPath());
+        $this->assertInstanceOf(TusServer::class, $this->tus->setApiPath('/api'));
+        $this->assertEquals('/api', $this->tus->getApiPath());
+    }
 }

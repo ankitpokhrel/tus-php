@@ -6,6 +6,7 @@ use TusPhp\File;
 use Mockery as m;
 use TusPhp\Request;
 use TusPhp\Response;
+use TusPhp\Tus\Server;
 use phpmock\MockBuilder;
 use TusPhp\Cache\FileStore;
 use PHPUnit\Framework\TestCase;
@@ -63,7 +64,8 @@ class ServerTest extends TestCase
         $this->globalHeaders = [
             'Access-Control-Allow-Origin' => null,
             'Access-Control-Allow-Methods' => implode(',', self::ALLOWED_HTTP_VERBS),
-            'Access-Control-Allow-Headers' => 'Origin, X-Requested-With, Content-Type, Upload-Key, Upload-Checksum, Upload-Length, Upload-Offset, Tus-Resumable, Upload-Metadata',
+            'Access-Control-Allow-Headers' => 'Origin, X-Requested-With, Content-Type, Upload-Key, Upload-Checksum, Upload-Length, Upload-Offset, Tus-Resumable, Location, Upload-Metadata',
+            'Access-Control-Expose-Headers' => 'Upload-Key, Upload-Checksum, Upload-Length, Upload-Offset, Upload-Metadata, Location',
             'Access-Control-Max-Age' => 86400,
             'Tus-Resumable' => '1.0.0',
         ];
@@ -259,8 +261,12 @@ class ServerTest extends TestCase
         $this->assertEquals(86400, current($headers['access-control-max-age']));
         $this->assertEquals('1.0.0', current($headers['tus-version']));
         $this->assertEquals(
-            'Origin, X-Requested-With, Content-Type, Upload-Key, Upload-Checksum, Upload-Length, Upload-Offset, Tus-Resumable, Upload-Metadata',
+            'Origin, X-Requested-With, Content-Type, Upload-Key, Upload-Checksum, Upload-Length, Upload-Offset, Tus-Resumable, Location, Upload-Metadata',
             current($headers['access-control-allow-headers'])
+        );
+        $this->assertEquals(
+            'Upload-Key, Upload-Checksum, Upload-Length, Upload-Offset, Upload-Metadata, Location',
+            current($headers['access-control-expose-headers'])
         );
         $this->assertEquals(
             'creation,termination,checksum,expiration,concatenation',
@@ -365,6 +371,7 @@ class ServerTest extends TestCase
             ->with($checksum)
             ->andReturn([
                 'offset' => 49,
+                'size' => 50,
                 'upload_type' => 'normal',
             ]);
 
@@ -406,6 +413,7 @@ class ServerTest extends TestCase
             ->with($checksum)
             ->andReturn([
                 'offset' => 49,
+                'size' => 50,
                 'upload_type' => 'partial',
             ]);
 
@@ -553,7 +561,7 @@ class ServerTest extends TestCase
         $fileName   = 'file.txt';
         $checksum   = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
         $folder     = $key;
-        $location   = 'http://tus.local/.tmp/file.txt';
+        $location   = "http://tus.local/{$key}/{$partialKey}";
         $expiresAt  = 'Sat, 09 Dec 2017 00:00:00 GMT';
 
         $this->tusServerMock->setUploadDir($baseDir);
@@ -599,6 +607,11 @@ class ServerTest extends TestCase
             ->shouldReceive('getClientChecksum')
             ->once()
             ->andReturn($checksum);
+
+        $this->tusServerMock
+            ->shouldReceive('getApiPath')
+            ->once()
+            ->andReturn("/{$key}");
 
         $cacheMock = m::mock(FileStore::class);
         $cacheMock
@@ -657,7 +670,7 @@ class ServerTest extends TestCase
         $key       = uniqid();
         $fileName  = 'file.txt';
         $checksum  = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
-        $location  = 'http://tus.local/uploads/file.txt';
+        $location  = "http://tus.local/files/{$key}";
         $expiresAt = 'Sat, 09 Dec 2017 00:00:00 GMT';
 
         $this->tusServerMock
@@ -761,7 +774,7 @@ class ServerTest extends TestCase
         $fileName = 'file.txt';
         $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
         $filePath = __DIR__ . '/../.tmp/';
-        $location = 'http://tus.local/uploads/file.txt';
+        $location = "http://tus.local/files/{$key}";
 
         $files = [
             ['file_path' => $filePath . 'file_a', 'offset' => 10],
@@ -894,10 +907,11 @@ class ServerTest extends TestCase
      */
     public function it_throws_460_for_checksum_mismatch_in_concatenation_request()
     {
+        $key      = uniqid();
         $fileName = 'file.txt';
         $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
         $filePath = __DIR__ . '/../.tmp/';
-        $location = 'http://tus.local/uploads/file.txt';
+        $location = "http://tus.local/files/{$key}";
         $files    = [
             ['file_path' => $filePath . 'file_a', 'offset' => 10],
             ['file_path' => $filePath . 'file_b', 'offset' => 20],
@@ -909,6 +923,7 @@ class ServerTest extends TestCase
             ->headers
             ->add([
                 'Upload-Length' => 10,
+                'Upload-Key' => $key,
                 'Upload-Checksum' => 'sha256 ' . base64_encode('invalid'),
                 'Upload-Concat' => 'final;file_a file_b',
                 'Upload-Metadata' => 'filename ' . base64_encode($fileName),
@@ -924,7 +939,7 @@ class ServerTest extends TestCase
 
         $this->tusServerMock
             ->shouldReceive('getRequest')
-            ->times(3)
+            ->times(4)
             ->andReturn($requestMock);
 
         $cacheMock = m::mock(FileStore::class);
@@ -1763,6 +1778,7 @@ class ServerTest extends TestCase
 
         $headers = [
             'Upload-Offset' => 49,
+            'Upload-Length' => 100,
             'Cache-Control' => 'no-store',
         ];
 
@@ -1855,12 +1871,11 @@ class ServerTest extends TestCase
      *
      * @covers ::getClientChecksum
      */
-    public function it_returns_400_if_upload_checksum_header_is_not_present()
+    public function it_returns_empty_string_if_upload_checksum_header_is_not_present()
     {
         $response = $this->tusServerMock->getClientChecksum();
 
-        $this->assertEquals(400, $response->getStatusCode());
-        $this->assertNull($response->getOriginalContent());
+        $this->assertEmpty($response);
     }
 
     /**
@@ -1963,12 +1978,30 @@ class ServerTest extends TestCase
      *
      * @covers ::getUploadKey
      */
-    public function it_returns_400_for_no_upload_key_in_header()
+    public function it_returns_400_for_empty_upload_key_in_header()
     {
+        $this->tusServerMock
+            ->getRequest()
+            ->getRequest()
+            ->headers
+            ->set('Upload-Key', '');
+
         $response = $this->tusServerMock->getUploadKey();
 
         $this->assertEquals(400, $response->getStatusCode());
         $this->assertNull($response->getOriginalContent());
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::getUploadKey
+     */
+    public function it_generates_upload_key_if_upload_key_is_not_present_in_header()
+    {
+        $response = $this->tusServerMock->getUploadKey();
+
+        $this->assertNotEmpty($response);
     }
 
     /**
@@ -1984,8 +2017,24 @@ class ServerTest extends TestCase
             ->getRequest()
             ->getRequest()
             ->headers
-            ->set('Upload-Key', base64_encode($key));
+            ->set('Upload-Key', $key);
 
+        $this->assertEquals($key, $this->tusServerMock->getUploadKey());
+
+        return $key;
+    }
+
+    /**
+     * @test
+     *
+     * @depends it_gets_upload_key_from_header
+     *
+     * @covers ::setUploadKey
+     * @covers ::getUploadKey
+     */
+    public function it_gets_upload_key_if_already_set(string $key)
+    {
+        $this->assertInstanceOf(Server::class, $this->tusServerMock->setUploadKey($key));
         $this->assertEquals($key, $this->tusServerMock->getUploadKey());
     }
 
