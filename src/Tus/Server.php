@@ -403,6 +403,7 @@ class Server extends AbstractTus
         }
 
         return $this->response->send(null, HttpResponse::HTTP_NO_CONTENT, [
+            'Content-Type' => 'application/offset+octet-stream',
             'Upload-Expires' => $this->cache->get($uploadKey)['expires_at'],
             'Upload-Offset' => $offset,
         ]);

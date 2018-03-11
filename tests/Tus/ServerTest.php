@@ -1484,6 +1484,7 @@ class ServerTest extends TestCase
         $this->assertEquals($expiresAt, $response->headers->get('upload-expires'));
         $this->assertEquals(100, $response->headers->get('upload-offset'));
         $this->assertEquals('1.0.0', $response->headers->get('tus-resumable'));
+        $this->assertEquals('application/offset+octet-stream', $response->headers->get('content-type'));
         $this->assertNull($response->getOriginalContent());
     }
 
