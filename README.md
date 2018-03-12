@@ -37,7 +37,7 @@ $server->serve();
 
 You need to rewrite your server to respond to specific endpoint. For example:
 
-##### Nginx
+###### Nginx
 ```nginx
 # nginx.conf
 
@@ -46,14 +46,14 @@ location /files {
 }
 ```
 
-##### Apache
+###### Apache
 ```apache
 # .htaccess
 
 RewriteEngine on
 
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^files/?(.*)?$ /example/server.php/$1 [NC]
+RewriteRule ^files/?(.*)?$ /example/server.php/$1 [QSA,L]
 ```
 
 #### Client
