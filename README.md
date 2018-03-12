@@ -28,18 +28,32 @@ $ composer require ankitpokhrel/tus-php:dev-master
 This is how a simple server looks like.
 
 ```php
+// server.php
+
 $server = new \TusPhp\Tus\Server('redis'); // Leave empty for file based cache
 
 $server->serve();
 ```
 
-You need to configure your server to listen to specific endpoint. If you are using nginx, you can use similar rule as below to listen 
-to the specific api path.
+You need to rewrite your server to respond to specific endpoint. For example:
 
+##### Nginx
 ```nginx
+# nginx.conf
+
 location /files {
     try_files $uri $uri/ /server.php?$query_string;
 }
+```
+
+##### Apache
+```apache
+# .htaccess
+
+RewriteEngine on
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^files/?(.*)?$ /example/server.php/$1 [NC]
 ```
 
 #### Client
