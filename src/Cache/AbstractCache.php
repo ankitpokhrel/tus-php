@@ -14,10 +14,14 @@ abstract class AbstractCache implements Cacheable
      * Set time to live.
      *
      * @param int $secs
+     *
+     * @return self
      */
-    public function setTtl(int $secs)
+    public function setTtl(int $secs) : self
     {
         $this->ttl = $secs;
+
+        return $this;
     }
 
     /**

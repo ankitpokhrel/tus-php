@@ -120,19 +120,6 @@ class ClientTest extends TestCase
     /**
      * @test
      *
-     * @covers ::getApiPath
-     * @covers ::setApiPath
-     */
-    public function it_sets_and_gets_api_path()
-    {
-        $this->assertEquals('/files', $this->tusClient->getApiPath());
-        $this->assertInstanceOf(TusClient::class, $this->tusClient->setApiPath('/api'));
-        $this->assertEquals('/api', $this->tusClient->getApiPath());
-    }
-
-    /**
-     * @test
-     *
      * @covers ::__construct
      * @covers ::getClient
      */
@@ -936,7 +923,7 @@ class ClientTest extends TestCase
             ->with('/files', [
                 'headers' => [
                     'Upload-Length' => filesize($filePath),
-                    'Upload-Key' => base64_encode($key),
+                    'Upload-Key' => $key,
                     'Upload-Checksum' => 'sha256 ' . base64_encode($checksum),
                     'Upload-Metadata' => 'filename ' . base64_encode($fileName),
                 ],
@@ -997,7 +984,7 @@ class ClientTest extends TestCase
             ->with('/files', [
                 'headers' => [
                     'Upload-Length' => filesize($filePath),
-                    'Upload-Key' => base64_encode($key),
+                    'Upload-Key' => $key,
                     'Upload-Checksum' => 'sha256 ' . base64_encode($checksum),
                     'Upload-Metadata' => 'filename ' . base64_encode($fileName),
                     'Upload-Concat' => 'partial',
@@ -1053,7 +1040,7 @@ class ClientTest extends TestCase
             ->with('/files', [
                 'headers' => [
                     'Upload-Length' => filesize($filePath),
-                    'Upload-Key' => base64_encode($key),
+                    'Upload-Key' => $key,
                     'Upload-Checksum' => 'sha256 ' . base64_encode($checksum),
                     'Upload-Metadata' => 'filename ' . base64_encode($fileName),
                 ],
@@ -1106,7 +1093,7 @@ class ClientTest extends TestCase
             ->with('/files', [
                 'headers' => [
                     'Upload-Length' => filesize($filePath),
-                    'Upload-Key' => base64_encode(''),
+                    'Upload-Key' => '',
                     'Upload-Checksum' => 'sha256 ',
                     'Upload-Metadata' => 'filename ' . base64_encode($fileName),
                 ],
@@ -1163,7 +1150,7 @@ class ClientTest extends TestCase
             ->with('/files', [
                 'headers' => [
                     'Upload-Length' => filesize($filePath),
-                    'Upload-Key' => base64_encode($key),
+                    'Upload-Key' => $key,
                     'Upload-Checksum' => 'sha256 ' . base64_encode($checksum),
                     'Upload-Metadata' => 'filename ' . base64_encode($fileName),
                     'Upload-Concat' => 'final;' . implode(' ', $partials),
@@ -1223,7 +1210,7 @@ class ClientTest extends TestCase
             ->with('/files', [
                 'headers' => [
                     'Upload-Length' => filesize($filePath),
-                    'Upload-Key' => base64_encode($key),
+                    'Upload-Key' => $key,
                     'Upload-Checksum' => 'sha256 ' . base64_encode($checksum),
                     'Upload-Metadata' => 'filename ' . base64_encode($fileName),
                     'Upload-Concat' => 'final;' . implode(' ', $partials),
@@ -1278,7 +1265,7 @@ class ClientTest extends TestCase
             ->with('/files', [
                 'headers' => [
                     'Upload-Length' => filesize($filePath),
-                    'Upload-Key' => base64_encode(''),
+                    'Upload-Key' => '',
                     'Upload-Checksum' => 'sha256 ',
                     'Upload-Metadata' => 'filename ' . base64_encode($fileName),
                     'Upload-Concat' => 'final;' . implode(' ', $partials),

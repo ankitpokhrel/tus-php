@@ -6,6 +6,7 @@ use TusPhp\File;
 use Carbon\Carbon;
 use TusPhp\Request;
 use TusPhp\Response;
+use Ramsey\Uuid\Uuid;
 use TusPhp\Cache\Cacheable;
 use TusPhp\Exception\FileException;
 use TusPhp\Exception\ConnectionException;
@@ -49,6 +50,12 @@ class Server extends AbstractTus
     /** @var string */
     protected $uploadDir;
 
+    /** @var string */
+    protected $uploadKey;
+
+    /** @var array */
+    protected $globalHeaders;
+
     /**
      * TusServer constructor.
      *
@@ -60,6 +67,15 @@ class Server extends AbstractTus
         $this->response  = new Response;
         $this->uploadDir = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'uploads';
 
+        $this->globalHeaders = [
+            'Access-Control-Allow-Origin' => $this->request->header('Origin'),
+            'Access-Control-Allow-Methods' => implode(',', $this->getRequest()->allowedHttpVerbs()),
+            'Access-Control-Allow-Headers' => 'Origin, X-Requested-With, Content-Type, Content-Length, Upload-Key, Upload-Checksum, Upload-Length, Upload-Offset, Tus-Version, Tus-Resumable, Upload-Metadata',
+            'Access-Control-Expose-Headers' => 'Upload-Key, Upload-Checksum, Upload-Length, Upload-Offset, Upload-Metadata, Tus-Version, Tus-Resumable, Tus-Extension, Location',
+            'Access-Control-Max-Age' => self::HEADER_ACCESS_CONTROL_MAX_AGE,
+            'X-Content-Type-Options' => 'nosniff',
+        ];
+
         $this->setCache($cacheAdapter);
     }
 
@@ -68,11 +84,13 @@ class Server extends AbstractTus
      *
      * @param string $path
      *
-     * @return void
+     * @return Server
      */
-    public function setUploadDir(string $path)
+    public function setUploadDir(string $path) : self
     {
         $this->uploadDir = $path;
+
+        return $this;
     }
 
     /**
@@ -112,7 +130,7 @@ class Server extends AbstractTus
      *
      * @return string
      */
-    public function getServerChecksum(string $filePath)
+    public function getServerChecksum(string $filePath) : string
     {
         return hash_file($this->getChecksumAlgorithm(), $filePath);
     }
@@ -136,29 +154,76 @@ class Server extends AbstractTus
     }
 
     /**
+     * Set upload key.
+     *
+     * @param string $key
+     *
+     * @return Server
+     */
+    public function setUploadKey(string $key) : self
+    {
+        $this->uploadKey = $key;
+
+        return $this;
+    }
+
+    /**
+     * Get upload key from header.
+     *
+     * @return string|HttpResponse
+     */
+    public function getUploadKey()
+    {
+        if ( ! empty($this->uploadKey)) {
+            return $this->uploadKey;
+        }
+
+        $key = $this->getRequest()->header('Upload-Key') ?? Uuid::uuid4()->toString();
+
+        if (empty($key)) {
+            return $this->response->send(null, HttpResponse::HTTP_BAD_REQUEST);
+        }
+
+        $this->uploadKey = $key;
+
+        return $this->uploadKey;
+    }
+
+    /**
+     * Set or get global headers.
+     *
+     * @param array $headers
+     *
+     * @return Server|array
+     */
+    public function headers(array $headers = [])
+    {
+        if (empty($headers)) {
+            return $this->globalHeaders;
+        }
+
+        $this->globalHeaders = $headers + $this->globalHeaders;
+
+        return $this;
+    }
+
+    /**
      * Handle all HTTP request.
      *
      * @return null|HttpResponse
      */
     public function serve()
     {
-        $requestMethod    = $this->getRequest()->method();
-        $allowedHttpVerbs = $this->getRequest()->allowedHttpVerbs();
-
-        $globalHeaders = [
-            'Access-Control-Allow-Origin' => $this->request->header('Origin'),
-            'Access-Control-Allow-Methods' => implode(',', $allowedHttpVerbs),
-            'Access-Control-Allow-Headers' => 'Origin, X-Requested-With, Content-Type, Upload-Key, Upload-Checksum, Upload-Length, Upload-Offset, Tus-Resumable, Upload-Metadata',
-            'Access-Control-Max-Age' => self::HEADER_ACCESS_CONTROL_MAX_AGE,
-        ];
+        $requestMethod = $this->getRequest()->method();
+        $globalHeaders = $this->headers();
 
         if (HttpRequest::METHOD_OPTIONS !== $requestMethod) {
-            $globalHeaders['Tus-Resumable'] = self::TUS_PROTOCOL_VERSION;
+            $globalHeaders += ['Tus-Resumable' => self::TUS_PROTOCOL_VERSION];
         }
 
         $this->getResponse()->setHeaders($globalHeaders);
 
-        if ( ! in_array($requestMethod, $allowedHttpVerbs)) {
+        if ( ! in_array($requestMethod, $this->getRequest()->allowedHttpVerbs())) {
             return $this->response->send(null, HttpResponse::HTTP_METHOD_NOT_ALLOWED);
         }
 
@@ -253,7 +318,7 @@ class Server extends AbstractTus
         }
 
         $checksum = $this->getClientChecksum();
-        $location = $this->getRequest()->url() . '/' . basename($this->uploadDir) . '/' . $fileName;
+        $location = $this->getRequest()->url() . $this->getApiPath() . '/' . $uploadKey;
 
         $file = $this->buildFile([
             'name' => $fileName,
@@ -269,7 +334,6 @@ class Server extends AbstractTus
             ['data' => ['checksum' => $checksum]],
             HttpResponse::HTTP_CREATED,
             [
-                'Access-Control-Expose-Headers' => 'Location',
                 'Location' => $location,
                 'Upload-Expires' => $this->cache->get($uploadKey)['expires_at'],
             ]
@@ -287,9 +351,10 @@ class Server extends AbstractTus
     protected function handleConcatenation(string $fileName, string $filePath) : HttpResponse
     {
         $partials  = $this->getRequest()->extractPartials();
+        $uploadKey = $this->getUploadKey();
         $files     = $this->getPartialsMeta($partials);
         $filePaths = array_column($files, 'file_path');
-        $location  = $this->getRequest()->url() . '/' . basename($this->uploadDir) . '/' . $fileName;
+        $location  = $this->getRequest()->url() . $this->getApiPath() . '/' . $uploadKey;
 
         $file = $this->buildFile([
             'name' => $fileName,
@@ -308,7 +373,7 @@ class Server extends AbstractTus
             return $this->response->send(null, self::HTTP_CHECKSUM_MISMATCH);
         }
 
-        $this->cache->set($this->getUploadKey(), $file->details() + ['upload_type' => self::UPLOAD_TYPE_FINAL]);
+        $this->cache->set($uploadKey, $file->details() + ['upload_type' => self::UPLOAD_TYPE_FINAL]);
 
         // Cleanup.
         if ($file->delete($filePaths, true)) {
@@ -319,7 +384,6 @@ class Server extends AbstractTus
             ['data' => ['checksum' => $checksum]],
             HttpResponse::HTTP_CREATED,
             [
-                'Access-Control-Expose-Headers' => 'Location',
                 'Location' => $location,
             ]
         );
@@ -350,7 +414,7 @@ class Server extends AbstractTus
             $offset   = $file->setKey($uploadKey)->setChecksum($checksum)->upload($fileSize);
 
             // If upload is done, verify checksum.
-            if ($offset === $fileSize && $checksum !== $this->getServerChecksum($meta['file_path'])) {
+            if ($offset === $fileSize && ! $this->verifyChecksum($checksum, $meta['file_path'])) {
                 return $this->response->send(null, self::HTTP_CHECKSUM_MISMATCH);
             }
         } catch (FileException $e) {
@@ -362,6 +426,7 @@ class Server extends AbstractTus
         }
 
         return $this->response->send(null, HttpResponse::HTTP_NO_CONTENT, [
+            'Content-Type' => 'application/offset+octet-stream',
             'Upload-Expires' => $this->cache->get($uploadKey)['expires_at'],
             'Upload-Offset' => $offset,
         ]);
@@ -432,6 +497,7 @@ class Server extends AbstractTus
     protected function getHeadersForHeadRequest(array $fileMeta) : array
     {
         $headers = [
+            'Upload-Length' => (int) $fileMeta['size'],
             'Upload-Offset' => (int) $fileMeta['offset'],
             'Cache-Control' => 'no-store',
         ];
@@ -470,7 +536,7 @@ class Server extends AbstractTus
      *
      * @return string
      */
-    protected function getSupportedHashAlgorithms()
+    protected function getSupportedHashAlgorithms() : string
     {
         $supportedAlgorithms = hash_algos();
 
@@ -487,22 +553,6 @@ class Server extends AbstractTus
     }
 
     /**
-     * Get upload key from header.
-     *
-     * @return string|HttpResponse
-     */
-    protected function getUploadKey()
-    {
-        $key = $this->getRequest()->header('Upload-Key');
-
-        if (empty($key)) {
-            return $this->response->send(null, HttpResponse::HTTP_BAD_REQUEST);
-        }
-
-        return base64_decode($key);
-    }
-
-    /**
      * Verify and get upload checksum from header.
      *
      * @return string|HttpResponse
@@ -512,7 +562,7 @@ class Server extends AbstractTus
         $checksumHeader = $this->getRequest()->header('Upload-Checksum');
 
         if (empty($checksumHeader)) {
-            return $this->response->send(null, HttpResponse::HTTP_BAD_REQUEST);
+            return '';
         }
 
         list($checksumAlgorithm, $checksum) = explode(' ', $checksumHeader);
@@ -571,7 +621,7 @@ class Server extends AbstractTus
      *
      * @return array
      */
-    protected function getPartialsMeta(array $partials)
+    protected function getPartialsMeta(array $partials) : array
     {
         $files = [];
 
@@ -589,7 +639,7 @@ class Server extends AbstractTus
      *
      * @return array
      */
-    public function handleExpiration()
+    public function handleExpiration() : array
     {
         $deleted   = [];
         $cacheKeys = $this->cache->keys();
@@ -613,6 +663,24 @@ class Server extends AbstractTus
         }
 
         return $deleted;
+    }
+
+    /**
+     * Verify checksum if available.
+     *
+     * @param string $checksum
+     * @param string $filePath
+     *
+     * @return bool
+     */
+    protected function verifyChecksum(string $checksum, string $filePath) : bool
+    {
+        // Skip if checksum is empty
+        if (empty($checksum)) {
+            return true;
+        }
+
+        return $checksum === $this->getServerChecksum($filePath);
     }
 
     /**

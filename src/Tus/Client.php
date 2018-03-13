@@ -18,9 +18,6 @@ class Client extends AbstractTus
     protected $client;
 
     /** @var string */
-    protected $apiPath = '/files';
-
-    /** @var string */
     protected $filePath;
 
     /** @var int */
@@ -126,30 +123,6 @@ class Client extends AbstractTus
     }
 
     /**
-     * Set API path.
-     *
-     * @param string $path
-     *
-     * @return Client
-     */
-    public function setApiPath(string $path) : self
-    {
-        $this->apiPath = $path;
-
-        return $this;
-    }
-
-    /**
-     * Get API path.
-     *
-     * @return string
-     */
-    public function getApiPath() : string
-    {
-        return $this->apiPath;
-    }
-
-    /**
      * Get guzzle client.
      *
      * @return GuzzleClient
@@ -233,6 +206,7 @@ class Client extends AbstractTus
 
     /**
      * Get partial offset.
+     *
      * @return int
      */
     public function getPartialOffset() : int
@@ -314,7 +288,7 @@ class Client extends AbstractTus
     {
         $headers = [
             'Upload-Length' => $this->fileSize,
-            'Upload-Key' => base64_encode($key),
+            'Upload-Key' => $key,
             'Upload-Checksum' => $this->getUploadChecksumHeader(),
             'Upload-Metadata' => 'filename ' . base64_encode($this->fileName),
         ];
@@ -351,7 +325,7 @@ class Client extends AbstractTus
         $response = $this->getClient()->post($this->apiPath, [
             'headers' => [
                 'Upload-Length' => $this->fileSize,
-                'Upload-Key' => base64_encode($key),
+                'Upload-Key' => $key,
                 'Upload-Checksum' => $this->getUploadChecksumHeader(),
                 'Upload-Metadata' => 'filename ' . base64_encode($this->fileName),
                 'Upload-Concat' => self::UPLOAD_TYPE_FINAL . ';' . implode(' ', $partials),
@@ -399,6 +373,8 @@ class Client extends AbstractTus
      * Set as partial request.
      *
      * @param bool $state
+     *
+     * @return void
      */
     protected function partial(bool $state = true)
     {

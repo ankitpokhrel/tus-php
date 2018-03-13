@@ -82,7 +82,7 @@ class RedisStore extends AbstractCache
             $key = $prefix . $key;
         }
 
-        return $this->redis->del($key) > 0;
+        return $this->redis->del([$key]) > 0;
     }
 
     /**

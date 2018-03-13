@@ -25,6 +25,9 @@ abstract class AbstractTus
     /** @var Cacheable */
     protected $cache;
 
+    /** @var string */
+    protected $apiPath = '/files';
+
     /**
      * Set cache.
      *
@@ -51,5 +54,29 @@ abstract class AbstractTus
     public function getCache() : Cacheable
     {
         return $this->cache;
+    }
+
+    /**
+     * Set API path.
+     *
+     * @param string $path
+     *
+     * @return self
+     */
+    public function setApiPath(string $path) : self
+    {
+        $this->apiPath = $path;
+
+        return $this;
+    }
+
+    /**
+     * Get API path.
+     *
+     * @return string
+     */
+    public function getApiPath() : string
+    {
+        return $this->apiPath;
     }
 }
