@@ -1,3 +1,5 @@
+> ALERT: The project is not yet production ready. Things might change a bit and your app might break. Feel free to try and report any issues. Pull requests and project recommendations are more than welcome!
+
 # Tus PHP
 [![PHP Version](https://img.shields.io/badge/php-7.1.3%2B-brightgreen.svg?style=flat-square)](https://packagist.org/packages/ankitpokhrel/tus-php)
 [![Build](https://img.shields.io/travis/ankitpokhrel/tus-php/master.svg?style=flat-square)](https://travis-ci.org/ankitpokhrel/tus-php)
@@ -26,18 +28,32 @@ $ composer require ankitpokhrel/tus-php:dev-master
 This is how a simple server looks like.
 
 ```php
+// server.php
+
 $server = new \TusPhp\Tus\Server('redis'); // Leave empty for file based cache
 
 $server->serve();
 ```
 
-You need to configure your server to listen to specific endpoint. If you are using nginx, you can use similar rule as below to listen 
-to the specific api path.
+You need to rewrite your server to respond to specific endpoint. For example:
 
+###### Nginx
 ```nginx
+# nginx.conf
+
 location /files {
     try_files $uri $uri/ /server.php?$query_string;
 }
+```
+
+###### Apache
+```apache
+# .htaccess
+
+RewriteEngine on
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^files/?(.*)?$ /server.php/$1 [QSA,L]
 ```
 
 #### Client
@@ -195,4 +211,4 @@ Since the server supports tus expiration extension, a cron job is set to run onc
     ```
 
 ### Questions about this project?
-Please feel free to report any bug found. Pull requests, issues, and plugin recommendations are more than welcome!
+Please feel free to report any bug found. Pull requests, issues, and project recommendations are more than welcome!
