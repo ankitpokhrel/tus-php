@@ -412,7 +412,7 @@ class Server extends AbstractTus
             $offset   = $file->setKey($uploadKey)->setChecksum($checksum)->upload($fileSize);
 
             // If upload is done, verify checksum.
-            if ($offset === $fileSize && ! empty($checksum) && $checksum !== $this->getServerChecksum($meta['file_path'])) {
+            if ($offset === $fileSize && ! $this->verifyChecksum($checksum, $meta['file_path'])) {
                 return $this->response->send(null, self::HTTP_CHECKSUM_MISMATCH);
             }
         } catch (FileException $e) {
@@ -661,6 +661,24 @@ class Server extends AbstractTus
         }
 
         return $deleted;
+    }
+
+    /**
+     * Verify checksum if available.
+     *
+     * @param string $checksum
+     * @param string $filePath
+     *
+     * @return bool
+     */
+    protected function verifyChecksum(string $checksum, string $filePath) : bool
+    {
+        // Skip if checksum is empty
+        if (empty($checksum)) {
+            return true;
+        }
+
+        return $checksum === $this->getServerChecksum($filePath);
     }
 
     /**

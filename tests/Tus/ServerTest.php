@@ -2262,6 +2262,21 @@ class ServerTest extends TestCase
     }
 
     /**
+     * @test
+     *
+     * @covers ::verifyChecksum
+     */
+    public function it_verifies_checksum()
+    {
+        $filePath = __DIR__ . '/../Fixtures/empty.txt';
+        $checksum = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
+
+        $this->assertTrue($this->tusServerMock->verifyChecksum('', $filePath));
+        $this->assertFalse($this->tusServerMock->verifyChecksum('invalid', $filePath));
+        $this->assertTrue($this->tusServerMock->verifyChecksum($checksum, $filePath));
+    }
+
+    /**
      * Close mockery connection.
      *
      * @return void.
