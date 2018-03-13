@@ -637,7 +637,7 @@ class Server extends AbstractTus
      *
      * @return array
      */
-    public function handleExpiration()
+    public function handleExpiration() : array
     {
         $deleted   = [];
         $cacheKeys = $this->cache->keys();
