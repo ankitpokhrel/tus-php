@@ -63,6 +63,7 @@ Client can be used for creating, resuming and/or deleting uploads.
 ```php
 $client = new \TusPhp\Tus\Client($baseUrl, 'redis'); // Leave second parameter empty for file based cache
 
+// Optional. If key is not set explicitly, system will generate a unique uuid.
 $key = 'your unique key';
 
 $client->setKey($key)->file('/path/to/file', 'filename.ext');
@@ -152,7 +153,20 @@ $chunkCkey     = $client->getKey();
 $client->setFileName('actual_file.ext')->concat($checksum, $chunkAkey, $chunkBkey, $chunkCkey);
 ```
 
-Additionally, the server will verify checksum against the merged file to make sure that the file is not corrupt.  
+Additionally, the server will verify checksum against the merged file to make sure that the file is not corrupt.
+  
+### Compatible with [Uppy](https://uppy.io/)
+Uppy is a sleek, modular file uploader plugin developed by same folks behind tus protocol.
+You can use uppy to seamlessly integrate official [tus-js-client](https://github.com/tus/tus-js-client) with tus-php server. 
+Check out more details in [uppy docs](https://uppy.io/docs/tus/). 
+```js
+uppy.use(Tus, {
+  endpoint: 'https://tus-server.yoursite.com/files/', // use your tus endpoint here
+  resume: true,
+  autoRetry: true,
+  retryDelays: [0, 1000, 3000, 5000]
+})
+```
 
 ### Setting up dev environment and/or running example locally
 An ajax based example for this implementation can be found in `examples/` folder. You can either build and run it using docker or use kubernetes locally with minikube.
