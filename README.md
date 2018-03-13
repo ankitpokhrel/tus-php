@@ -53,7 +53,7 @@ location /files {
 RewriteEngine on
 
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^files/?(.*)?$ /example/server.php/$1 [QSA,L]
+RewriteRule ^files/?(.*)?$ /server.php/$1 [QSA,L]
 ```
 
 #### Client
