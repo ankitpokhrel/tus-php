@@ -64,7 +64,7 @@ class ServerTest extends TestCase
         $this->globalHeaders = [
             'Access-Control-Allow-Origin' => null,
             'Access-Control-Allow-Methods' => implode(',', self::ALLOWED_HTTP_VERBS),
-            'Access-Control-Allow-Headers' => 'Origin, X-Requested-With, Content-Type, Content-Length, Upload-Key, Upload-Checksum, Upload-Length, Upload-Offset, Tus-Resumable, Upload-Metadata',
+            'Access-Control-Allow-Headers' => 'Origin, X-Requested-With, Content-Type, Content-Length, Upload-Key, Upload-Checksum, Upload-Length, Upload-Offset, Tus-Version, Tus-Resumable, Upload-Metadata',
             'Access-Control-Expose-Headers' => 'Upload-Key, Upload-Checksum, Upload-Length, Upload-Offset, Upload-Metadata, Tus-Version, Tus-Resumable, Tus-Extension, Location',
             'Access-Control-Max-Age' => 86400,
             'X-Content-Type-Options' => 'nosniff',
@@ -262,7 +262,7 @@ class ServerTest extends TestCase
         $this->assertEquals(86400, current($headers['access-control-max-age']));
         $this->assertEquals('1.0.0', current($headers['tus-version']));
         $this->assertEquals(
-            'Origin, X-Requested-With, Content-Type, Content-Length, Upload-Key, Upload-Checksum, Upload-Length, Upload-Offset, Tus-Resumable, Upload-Metadata',
+            'Origin, X-Requested-With, Content-Type, Content-Length, Upload-Key, Upload-Checksum, Upload-Length, Upload-Offset, Tus-Version, Tus-Resumable, Upload-Metadata',
             current($headers['access-control-allow-headers'])
         );
         $this->assertEquals(
