@@ -53,6 +53,9 @@ class Server extends AbstractTus
     /** @var string */
     protected $uploadKey;
 
+    /** @var array */
+    protected $globalHeaders;
+
     /**
      * TusServer constructor.
      *
@@ -63,6 +66,15 @@ class Server extends AbstractTus
         $this->request   = new Request;
         $this->response  = new Response;
         $this->uploadDir = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'uploads';
+
+        $this->globalHeaders = [
+            'Access-Control-Allow-Origin' => $this->request->header('Origin'),
+            'Access-Control-Allow-Methods' => implode(',', $this->getRequest()->allowedHttpVerbs()),
+            'Access-Control-Allow-Headers' => 'Origin, X-Requested-With, Content-Type, Content-Length, Upload-Key, Upload-Checksum, Upload-Length, Upload-Offset, Tus-Version, Tus-Resumable, Upload-Metadata',
+            'Access-Control-Expose-Headers' => 'Upload-Key, Upload-Checksum, Upload-Length, Upload-Offset, Upload-Metadata, Tus-Version, Tus-Resumable, Tus-Extension, Location',
+            'Access-Control-Max-Age' => self::HEADER_ACCESS_CONTROL_MAX_AGE,
+            'X-Content-Type-Options' => 'nosniff',
+        ];
 
         $this->setCache($cacheAdapter);
     }
@@ -176,31 +188,40 @@ class Server extends AbstractTus
     }
 
     /**
+     * Set or get global headers.
+     *
+     * @param array $headers
+     *
+     * @return Server|array
+     */
+    public function headers(array $headers = [])
+    {
+        if (empty($headers)) {
+            return $this->globalHeaders;
+        }
+
+        $this->globalHeaders = $headers + $this->globalHeaders;
+
+        return $this;
+    }
+
+    /**
      * Handle all HTTP request.
      *
      * @return null|HttpResponse
      */
     public function serve()
     {
-        $requestMethod    = $this->getRequest()->method();
-        $allowedHttpVerbs = $this->getRequest()->allowedHttpVerbs();
-
-        $globalHeaders = [
-            'Access-Control-Allow-Origin' => $this->request->header('Origin'),
-            'Access-Control-Allow-Methods' => implode(',', $allowedHttpVerbs),
-            'Access-Control-Allow-Headers' => 'Origin, X-Requested-With, Content-Type, Content-Length, Upload-Key, Upload-Checksum, Upload-Length, Upload-Offset, Tus-Version, Tus-Resumable, Upload-Metadata',
-            'Access-Control-Expose-Headers' => 'Upload-Key, Upload-Checksum, Upload-Length, Upload-Offset, Upload-Metadata, Tus-Version, Tus-Resumable, Tus-Extension, Location',
-            'Access-Control-Max-Age' => self::HEADER_ACCESS_CONTROL_MAX_AGE,
-            'X-Content-Type-Options' => 'nosniff',
-        ];
+        $requestMethod = $this->getRequest()->method();
+        $globalHeaders = $this->headers();
 
         if (HttpRequest::METHOD_OPTIONS !== $requestMethod) {
-            $globalHeaders['Tus-Resumable'] = self::TUS_PROTOCOL_VERSION;
+            $globalHeaders += ['Tus-Resumable' => self::TUS_PROTOCOL_VERSION];
         }
 
         $this->getResponse()->setHeaders($globalHeaders);
 
-        if ( ! in_array($requestMethod, $allowedHttpVerbs)) {
+        if ( ! in_array($requestMethod, $this->getRequest()->allowedHttpVerbs())) {
             return $this->response->send(null, HttpResponse::HTTP_METHOD_NOT_ALLOWED);
         }
 

@@ -152,6 +152,37 @@ class ServerTest extends TestCase
     /**
      * @test
      *
+     * @covers ::headers
+     */
+    public function it_sets_and_gets_global_headers()
+    {
+        $globalHeaders = $this->globalHeaders;
+        unset($globalHeaders['Tus-Resumable']);
+
+        $this->assertEquals($globalHeaders, $this->tusServerMock->headers());
+
+        $server = $this->tusServerMock->headers([
+            'Access-Control-Allow-Origin' => 'test',
+            'Tus-Version' => '1.0.0',
+            'Tus-Resumable' => '1.0.0',
+        ]);
+
+        $this->assertInstanceOf(Server::class, $server);
+        $this->assertEquals([
+            'Access-Control-Allow-Origin' => 'test',
+            'Access-Control-Allow-Methods' => implode(',', self::ALLOWED_HTTP_VERBS),
+            'Access-Control-Allow-Headers' => 'Origin, X-Requested-With, Content-Type, Content-Length, Upload-Key, Upload-Checksum, Upload-Length, Upload-Offset, Tus-Version, Tus-Resumable, Upload-Metadata',
+            'Access-Control-Expose-Headers' => 'Upload-Key, Upload-Checksum, Upload-Length, Upload-Offset, Upload-Metadata, Tus-Version, Tus-Resumable, Tus-Extension, Location',
+            'Access-Control-Max-Age' => 86400,
+            'X-Content-Type-Options' => 'nosniff',
+            'Tus-Version' => '1.0.0',
+            'Tus-Resumable' => '1.0.0',
+        ], $server->headers());
+    }
+
+    /**
+     * @test
+     *
      * @covers ::serve
      */
     public function it_sends_405_for_invalid_http_verbs()
