@@ -3,6 +3,7 @@
 .php_cs.cache
 infection.json.dist
 infection-log.txt
+.DS_Store
 
 /coverage/
 /vendor/
