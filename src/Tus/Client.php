@@ -206,6 +206,7 @@ class Client extends AbstractTus
 
     /**
      * Get partial offset.
+     *
      * @return int
      */
     public function getPartialOffset() : int
@@ -372,6 +373,8 @@ class Client extends AbstractTus
      * Set as partial request.
      *
      * @param bool $state
+     *
+     * @return void
      */
     protected function partial(bool $state = true)
     {

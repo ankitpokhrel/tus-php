@@ -84,11 +84,13 @@ class Server extends AbstractTus
      *
      * @param string $path
      *
-     * @return void
+     * @return Server
      */
-    public function setUploadDir(string $path)
+    public function setUploadDir(string $path) : self
     {
         $this->uploadDir = $path;
+
+        return $this;
     }
 
     /**
@@ -128,7 +130,7 @@ class Server extends AbstractTus
      *
      * @return string
      */
-    public function getServerChecksum(string $filePath)
+    public function getServerChecksum(string $filePath) : string
     {
         return hash_file($this->getChecksumAlgorithm(), $filePath);
     }
@@ -534,7 +536,7 @@ class Server extends AbstractTus
      *
      * @return string
      */
-    protected function getSupportedHashAlgorithms()
+    protected function getSupportedHashAlgorithms() : string
     {
         $supportedAlgorithms = hash_algos();
 
@@ -619,7 +621,7 @@ class Server extends AbstractTus
      *
      * @return array
      */
-    protected function getPartialsMeta(array $partials)
+    protected function getPartialsMeta(array $partials) : array
     {
         $files = [];
 
