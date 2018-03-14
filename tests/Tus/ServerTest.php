@@ -274,6 +274,69 @@ class ServerTest extends TestCase
     /**
      * @test
      *
+     * @covers ::serve
+     */
+    public function it_overrides_http_method()
+    {
+        $globalHeaders = $this->globalHeaders;
+
+        $tusServerMock = m::mock(TusServer::class)
+                          ->shouldAllowMockingProtectedMethods()
+                          ->makePartial();
+
+        $tusServerMock
+            ->shouldReceive('setCache')
+            ->once()
+            ->with('file')
+            ->andReturnSelf();
+
+        $tusServerMock->__construct('file');
+
+        $tusServerMock
+            ->shouldReceive('exit')
+            ->once()
+            ->andReturn(null);
+
+        $requestMock = m::mock(Request::class, ['file'])->makePartial();
+        $requestMock
+            ->getRequest()
+            ->headers
+            ->add(['X-HTTP-Method-Override' => 'PATCH']);
+
+        $tusServerMock
+            ->shouldReceive('getRequest')
+            ->times(4)
+            ->andReturn($requestMock);
+
+        $responseMock = m::mock(Response::class)->makePartial();
+        $responseMock
+            ->shouldReceive('setHeaders')
+            ->once()
+            ->with($globalHeaders)
+            ->andReturnSelf();
+
+        $tusServerMock
+            ->shouldReceive('getResponse')
+            ->once()
+            ->andReturn($responseMock);
+
+        $tusServerMock
+            ->getRequest()
+            ->getRequest()
+            ->server
+            ->set('REQUEST_METHOD', 'POST');
+
+        $tusServerMock
+            ->shouldReceive('handlePatch')
+            ->once()
+            ->andReturn(m::mock(HttpResponse::class));
+
+        $this->assertNull($tusServerMock->serve());
+    }
+
+    /**
+     * @test
+     *
      * @covers ::__call
      */
     public function it_sends_400_for_other_methods()
