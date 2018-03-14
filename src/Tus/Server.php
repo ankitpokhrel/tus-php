@@ -32,6 +32,15 @@ class Server extends AbstractTus
     /** @const string Tus Concatenation Extension */
     const TUS_EXTENSION_CONCATENATION = 'concatenation';
 
+    /** @const array All supported tus extensions */
+    const TUS_EXTENSIONS = [
+        self::TUS_EXTENSION_CREATION,
+        self::TUS_EXTENSION_TERMINATION,
+        self::TUS_EXTENSION_CHECKSUM,
+        self::TUS_EXTENSION_EXPIRATION,
+        self::TUS_EXTENSION_CONCATENATION,
+    ];
+
     /** @const int 460 Checksum Mismatch */
     const HTTP_CHECKSUM_MISMATCH = 460;
 
@@ -55,6 +64,12 @@ class Server extends AbstractTus
 
     /** @var array */
     protected $globalHeaders;
+
+    /**
+     * @var int Max upload size in bytes
+     *          Default 0, no restriction.
+     */
+    protected $maxUploadSize = 0;
 
     /**
      * TusServer constructor.
@@ -190,6 +205,30 @@ class Server extends AbstractTus
     }
 
     /**
+     * Set max upload size.
+     *
+     * @param int $uploadSize
+     *
+     * @return Server
+     */
+    public function setMaxUploadSize(int $uploadSize) : self
+    {
+        $this->maxUploadSize = $uploadSize;
+
+        return $this;
+    }
+
+    /**
+     * Get max upload size.
+     *
+     * @return int
+     */
+    public function getMaxUploadSize() : int
+    {
+        return $this->maxUploadSize;
+    }
+
+    /**
      * Set or get global headers.
      *
      * @param array $headers
@@ -251,22 +290,20 @@ class Server extends AbstractTus
      */
     protected function handleOptions() : HttpResponse
     {
-        return $this->response->send(
-            null,
-            HttpResponse::HTTP_OK,
-            [
-                'Allow' => implode(',', $this->request->allowedHttpVerbs()),
-                'Tus-Version' => self::TUS_PROTOCOL_VERSION,
-                'Tus-Extension' => implode(',', [
-                    self::TUS_EXTENSION_CREATION,
-                    self::TUS_EXTENSION_TERMINATION,
-                    self::TUS_EXTENSION_CHECKSUM,
-                    self::TUS_EXTENSION_EXPIRATION,
-                    self::TUS_EXTENSION_CONCATENATION,
-                ]),
-                'Tus-Checksum-Algorithm' => $this->getSupportedHashAlgorithms(),
-            ]
-        );
+        $headers = [
+            'Allow' => implode(',', $this->request->allowedHttpVerbs()),
+            'Tus-Version' => self::TUS_PROTOCOL_VERSION,
+            'Tus-Extension' => implode(',', self::TUS_EXTENSIONS),
+            'Tus-Checksum-Algorithm' => $this->getSupportedHashAlgorithms(),
+        ];
+
+        $maxUploadSize = $this->getMaxUploadSize();
+
+        if ($maxUploadSize > 0) {
+            $headers['Tus-Max-Size'] = $maxUploadSize;
+        }
+
+        return $this->response->send(null, HttpResponse::HTTP_OK, $headers);
     }
 
     /**
@@ -303,6 +340,10 @@ class Server extends AbstractTus
 
         if (empty($fileName)) {
             return $this->response->send(null, HttpResponse::HTTP_BAD_REQUEST);
+        }
+
+        if ( ! $this->verifyUploadSize()) {
+            return $this->response->send(null, HttpResponse::HTTP_REQUEST_ENTITY_TOO_LARGE);
         }
 
         $uploadKey = $this->getUploadKey();
@@ -663,6 +704,22 @@ class Server extends AbstractTus
         }
 
         return $deleted;
+    }
+
+    /**
+     * Verify max upload size.
+     *
+     * @return bool
+     */
+    protected function verifyUploadSize() : bool
+    {
+        $maxUploadSize = $this->getMaxUploadSize();
+
+        if ($maxUploadSize > 0 && $this->getRequest()->header('Upload-Length') > $maxUploadSize) {
+            return false;
+        }
+
+        return true;
     }
 
     /**

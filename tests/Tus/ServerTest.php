@@ -183,6 +183,19 @@ class ServerTest extends TestCase
     /**
      * @test
      *
+     * @covers ::getMaxUploadSize
+     * @covers ::setMaxUploadSize
+     */
+    public function it_sets_and_gets_max_upload_size()
+    {
+        $this->assertEquals(0, $this->tusServerMock->getMaxUploadSize());
+        $this->assertInstanceOf(TusServer::class, $this->tusServerMock->setMaxUploadSize(1000));
+        $this->assertEquals(1000, $this->tusServerMock->getMaxUploadSize());
+    }
+
+    /**
+     * @test
+     *
      * @covers ::serve
      */
     public function it_sends_405_for_invalid_http_verbs()
@@ -287,6 +300,7 @@ class ServerTest extends TestCase
         $response = $this->tusServerMock->handleOptions();
         $headers  = $response->headers->all();
 
+        $this->assertArrayNotHasKey('tus-max-size', $headers);
         $this->assertNull(current($headers['access-control-allow-origin']));
         $this->assertEquals(implode(',', self::ALLOWED_HTTP_VERBS), current($headers['allow']));
         $this->assertEquals(implode(',', self::ALLOWED_HTTP_VERBS), current($headers['access-control-allow-methods']));
@@ -304,6 +318,32 @@ class ServerTest extends TestCase
             'creation,termination,checksum,expiration,concatenation',
             current($headers['tus-extension'])
         );
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::handleOptions
+     */
+    public function it_adds_max_size_header_in_options_request()
+    {
+        $this->tusServerMock
+            ->getRequest()
+            ->getRequest()
+            ->server
+            ->set('REQUEST_METHOD', 'OPTIONS');
+
+        $this->tusServerMock
+            ->shouldReceive('getMaxUploadSize')
+            ->once()
+            ->andReturn(1000);
+
+        $response = $this->tusServerMock->handleOptions();
+        $headers  = $response->headers->all();
+
+        $this->assertArrayHasKey('tus-max-size', $headers);
+        $this->assertEquals(1000, current($headers['tus-max-size']));
+        $this->assertEquals('1.0.0', current($headers['tus-version']));
     }
 
     /**
@@ -522,6 +562,54 @@ class ServerTest extends TestCase
         $response = $this->tusServerMock->handlePost();
 
         $this->assertEquals(400, $response->getStatusCode());
+        $this->assertNull($response->getOriginalContent());
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::handlePost
+     */
+    public function it_returns_413_for_uploads_larger_than_max_size()
+    {
+        $fileName = 'file.txt';
+
+        $this->tusServerMock
+            ->getRequest()
+            ->getRequest()
+            ->server
+            ->add([
+                'REQUEST_METHOD' => 'POST',
+                'REQUEST_URI' => '/files',
+            ]);
+
+        $requestMock = m::mock(Request::class, ['file'])->makePartial();
+        $requestMock
+            ->getRequest()
+            ->headers
+            ->add([
+                'Upload-Metadata' => 'filename ' . base64_encode($fileName),
+                'Upload-Length' => 1000,
+            ]);
+
+        $requestMock
+            ->getRequest()
+            ->server
+            ->add([
+                'SERVER_NAME' => 'tus.local',
+                'SERVER_PORT' => 80,
+            ]);
+
+        $this->tusServerMock
+            ->shouldReceive('getRequest')
+            ->times(2)
+            ->andReturn($requestMock);
+
+        $this->tusServerMock->setMaxUploadSize(100);
+
+        $response = $this->tusServerMock->handlePost();
+
+        $this->assertEquals(413, $response->getStatusCode());
         $this->assertNull($response->getOriginalContent());
     }
 
@@ -2259,6 +2347,42 @@ class ServerTest extends TestCase
         $this->tusServerMock->getResponse()->createOnly(true);
 
         $this->assertEquals($files, $this->tusServerMock->getPartialsMeta($partials));
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::verifyUploadSize
+     * @covers ::setMaxUploadSize
+     */
+    public function it_verifies_upload_size()
+    {
+        $this->assertTrue($this->tusServerMock->verifyUploadSize());
+
+        $requestMock = m::mock(Request::class, ['file'])->makePartial();
+        $requestMock
+            ->getRequest()
+            ->headers
+            ->add([
+                'Upload-Length' => 100,
+            ]);
+
+        $this->tusServerMock
+            ->shouldReceive('getRequest')
+            ->twice()
+            ->andReturn($requestMock);
+
+        $this->assertInstanceOf(TusServer::class, $this->tusServerMock->setMaxUploadSize(1000));
+        $this->assertTrue($this->tusServerMock->verifyUploadSize());
+
+        $requestMock
+            ->getRequest()
+            ->headers
+            ->add([
+                'Upload-Length' => 10000,
+            ]);
+
+        $this->assertFalse($this->tusServerMock->verifyUploadSize());
     }
 
     /**
