@@ -260,11 +260,20 @@ class Server extends AbstractTus
             $globalHeaders += ['Tus-Resumable' => self::TUS_PROTOCOL_VERSION];
         }
 
-        $this->getResponse()->setHeaders($globalHeaders);
+        // Allow overriding the HTTP method. The reason for this is
+        // that some libraries/environments do not support PATCH and
+        // DELETE requests, e.g. Flash in a browser and parts of Java
+        $newMethod = $this->getRequest()->header('X-HTTP-Method-Override');
+
+        if ( ! empty($newMethod)) {
+            $requestMethod = $newMethod;
+        }
 
         if ( ! in_array($requestMethod, $this->getRequest()->allowedHttpVerbs())) {
             return $this->response->send(null, HttpResponse::HTTP_METHOD_NOT_ALLOWED);
         }
+
+        $this->getResponse()->setHeaders($globalHeaders);
 
         $method = 'handle' . ucfirst(strtolower($requestMethod));
 
