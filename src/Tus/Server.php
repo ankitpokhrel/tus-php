@@ -32,6 +32,15 @@ class Server extends AbstractTus
     /** @const string Tus Concatenation Extension */
     const TUS_EXTENSION_CONCATENATION = 'concatenation';
 
+    /** @const array All supported tus extensions */
+    const TUS_EXTENSIONS = [
+        self::TUS_EXTENSION_CREATION,
+        self::TUS_EXTENSION_TERMINATION,
+        self::TUS_EXTENSION_CHECKSUM,
+        self::TUS_EXTENSION_EXPIRATION,
+        self::TUS_EXTENSION_CONCATENATION,
+    ];
+
     /** @const int 460 Checksum Mismatch */
     const HTTP_CHECKSUM_MISMATCH = 460;
 
@@ -284,13 +293,7 @@ class Server extends AbstractTus
         $headers = [
             'Allow' => implode(',', $this->request->allowedHttpVerbs()),
             'Tus-Version' => self::TUS_PROTOCOL_VERSION,
-            'Tus-Extension' => implode(',', [
-                self::TUS_EXTENSION_CREATION,
-                self::TUS_EXTENSION_TERMINATION,
-                self::TUS_EXTENSION_CHECKSUM,
-                self::TUS_EXTENSION_EXPIRATION,
-                self::TUS_EXTENSION_CONCATENATION,
-            ]),
+            'Tus-Extension' => implode(',', self::TUS_EXTENSIONS),
             'Tus-Checksum-Algorithm' => $this->getSupportedHashAlgorithms(),
         ];
 
@@ -300,11 +303,7 @@ class Server extends AbstractTus
             $headers['Tus-Max-Size'] = $maxUploadSize;
         }
 
-        return $this->response->send(
-            null,
-            HttpResponse::HTTP_OK,
-            $headers
-        );
+        return $this->response->send(null, HttpResponse::HTTP_OK, $headers);
     }
 
     /**
