@@ -56,6 +56,11 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^files/?(.*)?$ /server.php/$1 [QSA,L]
 ```
 
+Default max upload size is 0 which means there is no restriction. You can set max upload size as described below.
+```php
+$server->setMaxUploadSize(100000000); // 100 mb in bytes
+```
+
 #### Client
 Client can be used for creating, resuming and/or deleting uploads.
 
