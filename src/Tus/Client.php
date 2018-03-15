@@ -245,7 +245,7 @@ class Client extends AbstractTus
         $key   = $this->getKey();
 
         try {
-            // Check if this upload exists with HEAD request
+            // Check if this upload exists with HEAD request.
             $this->sendHeadRequest($key);
         } catch (FileException | ClientException $e) {
             $this->create($key);
@@ -253,7 +253,7 @@ class Client extends AbstractTus
             throw new ConnectionException("Couldn't connect to server.");
         }
 
-        // Now, resume upload with PATCH request
+        // Now, resume upload with PATCH request.
         return $this->sendPatchRequest($key, $bytes);
     }
 

@@ -262,7 +262,7 @@ class Server extends AbstractTus
 
         // Allow overriding the HTTP method. The reason for this is
         // that some libraries/environments do not support PATCH and
-        // DELETE requests, e.g. Flash in a browser and parts of Java
+        // DELETE requests, e.g. Flash in a browser and parts of Java.
         $newMethod = $this->getRequest()->header('X-HTTP-Method-Override');
 
         if ( ! empty($newMethod)) {
@@ -741,7 +741,7 @@ class Server extends AbstractTus
      */
     protected function verifyChecksum(string $checksum, string $filePath) : bool
     {
-        // Skip if checksum is empty
+        // Skip if checksum is empty.
         if (empty($checksum)) {
             return true;
         }
