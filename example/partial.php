@@ -9,11 +9,11 @@ use TusPhp\Exception\Exception as TusException;
 $client = new \TusPhp\Tus\Client('http://tus-php-server', 'redis');
 
 if ( ! empty($_FILES)) {
-    $fileMeta = $_FILES['tus_file'];
-    $checksum = hash_file('md5', $fileMeta['tmp_name']);
+    $fileMeta  = $_FILES['tus_file'];
+    $uploadKey = hash_file('md5', $fileMeta['tmp_name']);
 
     try {
-        $client->setKey($checksum)->file($fileMeta['tmp_name'], 'chunk_a');
+        $client->setKey($uploadKey)->file($fileMeta['tmp_name'], 'chunk_a');
 
         // Upload  10000 bytes starting from 1000 byte
         $bytesUploaded = $client->seek(1000)->upload(10000);
@@ -27,7 +27,7 @@ if ( ! empty($_FILES)) {
         $bytesUploaded = $client->setFileName('chunk_c')->seek(11000)->upload();
         $partialKey3   = $client->getKey();
 
-        $client->setFileName($fileMeta['name'])->concat($checksum, $partialKey2, $partialKey1, $partialKey3);
+        $client->setFileName($fileMeta['name'])->concat($uploadKey, $partialKey2, $partialKey1, $partialKey3);
 
         echo json_encode([
             'status' => 'uploading',

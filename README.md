@@ -137,10 +137,10 @@ $ ./vendor/bin/tus tus:expired redis
 The Server is capable of concatenating multiple uploads into a single one enabling Clients to perform parallel uploads and to upload non-contiguous chunks.
 
 ```php
-$client->file('/path/to/file', 'chunk_a.ext');
+// Actual file key
+$uploadKey = uniqid();
 
-// Actual file checksum
-$checksum = $client->getChecksum();
+$client->setKey($uploadKey)->file('/path/to/file', 'chunk_a.ext');
 
 // Upload 10000 bytes starting from 1000 bytes
 $bytesUploaded = $client->seek(1000)->upload(10000);
@@ -155,7 +155,7 @@ $bytesUploaded = $client->setFileName('chunk_c.ext')->seek(11000)->upload();
 $chunkCkey     = $client->getKey();
 
 // Concatenate partial uploads
-$client->setFileName('actual_file.ext')->concat($checksum, $chunkAkey, $chunkBkey, $chunkCkey);
+$client->setFileName('actual_file.ext')->concat($uploadKey, $chunkAkey, $chunkBkey, $chunkCkey);
 ```
 
 Additionally, the server will verify checksum against the merged file to make sure that the file is not corrupt.
