@@ -5,7 +5,7 @@
  * if the file was uploaded partially previously.
  */
 
-require '../vendor/autoload.php';
+require __DIR__ . '/../../vendor/autoload.php';
 
 use TusPhp\Exception\FileException;
 use TusPhp\Exception\ConnectionException;
@@ -14,8 +14,8 @@ use GuzzleHttp\Exception\ConnectException;
 $client = new \TusPhp\Tus\Client('http://tus-php-server', 'redis');
 
 if ( ! empty($_FILES)) {
-    $status   = 'new';
-    $fileMeta = $_FILES['tus_file'];
+    $status    = 'new';
+    $fileMeta  = $_FILES['tus_file'];
     $uploadKey = hash_file('md5', $fileMeta['tmp_name']);
 
     try {

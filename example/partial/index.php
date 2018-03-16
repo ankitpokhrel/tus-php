@@ -1,6 +1,6 @@
 <?php
 
-require '../vendor/autoload.php';
+require __DIR__ . '/../../vendor/autoload.php';
 
 use TusPhp\Exception\FileException;
 use TusPhp\Exception\ConnectionException;
@@ -18,6 +18,7 @@ if ( ! empty($_FILES)) {
         // Upload  10000 bytes starting from 1000 byte
         $bytesUploaded = $client->seek(1000)->upload(10000);
         $partialKey1   = $client->getKey();
+        $checksum      = $client->getChecksum();
 
         // Upload first 1000 bytes
         $bytesUploaded = $client->setFileName('chunk_b')->seek(0)->upload(1000);

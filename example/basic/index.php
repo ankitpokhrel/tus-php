@@ -240,7 +240,7 @@
   function initiateUpload(formData, fileMeta, cb) {
     $.ajax({
       type: 'POST',
-      url: '/verify.php',
+      url: 'verify.php',
       data: formData,
       dataType: 'json',
       processData: false,
@@ -278,7 +278,7 @@
 
     $.ajax({
       type: 'POST',
-      url: '/upload.php',
+      url: 'upload.php',
       data: formData,
       dataType: 'json',
       processData: false,

@@ -4,7 +4,7 @@
  * Uploads files in 5mb chunk.
  */
 
-require '../vendor/autoload.php';
+require __DIR__ . '/../../vendor/autoload.php';
 
 use TusPhp\Exception\FileException;
 use TusPhp\Exception\ConnectionException;
