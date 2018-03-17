@@ -192,7 +192,7 @@
     </div>
 </div>
 <div class="project-info">
-    <a href="https://github.com/ankitpokhrel/tus-php">View this project on GitHub &#8594</a>
+    <a href="https://github.com/ankitpokhrel/tus-php">View this project in GitHub &#8594</a>
 </div>
 <script type="text/javascript">
   jQuery(document).ready(function ($) {
@@ -240,7 +240,7 @@
   function initiateUpload(formData, fileMeta, cb) {
     $.ajax({
       type: 'POST',
-      url: '/verify.php',
+      url: 'verify.php',
       data: formData,
       dataType: 'json',
       processData: false,
@@ -278,7 +278,7 @@
 
     $.ajax({
       type: 'POST',
-      url: '/upload.php',
+      url: 'upload.php',
       data: formData,
       dataType: 'json',
       processData: false,
