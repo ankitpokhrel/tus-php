@@ -13,6 +13,7 @@ use GuzzleHttp\Exception\ConnectException;
 
 $client = new \TusPhp\Tus\Client('http://tus-php-server', 'redis');
 
+// Alert: Sanitize all inputs properly in production code
 if ( ! empty($_FILES)) {
     $status    = 'new';
     $fileMeta  = $_FILES['tus_file'];

@@ -12,6 +12,7 @@ use TusPhp\Exception\Exception as TusException;
 
 $client = new \TusPhp\Tus\Client('http://tus-php-server', 'redis');
 
+// Alert: Sanitize all inputs properly in production code
 if ( ! empty($_FILES)) {
     $fileMeta  = $_FILES['tus_file'];
     $uploadKey = hash_file('md5', $fileMeta['tmp_name']);
