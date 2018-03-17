@@ -15,6 +15,8 @@ tus is a HTTP based protocol for resumable file uploads. Resumable means you can
 re-uploading whole data again in case of any interruptions. An interruption may happen willingly, if the user wants 
 to pause, or by accident in case of a network issue or server outage.
 
+![Tus PHP demo](https://github.com/ankitpokhrel/tus-php/blob/master/example/demo.gif "")
+
 ### Installation
 
 Pull the package via composer.
@@ -175,8 +177,6 @@ uppy.use(Tus, {
 
 ### Setting up dev environment and/or running example locally
 An ajax based example for this implementation can be found in `examples/` folder. You can either build and run it using docker or use kubernetes locally with minikube.
-
-![Tus PHP demo](https://github.com/ankitpokhrel/tus-php/blob/master/example/example.png "")
  
 #### Docker
 Make sure that [docker](https://docs.docker.com/engine/installation/) and [docker-compose](https://docs.docker.com/compose/install/) 
