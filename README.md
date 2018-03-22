@@ -12,7 +12,7 @@ _Resumable file upload in PHP using [tus resumable upload protocol v1.0.0](https
 
 ### Overview
 tus is a HTTP based protocol for resumable file uploads. Resumable means you can carry on where you left off without 
-re-uploading whole data again in case of any interruptions. An interruption may happen willingly, if the user wants 
+re-uploading whole data again in case of any interruptions. An interruption may happen willingly if the user wants 
 to pause, or by accident in case of a network issue or server outage.
 
 ![Tus PHP demo](https://github.com/ankitpokhrel/tus-php/blob/master/example/demo.gif "")
@@ -37,7 +37,7 @@ $server = new \TusPhp\Tus\Server('redis'); // Leave empty for file based cache
 $server->serve();
 ```
 
-You need to rewrite your server to respond to specific endpoint. For example:
+You need to rewrite your server to respond to a specific endpoint. For example:
 
 ###### Nginx
 ```nginx
@@ -64,13 +64,13 @@ $server->setMaxUploadSize(100000000); // 100 mb in bytes
 ```
 
 #### Client
-Client can be used for creating, resuming and/or deleting uploads.
+The client can be used for creating, resuming and/or deleting uploads.
 
 
 ```php
 $client = new \TusPhp\Tus\Client($baseUrl, 'redis'); // Leave second parameter empty for file based cache
 
-// Optional. If key is not set explicitly, system will generate a unique uuid.
+// Optional. If a key is not set explicitly, the system will generate a unique uuid.
 $key = 'your unique key';
 
 $client->setKey($key)->file('/path/to/file', 'filename.ext');
@@ -92,19 +92,19 @@ isn't there or invalid, returns total bytes uploaded otherwise.
 $offset = $client->getOffset(); // 2000000 bytes or 2mb
 ```
 
-Delete partial upload from cache.
+Delete partial upload from the cache.
 
 ```php
 $client->delete($key);
 ```
 
-By default the client uses `/files` as a api path. You can change it with `setApiPath` method.
+By default, the client uses `/files` as an API path. You can change it with `setApiPath` method.
 
 ```php
 $client->setApiPath('/api');
 ```
 
-By default the server will use `sha256` algorithm to verify the integrity of the upload. If you want to use different hash algorithm, you can do so by 
+By default, the server will use `sha256` algorithm to verify the integrity of the upload. If you want to use a different hash algorithm, you can do so by 
 using `setChecksumAlgorithm` method. To get the list of supported hash algorithms, you can send `OPTIONS` request to the server. 
 
 ```php
@@ -119,7 +119,7 @@ $client->setChecksumAlgorithm('crc32');
 - [x] This Concatenation extension is implemented except that the server is not capable of handling unfinished concatenation.
 
 ### Expiration
-The Server is capable of removing expired but unfinished uploads. You can use following command manually or in a cron job to remove them.
+The Server is capable of removing expired but unfinished uploads. You can use the following command manually or in a cron job to remove them.
 
 ```shell
 $ ./vendor/bin/tus tus:expired --help
@@ -175,7 +175,7 @@ uppy.use(Tus, {
 })
 ```
 
-### Setting up dev environment and/or running example locally
+### Setting up a dev environment and/or running example locally
 An ajax based example for this implementation can be found in `examples/` folder. You can either build and run it using docker or use kubernetes locally with minikube.
  
 #### Docker
@@ -185,7 +185,7 @@ are installed in your system. Then, run docker script from project root.
 $ bin/docker.sh
 ```
 
-Now, the client can be accessed at http://0.0.0.0:8080 and server can be accessed at http://0.0.0.0:8081. Default api endpoint is set to`/files` 
+Now, the client can be accessed at http://0.0.0.0:8080 and server can be accessed at http://0.0.0.0:8081. Default API endpoint is set to`/files` 
 and uploaded files can be found inside `uploads` folder. All docker configs can be found in `docker/` folder.
 
 #### Kubernetes with minikube
