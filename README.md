@@ -1,4 +1,4 @@
-> ALERT: The project is not yet production ready. Things might change a bit and your app might break. Feel free to try and report any issues. Pull requests and project recommendations are more than welcome!
+> ALERT: The project is still in its initial stage. Some implementations might change in the future. Feel free to try and report any issues. Pull requests and project recommendations are more than welcome!
 
 # Tus PHP
 [![PHP Version](https://img.shields.io/badge/php-7.1.3%2B-brightgreen.svg?style=flat-square)](https://packagist.org/packages/ankitpokhrel/tus-php)
