@@ -32,9 +32,12 @@ This is how a simple server looks like.
 ```php
 // server.php
 
-$server = new \TusPhp\Tus\Server('redis'); // Leave empty for file based cache
+$server   = new \TusPhp\Tus\Server('redis'); // Leave empty for file based cache
+$response = $server->serve();
 
-$server->serve();
+$response->send();
+
+exit(0); // Exit from current PHP process.
 ```
 
 You need to rewrite your server to respond to a specific endpoint. For example:

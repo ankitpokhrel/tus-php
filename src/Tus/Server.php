@@ -249,9 +249,9 @@ class Server extends AbstractTus
     /**
      * Handle all HTTP request.
      *
-     * @return null|HttpResponse
+     * @return HttpResponse
      */
-    public function serve()
+    public function serve() : HttpResponse
     {
         $requestMethod = $this->getRequest()->method();
         $globalHeaders = $this->headers();
@@ -277,19 +277,7 @@ class Server extends AbstractTus
 
         $method = 'handle' . ucfirst(strtolower($requestMethod));
 
-        $this->{$method}();
-
-        $this->exit();
-    }
-
-    /**
-     * Exit from current php process.
-     *
-     * @codeCoverageIgnore
-     */
-    protected function exit()
-    {
-        exit(0);
+        return $this->{$method}();
     }
 
     /**

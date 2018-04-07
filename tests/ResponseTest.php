@@ -32,11 +32,11 @@ class ResponseTest extends TestCase
      */
     public function it_sets_and_gets_create_only()
     {
-        $this->assertFalse($this->response->getCreateOnly());
-
-        $this->response->createOnly(true);
-
         $this->assertTrue($this->response->getCreateOnly());
+
+        $this->response->createOnly(false);
+
+        $this->assertFalse($this->response->getCreateOnly());
     }
 
     /**
