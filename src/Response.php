@@ -13,7 +13,7 @@ class Response
     protected $response;
 
     /** @var bool */
-    protected $createOnly = false;
+    protected $createOnly = true;
 
     /** @var array */
     protected $headers = [];

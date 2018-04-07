@@ -2,6 +2,9 @@
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$server = new \TusPhp\Tus\Server('redis');
+$server   = new \TusPhp\Tus\Server('redis');
+$response = $server->serve();
 
-$server->serve();
+$response->send();
+
+exit(0); // Exit from current PHP process.

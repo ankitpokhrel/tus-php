@@ -54,10 +54,6 @@ class ServerTest extends TestCase
         $this->tusServerMock->__construct('file');
 
         $this->tusServerMock
-            ->shouldReceive('exit')
-            ->andReturn(null);
-
-        $this->tusServerMock
             ->shouldReceive('__call')
             ->andReturn(null);
 
@@ -238,11 +234,6 @@ class ServerTest extends TestCase
 
             $tusServerMock->__construct('file');
 
-            $tusServerMock
-                ->shouldReceive('exit')
-                ->once()
-                ->andReturn(null);
-
             $responseMock = m::mock(Response::class)->makePartial();
 
             $responseMock
@@ -267,7 +258,7 @@ class ServerTest extends TestCase
                 ->once()
                 ->andReturn(m::mock(HttpResponse::class));
 
-            $this->assertNull($tusServerMock->serve());
+            $this->assertInstanceOf(HttpResponse::class, $tusServerMock->serve());
         }
     }
 
@@ -291,11 +282,6 @@ class ServerTest extends TestCase
             ->andReturnSelf();
 
         $tusServerMock->__construct('file');
-
-        $tusServerMock
-            ->shouldReceive('exit')
-            ->once()
-            ->andReturn(null);
 
         $requestMock = m::mock(Request::class, ['file'])->makePartial();
         $requestMock
@@ -331,7 +317,7 @@ class ServerTest extends TestCase
             ->once()
             ->andReturn(m::mock(HttpResponse::class));
 
-        $this->assertNull($tusServerMock->serve());
+        $this->assertInstanceOf(HttpResponse::class, $tusServerMock->serve());
     }
 
     /**
@@ -827,7 +813,6 @@ class ServerTest extends TestCase
             ->andReturn(null);
 
         $this->tusServerMock->setCache($cacheMock);
-        $this->tusServerMock->getResponse()->createOnly(true);
 
         $response = $this->tusServerMock->handlePost();
 
@@ -929,7 +914,6 @@ class ServerTest extends TestCase
             ->andReturn(null);
 
         $this->tusServerMock->setCache($cacheMock);
-        $this->tusServerMock->getResponse()->createOnly(true);
 
         $response = $this->tusServerMock->handlePost();
 
@@ -1022,7 +1006,6 @@ class ServerTest extends TestCase
             ->andReturn(true);
 
         $this->tusServerMock->setCache($cacheMock);
-        $this->tusServerMock->getResponse()->createOnly(true);
 
         $fileMock = m::mock(File::class, [$fileName, $cacheMock]);
 
@@ -1139,7 +1122,6 @@ class ServerTest extends TestCase
             ->andReturn($files[1]);
 
         $this->tusServerMock->setCache($cacheMock);
-        $this->tusServerMock->getResponse()->createOnly(true);
 
         $fileMock = m::mock(File::class, [$fileName, $cacheMock]);
 
@@ -1290,7 +1272,6 @@ class ServerTest extends TestCase
             ->andReturn($fileMeta);
 
         $this->tusServerMock->setCache($cacheMock);
-        $this->tusServerMock->getResponse()->createOnly(true);
 
         $response = $this->tusServerMock->handlePatch();
 
@@ -1370,7 +1351,6 @@ class ServerTest extends TestCase
             ->andReturn($fileMeta);
 
         $this->tusServerMock->setCache($cacheMock);
-        $this->tusServerMock->getResponse()->createOnly(true);
 
         $response = $this->tusServerMock->handlePatch();
 
@@ -1450,7 +1430,6 @@ class ServerTest extends TestCase
             ->andReturn($fileMeta);
 
         $this->tusServerMock->setCache($cacheMock);
-        $this->tusServerMock->getResponse()->createOnly(true);
 
         $response = $this->tusServerMock->handlePatch();
 
@@ -1498,7 +1477,6 @@ class ServerTest extends TestCase
             ->andReturn($fileMeta);
 
         $this->tusServerMock->setCache($cacheMock);
-        $this->tusServerMock->getResponse()->createOnly(true);
 
         $response = $this->tusServerMock->handlePatch();
 
@@ -1578,7 +1556,6 @@ class ServerTest extends TestCase
             ->andReturn($fileMeta);
 
         $this->tusServerMock->setCache($cacheMock);
-        $this->tusServerMock->getResponse()->createOnly(true);
 
         $response = $this->tusServerMock->handlePatch();
 
@@ -1658,7 +1635,6 @@ class ServerTest extends TestCase
             ->andReturn($fileMeta);
 
         $this->tusServerMock->setCache($cacheMock);
-        $this->tusServerMock->getResponse()->createOnly(true);
 
         $response = $this->tusServerMock->handlePatch();
 
@@ -1685,8 +1661,6 @@ class ServerTest extends TestCase
                 'REQUEST_METHOD' => 'GET',
                 'REQUEST_URI' => '/files',
             ]);
-
-        $this->tusServerMock->getResponse()->createOnly(true);
 
         $response = $this->tusServerMock->handleGet();
 
@@ -1720,7 +1694,6 @@ class ServerTest extends TestCase
             ->andReturn([]);
 
         $this->tusServerMock->setCache($cacheMock);
-        $this->tusServerMock->getResponse()->createOnly(true);
 
         $response = $this->tusServerMock->handleGet();
 
@@ -1756,7 +1729,6 @@ class ServerTest extends TestCase
             ]);
 
         $this->tusServerMock->setCache($cacheMock);
-        $this->tusServerMock->getResponse()->createOnly(true);
 
         $response = $this->tusServerMock->handleGet();
 
@@ -1803,7 +1775,6 @@ class ServerTest extends TestCase
             ->andReturn($fileMeta);
 
         $this->tusServerMock->setCache($cacheMock);
-        $this->tusServerMock->getResponse()->createOnly(true);
 
         $response = $this->tusServerMock->handleGet();
 
@@ -1837,7 +1808,6 @@ class ServerTest extends TestCase
             ->andReturn(null);
 
         $this->tusServerMock->setCache($cacheMock);
-        $this->tusServerMock->getResponse()->createOnly(true);
 
         $response = $this->tusServerMock->handleDelete();
 
@@ -1879,7 +1849,6 @@ class ServerTest extends TestCase
             ->andReturn(false);
 
         $this->tusServerMock->setCache($cacheMock);
-        $this->tusServerMock->getResponse()->createOnly(true);
 
         $response = $this->tusServerMock->handleDelete();
 
@@ -1921,7 +1890,6 @@ class ServerTest extends TestCase
             ->andReturn(true);
 
         $this->tusServerMock->setCache($cacheMock);
-        $this->tusServerMock->getResponse()->createOnly(true);
 
         $mockBuilder = (new MockBuilder())->setNamespace('\TusPhp\Tus');
 
@@ -2407,7 +2375,6 @@ class ServerTest extends TestCase
             ->andReturn($files[1]);
 
         $this->tusServerMock->setCache($cacheMock);
-        $this->tusServerMock->getResponse()->createOnly(true);
 
         $this->assertEquals($files, $this->tusServerMock->getPartialsMeta($partials));
     }
