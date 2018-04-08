@@ -46,7 +46,7 @@ class ResponseTest extends TestCase
      * @covers ::setHeaders
      * @covers ::getHeaders
      */
-    public function it_sets_and_gets_global_headers()
+    public function it_sets_and_gets_headers()
     {
         $this->assertEquals([], $this->response->getHeaders());
 
@@ -56,7 +56,29 @@ class ResponseTest extends TestCase
         ];
 
         $this->assertInstanceOf(Response::class, $this->response->setHeaders($headers));
-        $this->assertEquals($headers, $this->response->getHeaders());
+        $this->assertInstanceOf(
+            Response::class,
+            $this->response->setHeaders(['Access-Control-Allow-Methods' => 'GET,POST'])
+        );
+        $this->assertEquals($headers + ['Access-Control-Allow-Methods' => 'GET,POST'], $this->response->getHeaders());
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::setHeaders
+     * @covers ::replaceHeaders
+     * @covers ::getHeaders
+     */
+    public function it_replaces_headers()
+    {
+        $this->assertEquals([], $this->response->getHeaders());
+        $this->assertInstanceOf(Response::class, $this->response->setHeaders(['Access-Control-Max-Age' => 86400]));
+        $this->assertInstanceOf(
+            Response::class,
+            $this->response->replaceHeaders(['Access-Control-Allow-Methods' => 'GET,POST'])
+        );
+        $this->assertEquals(['Access-Control-Allow-Methods' => 'GET,POST'], $this->response->getHeaders());
     }
 
     /**

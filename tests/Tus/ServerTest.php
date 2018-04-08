@@ -8,10 +8,13 @@ use TusPhp\Request;
 use TusPhp\Response;
 use TusPhp\Tus\Server;
 use phpmock\MockBuilder;
+use TusPhp\Middleware\Cors;
 use TusPhp\Cache\FileStore;
 use PHPUnit\Framework\TestCase;
+use TusPhp\Middleware\Middleware;
 use TusPhp\Tus\Server as TusServer;
 use TusPhp\Exception\FileException;
+use TusPhp\Middleware\GlobalHeaders;
 use TusPhp\Exception\ConnectionException;
 use TusPhp\Exception\OutOfRangeException;
 use Illuminate\Http\Response as HttpResponse;
@@ -148,6 +151,18 @@ class ServerTest extends TestCase
     /**
      * @test
      *
+     * @covers ::middleware
+     * @covers ::setMiddleware
+     */
+    public function it_sets_and_gets_middleware()
+    {
+        $this->assertInstanceOf(Middleware::class, $this->tusServerMock->middleware());
+        $this->assertInstanceOf(Server::class, $this->tusServerMock->setMiddleware(new Middleware()));
+    }
+
+    /**
+     * @test
+     *
      * @covers ::getMaxUploadSize
      * @covers ::setMaxUploadSize
      */
@@ -221,6 +236,7 @@ class ServerTest extends TestCase
      * @test
      *
      * @covers ::serve
+     * @covers ::getRequestMethod
      */
     public function it_overrides_http_method()
     {
@@ -259,6 +275,40 @@ class ServerTest extends TestCase
             ->andReturn(m::mock(HttpResponse::class));
 
         $this->assertInstanceOf(HttpResponse::class, $tusServerMock->serve());
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::applyMiddleware
+     */
+    public function it_applies_middleware()
+    {
+        $requestMock  = m::mock(Request::class);
+        $responseMock = m::mock(Response::class);
+
+        $this->tusServerMock
+            ->shouldReceive('getRequest')
+            ->twice()
+            ->andReturn($requestMock);
+
+        $this->tusServerMock
+            ->shouldReceive('getResponse')
+            ->twice()
+            ->andReturn($responseMock);
+
+        $corsMock    = m::mock(Cors::class);
+        $headersMock = m::mock(GlobalHeaders::class);
+
+        $corsMock->shouldReceive('handle')->once()->andReturnNull();
+        $headersMock->shouldReceive('handle')->once()->andReturnNull();
+
+        $this->tusServerMock
+            ->middleware()
+            ->skip(Cors::class, GlobalHeaders::class)
+            ->add($corsMock, $headersMock);
+
+        $this->assertNull($this->tusServerMock->applyMiddleware());
     }
 
     /**
