@@ -244,7 +244,7 @@ class ServerTest extends TestCase
 
         $tusServerMock
             ->shouldReceive('getRequest')
-            ->times(4)
+            ->times(5)
             ->andReturn($requestMock);
 
         $tusServerMock
