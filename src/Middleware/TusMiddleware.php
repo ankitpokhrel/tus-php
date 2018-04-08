@@ -5,7 +5,7 @@ namespace TusPhp\Middleware;
 use TusPhp\Request;
 use TusPhp\Response;
 
-interface MiddlewareInterface
+interface TusMiddleware
 {
     /**
      * Handle request/response.

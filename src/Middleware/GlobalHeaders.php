@@ -7,7 +7,7 @@ use TusPhp\Response;
 use TusPhp\Tus\Server;
 use Illuminate\Http\Request as HttpRequest;
 
-class GlobalHeaders implements MiddlewareInterface
+class GlobalHeaders implements TusMiddleware
 {
     /**
      * {@inheritDoc}
