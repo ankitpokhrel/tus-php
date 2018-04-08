@@ -62,7 +62,7 @@ class Server extends AbstractTus
     /** @var string */
     protected $uploadKey;
 
-    /** @var array */
+    /** @var Middleware */
     protected $middleware;
 
     /**
