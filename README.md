@@ -164,6 +164,64 @@ $client->setFileName('actual_file.ext')->concat($uploadKey, $chunkAkey, $chunkBk
 ```
 
 Additionally, the server will verify checksum against the merged file to make sure that the file is not corrupt.
+
+### Middleware
+You can manipulate request and response of a server using a middleware. Middleware can be used to run a piece of code before a server calls the actual handle method.
+You can use middleware to authenticate a request, handle CORS, whitelist/blacklist an IP etc.
+
+#### Creating a Middleware
+In order to create a middleware, you need to implement `TusMiddleware` interface. The handle method provides request and response object for you to manipulate.
+
+```php
+<?php
+
+namespace Your\Namespace;
+
+use TusPhp\Request;
+use TusPhp\Response;
+use TusPhp\Middleware\TusMiddleware;
+
+class Authenticated implements TusMiddleware
+{
+    // ...
+    
+    /**
+     * {@inheritDoc}
+     */
+    public function handle(Request $request, Response $response)
+    {
+        // Check if user is authenticated
+        if (! $this->user->isLoggedIn()) {
+            throw new UnauthorizedHttpException('User not authenticated');
+        }
+
+        $response->setHeaders(['Authorization' => 'Bearer ' . $this->user->token()]);
+    }
+    
+    // ...
+}
+```
+
+#### Adding a Middleware
+To add a middleware, get middleware object from server and simply pass middleware classes.
+ 
+```php
+$server->middleware()->add(Authenticated::class, AnotherMiddleware::class);
+```
+
+Or, you can also pass middleware class objects.
+```php
+$authenticated = new Your\Namespace\Authenticated(new User());
+
+$server->middleware()->add($authenticated);
+```
+
+#### Skipping a Middleware
+If you wish to skip or ignore any middleware, you can do so by using the `skip` method.
+ 
+```php
+$server->middleware()->skip(Cors::class, AnotherMiddleware::class);
+ ```
   
 ### Compatible with [Uppy](https://uppy.io/)
 Uppy is a sleek, modular file uploader plugin developed by same folks behind tus protocol.
@@ -178,7 +236,7 @@ uppy.use(Tus, {
 })
 ```
 
-### Setting up a dev environment and/or running example locally
+### Setting up a dev environment and/or running examples locally
 An ajax based example for this implementation can be found in `examples/` folder. You can either build and run it using docker or use kubernetes locally with minikube.
  
 #### Docker
