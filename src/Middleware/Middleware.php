@@ -13,9 +13,19 @@ class Middleware
     public function __construct()
     {
         $this->globalMiddleware = [
-            GlobalHeaders::class => new GlobalHeaders(),
-            Cors::class => new Cors(),
+            GlobalHeaders::class => new GlobalHeaders,
+            Cors::class => new Cors,
         ];
+    }
+
+    /**
+     * Get registered middleware.
+     *
+     * @return array
+     */
+    public function list() : array
+    {
+        return $this->globalMiddleware;
     }
 
     /**
@@ -36,16 +46,6 @@ class Middleware
         }
 
         return $this;
-    }
-
-    /**
-     * Get registered middleware.
-     *
-     * @return array
-     */
-    public function list() : array
-    {
-        return $this->globalMiddleware;
     }
 
     /**

@@ -157,7 +157,7 @@ class ServerTest extends TestCase
     public function it_sets_and_gets_middleware()
     {
         $this->assertInstanceOf(Middleware::class, $this->tusServerMock->middleware());
-        $this->assertInstanceOf(Server::class, $this->tusServerMock->setMiddleware(new Middleware()));
+        $this->assertInstanceOf(Server::class, $this->tusServerMock->setMiddleware(new Middleware));
     }
 
     /**
