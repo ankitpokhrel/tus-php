@@ -8,10 +8,10 @@ use TusPhp\Request;
 use TusPhp\Response;
 use Ramsey\Uuid\Uuid;
 use TusPhp\Cache\Cacheable;
+use TusPhp\Middleware\Middleware;
 use TusPhp\Exception\FileException;
 use TusPhp\Exception\ConnectionException;
 use TusPhp\Exception\OutOfRangeException;
-use Illuminate\Http\Request as HttpRequest;
 use Illuminate\Http\Response as HttpResponse;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
@@ -47,9 +47,6 @@ class Server extends AbstractTus
     /** @const string Default checksum algorithm */
     const DEFAULT_CHECKSUM_ALGORITHM = 'sha256';
 
-    /** @const int 24 hours access control max age header */
-    const HEADER_ACCESS_CONTROL_MAX_AGE = 86400;
-
     /** @var Request */
     protected $request;
 
@@ -62,8 +59,8 @@ class Server extends AbstractTus
     /** @var string */
     protected $uploadKey;
 
-    /** @var array */
-    protected $globalHeaders;
+    /** @var Middleware */
+    protected $middleware;
 
     /**
      * @var int Max upload size in bytes
@@ -78,18 +75,10 @@ class Server extends AbstractTus
      */
     public function __construct($cacheAdapter = 'file')
     {
-        $this->request   = new Request;
-        $this->response  = new Response;
-        $this->uploadDir = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'uploads';
-
-        $this->globalHeaders = [
-            'Access-Control-Allow-Origin' => $this->request->header('Origin'),
-            'Access-Control-Allow-Methods' => implode(',', $this->getRequest()->allowedHttpVerbs()),
-            'Access-Control-Allow-Headers' => 'Origin, X-Requested-With, Content-Type, Content-Length, Upload-Key, Upload-Checksum, Upload-Length, Upload-Offset, Tus-Version, Tus-Resumable, Upload-Metadata',
-            'Access-Control-Expose-Headers' => 'Upload-Key, Upload-Checksum, Upload-Length, Upload-Offset, Upload-Metadata, Tus-Version, Tus-Resumable, Tus-Extension, Location',
-            'Access-Control-Max-Age' => self::HEADER_ACCESS_CONTROL_MAX_AGE,
-            'X-Content-Type-Options' => 'nosniff',
-        ];
+        $this->request    = new Request;
+        $this->response   = new Response;
+        $this->middleware = new Middleware;
+        $this->uploadDir  = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'uploads';
 
         $this->setCache($cacheAdapter);
     }
@@ -205,6 +194,30 @@ class Server extends AbstractTus
     }
 
     /**
+     * Set middleware.
+     *
+     * @param Middleware $middleware
+     *
+     * @return self
+     */
+    public function setMiddleware(Middleware $middleware) : self
+    {
+        $this->middleware = $middleware;
+
+        return $this;
+    }
+
+    /**
+     * Get middleware.
+     *
+     * @return Middleware
+     */
+    public function middleware() : Middleware
+    {
+        return $this->middleware;
+    }
+
+    /**
      * Set max upload size.
      *
      * @param int $uploadSize
@@ -229,55 +242,60 @@ class Server extends AbstractTus
     }
 
     /**
-     * Set or get global headers.
-     *
-     * @param array $headers
-     *
-     * @return Server|array
-     */
-    public function headers(array $headers = [])
-    {
-        if (empty($headers)) {
-            return $this->globalHeaders;
-        }
-
-        $this->globalHeaders = $headers + $this->globalHeaders;
-
-        return $this;
-    }
-
-    /**
      * Handle all HTTP request.
      *
      * @return HttpResponse
      */
     public function serve() : HttpResponse
     {
-        $requestMethod = $this->getRequest()->method();
-        $globalHeaders = $this->headers();
-
-        if (HttpRequest::METHOD_OPTIONS !== $requestMethod) {
-            $globalHeaders += ['Tus-Resumable' => self::TUS_PROTOCOL_VERSION];
-        }
-
-        // Allow overriding the HTTP method. The reason for this is
-        // that some libraries/environments do not support PATCH and
-        // DELETE requests, e.g. Flash in a browser and parts of Java.
-        $newMethod = $this->getRequest()->header('X-HTTP-Method-Override');
-
-        if ( ! empty($newMethod)) {
-            $requestMethod = $newMethod;
-        }
+        $requestMethod = $this->getRequestMethod();
 
         if ( ! in_array($requestMethod, $this->getRequest()->allowedHttpVerbs())) {
             return $this->response->send(null, HttpResponse::HTTP_METHOD_NOT_ALLOWED);
         }
 
-        $this->getResponse()->setHeaders($globalHeaders);
+        $this->applyMiddleware();
 
         $method = 'handle' . ucfirst(strtolower($requestMethod));
 
         return $this->{$method}();
+    }
+
+    /**
+     * Get actual request method.
+     *
+     * @return null|string
+     */
+    protected function getRequestMethod()
+    {
+        $request = $this->getRequest();
+
+        $requestMethod = $request->method();
+
+        // Allow overriding the HTTP method. The reason for this is
+        // that some libraries/environments do not support PATCH and
+        // DELETE requests, e.g. Flash in a browser and parts of Java.
+        $newMethod = $request->header('X-HTTP-Method-Override');
+
+        if ( ! empty($newMethod)) {
+            $requestMethod = $newMethod;
+        }
+
+        return $requestMethod;
+    }
+
+    /**
+     * Apply middleware.
+     *
+     * @return null
+     */
+    protected function applyMiddleware()
+    {
+        $middleware = $this->middleware()->list();
+
+        foreach ($middleware as $m) {
+            $m->handle($this->getRequest(), $this->getResponse());
+        }
     }
 
     /**

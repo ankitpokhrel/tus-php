@@ -8,10 +8,13 @@ use TusPhp\Request;
 use TusPhp\Response;
 use TusPhp\Tus\Server;
 use phpmock\MockBuilder;
+use TusPhp\Middleware\Cors;
 use TusPhp\Cache\FileStore;
 use PHPUnit\Framework\TestCase;
+use TusPhp\Middleware\Middleware;
 use TusPhp\Tus\Server as TusServer;
 use TusPhp\Exception\FileException;
+use TusPhp\Middleware\GlobalHeaders;
 use TusPhp\Exception\ConnectionException;
 use TusPhp\Exception\OutOfRangeException;
 use Illuminate\Http\Response as HttpResponse;
@@ -148,32 +151,13 @@ class ServerTest extends TestCase
     /**
      * @test
      *
-     * @covers ::headers
+     * @covers ::middleware
+     * @covers ::setMiddleware
      */
-    public function it_sets_and_gets_global_headers()
+    public function it_sets_and_gets_middleware()
     {
-        $globalHeaders = $this->globalHeaders;
-        unset($globalHeaders['Tus-Resumable']);
-
-        $this->assertEquals($globalHeaders, $this->tusServerMock->headers());
-
-        $server = $this->tusServerMock->headers([
-            'Access-Control-Allow-Origin' => 'test',
-            'Tus-Version' => '1.0.0',
-            'Tus-Resumable' => '1.0.0',
-        ]);
-
-        $this->assertInstanceOf(Server::class, $server);
-        $this->assertEquals([
-            'Access-Control-Allow-Origin' => 'test',
-            'Access-Control-Allow-Methods' => implode(',', self::ALLOWED_HTTP_VERBS),
-            'Access-Control-Allow-Headers' => 'Origin, X-Requested-With, Content-Type, Content-Length, Upload-Key, Upload-Checksum, Upload-Length, Upload-Offset, Tus-Version, Tus-Resumable, Upload-Metadata',
-            'Access-Control-Expose-Headers' => 'Upload-Key, Upload-Checksum, Upload-Length, Upload-Offset, Upload-Metadata, Tus-Version, Tus-Resumable, Tus-Extension, Location',
-            'Access-Control-Max-Age' => 86400,
-            'X-Content-Type-Options' => 'nosniff',
-            'Tus-Version' => '1.0.0',
-            'Tus-Resumable' => '1.0.0',
-        ], $server->headers());
+        $this->assertInstanceOf(Middleware::class, $this->tusServerMock->middleware());
+        $this->assertInstanceOf(Server::class, $this->tusServerMock->setMiddleware(new Middleware));
     }
 
     /**
@@ -213,15 +197,9 @@ class ServerTest extends TestCase
      *
      * @covers ::serve
      */
-    public function it_calls_proper_handle_method_and_global_headers()
+    public function it_calls_proper_handle_method()
     {
-        $globalHeaders = $this->globalHeaders;
-
         foreach (self::ALLOWED_HTTP_VERBS as $method) {
-            if ('OPTIONS' === $method) {
-                unset($globalHeaders['Tus-Resumable']);
-            }
-
             $tusServerMock = m::mock(TusServer::class)
                               ->shouldAllowMockingProtectedMethods()
                               ->makePartial();
@@ -234,18 +212,10 @@ class ServerTest extends TestCase
 
             $tusServerMock->__construct('file');
 
-            $responseMock = m::mock(Response::class)->makePartial();
-
-            $responseMock
-                ->shouldReceive('setHeaders')
-                ->once()
-                ->with($globalHeaders)
-                ->andReturnSelf();
-
             $tusServerMock
-                ->shouldReceive('getResponse')
+                ->shouldReceive('applyMiddleware')
                 ->once()
-                ->andReturn($responseMock);
+                ->andReturnNull();
 
             $tusServerMock
                 ->getRequest()
@@ -266,11 +236,10 @@ class ServerTest extends TestCase
      * @test
      *
      * @covers ::serve
+     * @covers ::getRequestMethod
      */
     public function it_overrides_http_method()
     {
-        $globalHeaders = $this->globalHeaders;
-
         $tusServerMock = m::mock(TusServer::class)
                           ->shouldAllowMockingProtectedMethods()
                           ->makePartial();
@@ -291,20 +260,8 @@ class ServerTest extends TestCase
 
         $tusServerMock
             ->shouldReceive('getRequest')
-            ->times(4)
+            ->times(5)
             ->andReturn($requestMock);
-
-        $responseMock = m::mock(Response::class)->makePartial();
-        $responseMock
-            ->shouldReceive('setHeaders')
-            ->once()
-            ->with($globalHeaders)
-            ->andReturnSelf();
-
-        $tusServerMock
-            ->shouldReceive('getResponse')
-            ->once()
-            ->andReturn($responseMock);
 
         $tusServerMock
             ->getRequest()
@@ -318,6 +275,40 @@ class ServerTest extends TestCase
             ->andReturn(m::mock(HttpResponse::class));
 
         $this->assertInstanceOf(HttpResponse::class, $tusServerMock->serve());
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::applyMiddleware
+     */
+    public function it_applies_middleware()
+    {
+        $requestMock  = m::mock(Request::class);
+        $responseMock = m::mock(Response::class);
+
+        $this->tusServerMock
+            ->shouldReceive('getRequest')
+            ->twice()
+            ->andReturn($requestMock);
+
+        $this->tusServerMock
+            ->shouldReceive('getResponse')
+            ->twice()
+            ->andReturn($responseMock);
+
+        $corsMock    = m::mock(Cors::class);
+        $headersMock = m::mock(GlobalHeaders::class);
+
+        $corsMock->shouldReceive('handle')->once()->andReturnNull();
+        $headersMock->shouldReceive('handle')->once()->andReturnNull();
+
+        $this->tusServerMock
+            ->middleware()
+            ->skip(Cors::class, GlobalHeaders::class)
+            ->add($corsMock, $headersMock);
+
+        $this->assertNull($this->tusServerMock->applyMiddleware());
     }
 
     /**

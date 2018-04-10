@@ -41,13 +41,27 @@ class Response
     }
 
     /**
-     * Set global headers.
+     * Set headers.
      *
      * @param array $headers
      *
      * @return Response
      */
     public function setHeaders(array $headers) : self
+    {
+        $this->headers += $headers;
+
+        return $this;
+    }
+
+    /**
+     * Replace headers.
+     *
+     * @param array $headers
+     *
+     * @return Response
+     */
+    public function replaceHeaders(array $headers) : self
     {
         $this->headers = $headers;
 
