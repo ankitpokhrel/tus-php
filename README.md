@@ -195,7 +195,7 @@ class Authenticated implements TusMiddleware
             throw new UnauthorizedHttpException('User not authenticated');
         }
 
-        $response->setHeaders(['Authorization' => 'Bearer ' . $this->user->token()]);
+        $request->getRequest()->headers->set('Authorization', 'Bearer ' . $this->user->token());
     }
     
     // ...
