@@ -60,6 +60,18 @@ class RequestTest extends TestCase
     /**
      * @test
      *
+     * @covers ::path
+     */
+    public function it_returns_url_path_info()
+    {
+        $this->request->getRequest()->server->set('REQUEST_URI', '/tus/files/');
+
+        $this->assertEquals('tus/files', $this->request->path());
+    }
+
+    /**
+     * @test
+     *
      * @covers ::allowedHttpVerbs
      */
     public function it_returns_allowed_http_verbs()

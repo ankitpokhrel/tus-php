@@ -497,7 +497,7 @@ class Server extends AbstractTus
     {
         $key = $this->request->key();
 
-        if (empty($key)) {
+        if ($this->request->path() === trim($this->getApiPath(), '/')) {
             return $this->response->send('400 bad request.', HttpResponse::HTTP_BAD_REQUEST);
         }
 
