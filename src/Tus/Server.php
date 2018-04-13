@@ -244,9 +244,9 @@ class Server extends AbstractTus
     /**
      * Handle all HTTP request.
      *
-     * @return HttpResponse
+     * @return HttpResponse|BinaryFileResponse
      */
-    public function serve() : HttpResponse
+    public function serve()
     {
         $requestMethod = $this->getRequestMethod();
 
