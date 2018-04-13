@@ -30,13 +30,23 @@ class Request
     }
 
     /**
+     * Get the current path info for the request.
+     *
+     * @return string
+     */
+    public function path() : string
+    {
+        return $this->request->path();
+    }
+
+    /**
      * Get upload key from url.
      *
-     * @return null|string
+     * @return string
      */
-    public function key()
+    public function key() : string
     {
-        return $this->request->segment(2);
+        return basename($this->request->path());
     }
 
     /**

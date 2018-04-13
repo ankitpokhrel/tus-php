@@ -1650,8 +1650,10 @@ class ServerTest extends TestCase
             ->server
             ->add([
                 'REQUEST_METHOD' => 'GET',
-                'REQUEST_URI' => '/files',
+                'REQUEST_URI' => '/tus/files',
             ]);
+
+        $this->tusServerMock->setApiPath('/tus/files');
 
         $response = $this->tusServerMock->handleGet();
 
