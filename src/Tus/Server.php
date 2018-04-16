@@ -152,7 +152,7 @@ class Server extends AbstractTus
             return self::DEFAULT_CHECKSUM_ALGORITHM;
         }
 
-        list($checksumAlgorithm) = explode(' ', $checksumHeader);
+        list($checksumAlgorithm, /* $checksum */) = explode(' ', $checksumHeader);
 
         return $checksumAlgorithm;
     }
@@ -659,7 +659,7 @@ class Server extends AbstractTus
      */
     protected function getPathForPartialUpload(string $key) : string
     {
-        list($actualKey) = explode(self::PARTIAL_UPLOAD_NAME_SEPARATOR, $key);
+        list($actualKey, /* $partialUploadKey */) = explode(self::PARTIAL_UPLOAD_NAME_SEPARATOR, $key);
 
         $path = $this->uploadDir . DIRECTORY_SEPARATOR . $actualKey . DIRECTORY_SEPARATOR;
 
@@ -761,7 +761,7 @@ class Server extends AbstractTus
      * @param string $method
      * @param array  $params
      *
-     * @return HttpResponse|BinaryFileResponse
+     * @return HttpResponse
      */
     public function __call(string $method, array $params)
     {

@@ -387,7 +387,7 @@ class Client extends AbstractTus
         $key = $this->getKey();
 
         if (false !== strpos($key, self::PARTIAL_UPLOAD_NAME_SEPARATOR)) {
-            list($key) = explode(self::PARTIAL_UPLOAD_NAME_SEPARATOR, $key);
+            list($key, /* $partialKey */) = explode(self::PARTIAL_UPLOAD_NAME_SEPARATOR, $key);
         }
 
         $this->key = $key . uniqid(self::PARTIAL_UPLOAD_NAME_SEPARATOR);
