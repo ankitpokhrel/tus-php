@@ -1,6 +1,6 @@
 {
   "name": "ankitpokhrel/tus-php",
-  "description": "Tus server and client protocol ver 1.0.0 implementation in php",
+  "description": "A pure PHP server and client for the tus resumable upload protocol v1.0.0",
   "type": "library",
   "license": "MIT",
   "authors": [
