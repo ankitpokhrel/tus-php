@@ -10,7 +10,7 @@ use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\ClientException;
 use TusPhp\Exception\ConnectionException;
 use GuzzleHttp\Exception\ConnectException;
-use Illuminate\Http\Response as HttpResponse;
+use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 class Client extends AbstractTus
 {

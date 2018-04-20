@@ -5,7 +5,7 @@ namespace TusPhp\Middleware;
 use TusPhp\Request;
 use TusPhp\Response;
 use TusPhp\Tus\Server;
-use Illuminate\Http\Request as HttpRequest;
+use Symfony\Component\HttpFoundation\Request as HttpRequest;
 
 class GlobalHeaders implements TusMiddleware
 {

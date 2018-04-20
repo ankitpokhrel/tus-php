@@ -2,7 +2,7 @@
 
 namespace TusPhp;
 
-use Illuminate\Http\Request as HttpRequest;
+use Symfony\Component\HttpFoundation\Request as HttpRequest;
 
 class Request
 {
@@ -26,7 +26,7 @@ class Request
      */
     public function method() : string
     {
-        return $this->request->method();
+        return $this->request->getMethod();
     }
 
     /**
@@ -36,7 +36,7 @@ class Request
      */
     public function path() : string
     {
-        return $this->request->path();
+        return $this->request->getPathInfo();
     }
 
     /**
@@ -46,7 +46,7 @@ class Request
      */
     public function key() : string
     {
-        return basename($this->request->path());
+        return basename($this->path());
     }
 
     /**
@@ -76,7 +76,7 @@ class Request
      */
     public function header(string $key, $default = null)
     {
-        return $this->request->header($key, $default);
+        return $this->request->headers->get($key, $default);
     }
 
     /**
@@ -86,7 +86,7 @@ class Request
      */
     public function url() : string
     {
-        return $this->request->root();
+        return rtrim($this->request->getUri(), '/');
     }
 
     /**

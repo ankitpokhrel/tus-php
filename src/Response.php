@@ -2,10 +2,10 @@
 
 namespace TusPhp;
 
-use Illuminate\Http\Request as HttpRequest;
-use Illuminate\Http\Response as HttpResponse;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\Request as HttpRequest;
+use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 class Response
 {
@@ -100,6 +100,10 @@ class Response
     public function send($content, int $status = HttpResponse::HTTP_OK, array $headers = []) : HttpResponse
     {
         $headers = array_merge($this->headers, $headers);
+
+        if (is_array($content)) {
+            $content = json_encode($content);
+        }
 
         $response = $this->response->create($content, $status, $headers);
 

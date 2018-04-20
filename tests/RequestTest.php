@@ -4,7 +4,7 @@ namespace TusPhp\Test;
 
 use TusPhp\Request;
 use PHPUnit\Framework\TestCase;
-use Illuminate\Http\Request as HttpRequest;
+use Symfony\Component\HttpFoundation\Request as HttpRequest;
 
 /**
  * @coversDefaultClass \TusPhp\Request
@@ -66,7 +66,7 @@ class RequestTest extends TestCase
     {
         $this->request->getRequest()->server->set('REQUEST_URI', '/tus/files/');
 
-        $this->assertEquals('tus/files', $this->request->path());
+        $this->assertEquals('/tus/files/', $this->request->path());
     }
 
     /**
