@@ -12,8 +12,8 @@ use TusPhp\Middleware\Middleware;
 use TusPhp\Exception\FileException;
 use TusPhp\Exception\ConnectionException;
 use TusPhp\Exception\OutOfRangeException;
-use Illuminate\Http\Response as HttpResponse;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 class Server extends AbstractTus
 {
@@ -497,7 +497,7 @@ class Server extends AbstractTus
     {
         $key = $this->request->key();
 
-        if ($this->request->path() === trim($this->getApiPath(), '/')) {
+        if ($this->request->path() === $this->getApiPath()) {
             return $this->response->send('400 bad request.', HttpResponse::HTTP_BAD_REQUEST);
         }
 
