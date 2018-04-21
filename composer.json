@@ -14,7 +14,7 @@
     "symfony/http-foundation": "^4.0",
     "guzzlehttp/guzzle": "^6.3",
     "predis/predis": "^1.1",
-    "symfony/console": "^3.4.3",
+    "symfony/console": "^4.0",
     "ramsey/uuid": "^3.7",
     "nesbot/carbon": "^1.26"
   },
