@@ -387,7 +387,7 @@ class Server extends AbstractTus
         $this->cache->set($uploadKey, $file->details() + ['upload_type' => $uploadType]);
 
         return $this->response->send(
-            ['data' => ['checksum' => $checksum]],
+            null,
             HttpResponse::HTTP_CREATED,
             [
                 'Location' => $location,

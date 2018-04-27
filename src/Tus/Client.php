@@ -282,9 +282,9 @@ class Client extends AbstractTus
      *
      * @throws FileException
      *
-     * @return string
+     * @return void
      */
-    public function create(string $key) : string
+    public function create(string $key)
     {
         $headers = [
             'Upload-Length' => $this->fileSize,
@@ -301,15 +301,11 @@ class Client extends AbstractTus
             'headers' => $headers,
         ]);
 
-        $data       = json_decode($response->getBody(), true);
-        $checksum   = $data['data']['checksum'] ?? null;
         $statusCode = $response->getStatusCode();
 
-        if (HttpResponse::HTTP_CREATED !== $statusCode || ! $checksum) {
+        if (HttpResponse::HTTP_CREATED !== $statusCode) {
             throw new FileException('Unable to create resource.');
         }
-
-        return $checksum;
     }
 
     /**

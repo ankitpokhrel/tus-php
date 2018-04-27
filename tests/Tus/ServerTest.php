@@ -807,12 +807,7 @@ class ServerTest extends TestCase
 
         $response = $this->tusServerMock->handlePost();
 
-        $this->assertEquals(json_encode([
-            'data' => [
-                'checksum' => $checksum,
-            ],
-        ]), $response->getContent());
-
+        $this->assertEmpty($response->getContent());
         $this->assertEquals(201, $response->getStatusCode());
         $this->assertEquals($location, $response->headers->get('location'));
         $this->assertEquals($expiresAt, $response->headers->get('upload-expires'));
@@ -908,12 +903,7 @@ class ServerTest extends TestCase
 
         $response = $this->tusServerMock->handlePost();
 
-        $this->assertEquals(json_encode([
-            'data' => [
-                'checksum' => $checksum,
-            ],
-        ]), $response->getContent());
-
+        $this->assertEmpty($response->getContent());
         $this->assertEquals(201, $response->getStatusCode());
         $this->assertEquals($location, $response->headers->get('location'));
         $this->assertEquals($expiresAt, $response->headers->get('upload-expires'));
