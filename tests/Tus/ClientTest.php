@@ -896,15 +896,6 @@ class ClientTest extends TestCase
             ->once()
             ->andReturn(201);
 
-        $responseMock
-            ->shouldReceive('getBody')
-            ->once()
-            ->andReturn(json_encode([
-                'data' => [
-                    'checksum' => $checksum,
-                ],
-            ]));
-
         $this->tusClientMock
             ->shouldReceive('getChecksum')
             ->once()
@@ -930,7 +921,7 @@ class ClientTest extends TestCase
             ])
             ->andReturn($responseMock);
 
-        $this->assertEquals($checksum, $this->tusClientMock->create($key));
+        $this->assertEmpty($this->tusClientMock->create($key));
     }
 
     /**
@@ -951,15 +942,6 @@ class ClientTest extends TestCase
             ->shouldReceive('getStatusCode')
             ->once()
             ->andReturn(201);
-
-        $responseMock
-            ->shouldReceive('getBody')
-            ->once()
-            ->andReturn(json_encode([
-                'data' => [
-                    'checksum' => $checksum,
-                ],
-            ]));
 
         $this->tusClientMock
             ->shouldReceive('getChecksum')
@@ -992,7 +974,7 @@ class ClientTest extends TestCase
             ])
             ->andReturn($responseMock);
 
-        $this->assertEquals($checksum, $this->tusClientMock->create($key));
+        $this->assertEmpty($this->tusClientMock->create($key));
     }
 
     /**
@@ -1011,11 +993,6 @@ class ClientTest extends TestCase
         $checksum     = hash_file('sha256', $filePath);
         $guzzleMock   = m::mock(Client::class);
         $responseMock = m::mock(Response::class);
-
-        $responseMock
-            ->shouldReceive('getBody')
-            ->once()
-            ->andReturn(null);
 
         $responseMock
             ->shouldReceive('getStatusCode')
@@ -1048,59 +1025,6 @@ class ClientTest extends TestCase
             ->andReturn($responseMock);
 
         $this->tusClientMock->create($key);
-    }
-
-    /**
-     * @test
-     *
-     * @covers ::create
-     *
-     * @expectedException \TusPhp\Exception\FileException
-     * @expectedExceptionMessage Unable to create resource.
-     */
-    public function it_throws_exception_when_unable_to_get_checksum()
-    {
-        $filePath     = __DIR__ . '/../Fixtures/empty.txt';
-        $fileName     = 'file.txt';
-        $guzzleMock   = m::mock(Client::class);
-        $responseMock = m::mock(Response::class);
-
-        $responseMock
-            ->shouldReceive('getBody')
-            ->once()
-            ->andReturn(null);
-
-        $responseMock
-            ->shouldReceive('getStatusCode')
-            ->once()
-            ->andReturn(201);
-
-        $this->tusClientMock
-            ->shouldReceive('getClient')
-            ->once()
-            ->andReturn($guzzleMock);
-
-        $this->tusClientMock
-            ->shouldReceive('getChecksum')
-            ->once()
-            ->andReturn('');
-
-        $this->tusClientMock->file($filePath, $fileName);
-
-        $guzzleMock
-            ->shouldReceive('post')
-            ->once()
-            ->with('/files', [
-                'headers' => [
-                    'Upload-Length' => filesize($filePath),
-                    'Upload-Key' => '',
-                    'Upload-Checksum' => 'sha256 ',
-                    'Upload-Metadata' => 'filename ' . base64_encode($fileName),
-                ],
-            ])
-            ->andReturn($responseMock);
-
-        $this->tusClientMock->create('');
     }
 
     /**
