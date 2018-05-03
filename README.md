@@ -17,6 +17,10 @@ to pause, or by accident in case of a network issue or server outage.
 
 ![Tus PHP demo](https://github.com/ankitpokhrel/tus-php/blob/master/example/demo.gif "")
 
+### Resources
+1. [Medium Article](https://medium.com/@ankitpokhrel/resumable-file-upload-in-php-handle-large-file-uploads-in-an-elegant-way-e6c6dfdeaedb)
+2. [Laravel/Lumen Integration](https://github.com/ankitpokhrel/tus-php/wiki/Laravel-&-Lumen-Integration)
+
 ### Installation
 
 Pull the package via composer.
