@@ -103,6 +103,23 @@ class ResponseTest extends TestCase
     /**
      * @test
      *
+     * @covers ::send
+     */
+    public function it_sends_array_response()
+    {
+        $content  = ['status' => '204 No Content'];
+        $response = $this->response
+            ->createOnly(true)
+            ->send($content, 204, ['Offset' => 100]);
+
+        $this->assertEquals(204, $response->getStatusCode());
+        $this->assertEquals(json_encode($content), $response->getContent());
+        $this->assertEquals(100, $response->headers->get('Offset'));
+    }
+
+    /**
+     * @test
+     *
      * @covers ::download
      *
      * @expectedException \Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException
