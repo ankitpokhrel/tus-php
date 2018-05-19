@@ -453,10 +453,14 @@ class Server extends AbstractTus
     protected function handlePatch() : HttpResponse
     {
         $uploadKey = $this->request->key();
-        $meta      = $this->cache->get($uploadKey);
-        $status    = $this->verifyPatchRequest($meta);
 
-        if ( ! empty($status)) {
+        if ( ! $meta = $this->cache->get($uploadKey)) {
+            return $this->response->send(null, HttpResponse::HTTP_GONE);
+        }
+
+        $status = $this->verifyPatchRequest($meta);
+
+        if (HttpResponse::HTTP_OK !== $status) {
             return $this->response->send(null, $status);
         }
 
@@ -489,16 +493,12 @@ class Server extends AbstractTus
     /**
      * Verify PATCH request.
      *
-     * @param array|null $meta
+     * @param array $meta
      *
-     * @return string
+     * @return int
      */
-    protected function verifyPatchRequest($meta) : string
+    protected function verifyPatchRequest($meta) : int
     {
-        if ( ! $meta) {
-            return HttpResponse::HTTP_GONE;
-        }
-
         if (self::UPLOAD_TYPE_FINAL === $meta['upload_type']) {
             return HttpResponse::HTTP_FORBIDDEN;
         }
@@ -509,7 +509,7 @@ class Server extends AbstractTus
             return HttpResponse::HTTP_CONFLICT;
         }
 
-        return '';
+        return HttpResponse::HTTP_OK;
     }
 
     /**
