@@ -462,6 +462,12 @@ class Server extends AbstractTus
             return $this->response->send(null, HttpResponse::HTTP_FORBIDDEN);
         }
 
+        $uploadOffset = $this->request->header('upload-offset');
+
+        if ($uploadOffset and $uploadOffset !== $meta['offset']) {
+            return $this->response->send(null, HttpResponse::HTTP_CONFLICT);
+        }
+
         $file     = $this->buildFile($meta);
         $checksum = $meta['checksum'];
 
