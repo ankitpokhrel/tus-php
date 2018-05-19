@@ -1152,6 +1152,7 @@ class ServerTest extends TestCase
      * @test
      *
      * @covers ::handlePatch
+     * @covers ::verifyPatchRequest
      */
     public function it_returns_410_for_invalid_patch_request()
     {
@@ -1185,6 +1186,7 @@ class ServerTest extends TestCase
      * @test
      *
      * @covers ::handlePatch
+     * @covers ::verifyPatchRequest
      */
     public function it_returns_409_for_upload_offset_mismatch()
     {
@@ -1240,6 +1242,7 @@ class ServerTest extends TestCase
      * @test
      *
      * @covers ::handlePatch
+     * @covers ::verifyPatchRequest
      */
     public function it_returns_422_for_file_exception()
     {
@@ -1319,6 +1322,7 @@ class ServerTest extends TestCase
      * @test
      *
      * @covers ::handlePatch
+     * @covers ::verifyPatchRequest
      */
     public function it_returns_416_for_corrupt_upload()
     {
@@ -1398,6 +1402,7 @@ class ServerTest extends TestCase
      * @test
      *
      * @covers ::handlePatch
+     * @covers ::verifyPatchRequest
      */
     public function it_returns_100_for_aborted_upload()
     {
@@ -1477,6 +1482,7 @@ class ServerTest extends TestCase
      * @test
      *
      * @covers ::handlePatch
+     * @covers ::verifyPatchRequest
      */
     public function it_returns_403_for_patch_request_against_final_upload()
     {
@@ -1524,6 +1530,7 @@ class ServerTest extends TestCase
      * @test
      *
      * @covers ::handlePatch
+     * @covers ::verifyPatchRequest
      */
     public function it_returns_460_for_corrupt_upload()
     {
@@ -1603,6 +1610,7 @@ class ServerTest extends TestCase
      * @test
      *
      * @covers ::handlePatch
+     * @covers ::verifyPatchRequest
      */
     public function it_handles_patch_request()
     {

@@ -453,19 +453,11 @@ class Server extends AbstractTus
     protected function handlePatch() : HttpResponse
     {
         $uploadKey = $this->request->key();
+        $meta      = $this->cache->get($uploadKey);
+        $status    = $this->verifyPatchRequest($meta);
 
-        if ( ! $meta = $this->cache->get($uploadKey)) {
-            return $this->response->send(null, HttpResponse::HTTP_GONE);
-        }
-
-        if (self::UPLOAD_TYPE_FINAL === $meta['upload_type']) {
-            return $this->response->send(null, HttpResponse::HTTP_FORBIDDEN);
-        }
-
-        $uploadOffset = $this->request->header('upload-offset');
-
-        if ($uploadOffset and $uploadOffset !== $meta['offset']) {
-            return $this->response->send(null, HttpResponse::HTTP_CONFLICT);
+        if ( ! empty($status)) {
+            return $this->response->send(null, $status);
         }
 
         $file     = $this->buildFile($meta);
@@ -492,6 +484,32 @@ class Server extends AbstractTus
             'Upload-Expires' => $this->cache->get($uploadKey)['expires_at'],
             'Upload-Offset' => $offset,
         ]);
+    }
+
+    /**
+     * Verify PATCH request.
+     *
+     * @param array|null $meta
+     *
+     * @return string
+     */
+    protected function verifyPatchRequest($meta) : string
+    {
+        if ( ! $meta) {
+            return HttpResponse::HTTP_GONE;
+        }
+
+        if (self::UPLOAD_TYPE_FINAL === $meta['upload_type']) {
+            return HttpResponse::HTTP_FORBIDDEN;
+        }
+
+        $uploadOffset = $this->request->header('upload-offset');
+
+        if ($uploadOffset and $uploadOffset !== $meta['offset']) {
+            return HttpResponse::HTTP_CONFLICT;
+        }
+
+        return '';
     }
 
     /**
