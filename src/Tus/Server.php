@@ -505,7 +505,7 @@ class Server extends AbstractTus
 
         $uploadOffset = $this->request->header('upload-offset');
 
-        if ($uploadOffset and $uploadOffset !== $meta['offset']) {
+        if ($uploadOffset and $uploadOffset !== (string) $meta['offset']) {
             return HttpResponse::HTTP_CONFLICT;
         }
 
