@@ -111,6 +111,13 @@ class RequestTest extends TestCase
         ]);
 
         $this->assertEquals('http://tus.local', $this->request->url());
+
+        $this->request->getRequest()->server->add([
+            'REQUEST_URI' => '/tus/files/',
+            'QUERY_STRING' => 'token=random&path=root'
+        ]);
+
+        $this->assertEquals('http://tus.local', $this->request->url());
     }
 
     /**
