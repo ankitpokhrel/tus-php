@@ -248,13 +248,13 @@ class Server extends AbstractTus
      */
     public function serve()
     {
+        $this->applyMiddleware();
+
         $requestMethod = $this->getRequestMethod();
 
         if ( ! in_array($requestMethod, $this->getRequest()->allowedHttpVerbs())) {
             return $this->response->send(null, HttpResponse::HTTP_METHOD_NOT_ALLOWED);
         }
-
-        $this->applyMiddleware();
 
         $method = 'handle' . ucfirst(strtolower($requestMethod));
 
