@@ -236,7 +236,6 @@ class ServerTest extends TestCase
      * @test
      *
      * @covers ::serve
-     * @covers ::getRequestMethod
      */
     public function it_overrides_http_method()
     {

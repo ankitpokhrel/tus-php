@@ -250,7 +250,7 @@ class Server extends AbstractTus
     {
         $this->applyMiddleware();
 
-        $requestMethod = $this->getRequestMethod();
+        $requestMethod = $this->getRequest()->method();
 
         if ( ! in_array($requestMethod, $this->getRequest()->allowedHttpVerbs())) {
             return $this->response->send(null, HttpResponse::HTTP_METHOD_NOT_ALLOWED);
@@ -259,29 +259,6 @@ class Server extends AbstractTus
         $method = 'handle' . ucfirst(strtolower($requestMethod));
 
         return $this->{$method}();
-    }
-
-    /**
-     * Get actual request method.
-     *
-     * @return null|string
-     */
-    protected function getRequestMethod()
-    {
-        $request = $this->getRequest();
-
-        $requestMethod = $request->method();
-
-        // Allow overriding the HTTP method. The reason for this is
-        // that some libraries/environments do not support PATCH and
-        // DELETE requests, e.g. Flash in a browser and parts of Java.
-        $newMethod = $request->header('X-HTTP-Method-Override');
-
-        if ( ! empty($newMethod)) {
-            $requestMethod = $newMethod;
-        }
-
-        return $requestMethod;
     }
 
     /**
@@ -497,7 +474,7 @@ class Server extends AbstractTus
      *
      * @return int
      */
-    protected function verifyPatchRequest($meta) : int
+    protected function verifyPatchRequest(array $meta) : int
     {
         if (self::UPLOAD_TYPE_FINAL === $meta['upload_type']) {
             return HttpResponse::HTTP_FORBIDDEN;
