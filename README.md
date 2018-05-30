@@ -10,6 +10,7 @@
 
 _Resumable file upload in PHP using [tus resumable upload protocol v1.0.0](https://tus.io)_.
 
+
 ### Overview
 tus is a HTTP based protocol for resumable file uploads. Resumable means you can carry on where you left off without 
 re-uploading whole data again in case of any interruptions. An interruption may happen willingly if the user wants 
@@ -29,6 +30,9 @@ $ composer require ankitpokhrel/tus-php:dev-master
 ```
 
 ## Usage
+| ![Basic Tus Architecture](https://cdn-images-1.medium.com/max/2000/1*N4JhqeXJgWA1Z7pc6_5T_A.png "Basic Tus Architecture") | 
+|:--:| 
+| Basic Tus Architecture |
 
 #### Server
 This is how a simple server looks like.
