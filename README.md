@@ -1,4 +1,3 @@
-> ALERT: The project is still in its initial stage. Some implementations might change in the future. Feel free to try and report any issues. Pull requests and project recommendations are more than welcome!
 
 # Tus PHP
 [![PHP Version](https://img.shields.io/badge/php-7.1.3%2B-brightgreen.svg?style=flat-square)](https://packagist.org/packages/ankitpokhrel/tus-php)
@@ -8,8 +7,7 @@
 [![Download](https://img.shields.io/packagist/dt/ankitpokhrel/tus-php.svg?style=flat-square)](https://packagist.org/packages/ankitpokhrel/tus-php)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](https://github.com/ankitpokhrel/tus-php/blob/master/LICENSE)
 
-_Resumable file upload in PHP using [tus resumable upload protocol v1.0.0](https://tus.io)_.
-
+_Resumable file upload in PHP using [tus resumable upload protocol v1.0.0](https://tus.io)_
 
 ### Overview
 tus is a HTTP based protocol for resumable file uploads. Resumable means you can carry on where you left off without 
@@ -87,10 +85,10 @@ $key = 'your unique key';
 $client->setKey($key)->file('/path/to/file', 'filename.ext');
 
 // Create and upload a chunk of 1mb
-$bytesUploaded = $client->upload(1000000); 
+$bytesUploaded = $client->upload(1000000);
 
 // Resume, $bytesUploaded = 2mb
-$bytesUploaded = $client->upload(1000000); 
+$bytesUploaded = $client->upload(1000000);
 
 // To upload whole file, skip length param
 $client->file('/path/to/file', 'filename.ext')->upload();
