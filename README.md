@@ -1,24 +1,36 @@
+<h1 align="center">TusPHP</h1>
 
-# Tus PHP
-[![PHP Version](https://img.shields.io/badge/php-7.1.3%2B-brightgreen.svg?style=flat-square)](https://packagist.org/packages/ankitpokhrel/tus-php)
-[![Build](https://img.shields.io/travis/ankitpokhrel/tus-php/master.svg?style=flat-square)](https://travis-ci.org/ankitpokhrel/tus-php)
-[![Code Coverage](https://img.shields.io/scrutinizer/coverage/g/ankitpokhrel/tus-php.svg?style=flat-square)](https://scrutinizer-ci.com/g/ankitpokhrel/tus-php/)
-[![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/g/ankitpokhrel/tus-php.svg?style=flat-square)](https://scrutinizer-ci.com/g/ankitpokhrel/tus-php/)
-[![Download](https://img.shields.io/packagist/dt/ankitpokhrel/tus-php.svg?style=flat-square)](https://packagist.org/packages/ankitpokhrel/tus-php)
-[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](https://github.com/ankitpokhrel/tus-php/blob/master/LICENSE)
+<p align="center">
+    <a href="https://packagist.org/packages/ankitpokhrel/tus-php">
+        <img alt="PHP Version" src="https://img.shields.io/badge/php-7.1.3%2B-brightgreen.svg?style=flat-square" />
+    </a>
+    <a href="https://travis-ci.org/ankitpokhrel/tus-php">
+        <img alt="Build Status" src="https://img.shields.io/travis/ankitpokhrel/tus-php/master.svg?style=flat-square" />
+    </a>
+    <a href="https://scrutinizer-ci.com/g/ankitpokhrel/tus-php">
+        <img alt="Code Coverage" src="https://img.shields.io/scrutinizer/coverage/g/ankitpokhrel/tus-php.svg?style=flat-square" />
+    </a>
+    <a href="https://scrutinizer-ci.com/g/ankitpokhrel/tus-php">
+        <img alt="Scrutinizer Code Quality" src="https://img.shields.io/scrutinizer/g/ankitpokhrel/tus-php.svg?style=flat-square" />
+    </a>
+    <a href="https://packagist.org/packages/ankitpokhrel/tus-php">
+        <img alt="Download" src="https://img.shields.io/packagist/dt/ankitpokhrel/tus-php.svg?style=flat-square" />
+    </a>
+    <a href="https://github.com/ankitpokhrel/tus-php/blob/master/LICENSE">
+        <img alt="Software License" src="https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square" />
+    </a>
+</p>
 
-_Resumable file upload in PHP using [tus resumable upload protocol v1.0.0](https://tus.io)_
+<i align="center">Resumable file upload in PHP using [tus resumable upload protocol v1.0.0](https://tus.io)</i>
 
-### Overview
-tus is a HTTP based protocol for resumable file uploads. Resumable means you can carry on where you left off without 
+<p align="center">
+    <img alt="TusPHP Demo" src="https://github.com/ankitpokhrel/tus-php/blob/master/example/demo.gif" /><br/><br/>
+    <a href="https://medium.com/@ankitpokhrel/resumable-file-upload-in-php-handle-large-file-uploads-in-an-elegant-way-e6c6dfdeaedb">Medium Article</a>&nbsp; ⚡<a href="https://github.com/ankitpokhrel/tus-php/wiki/Laravel-&-Lumen-Integration">Laravel & Lumen Integration</a>
+</p>
+
+**tus** is a HTTP based protocol for resumable file uploads. Resumable means you can carry on where you left off without 
 re-uploading whole data again in case of any interruptions. An interruption may happen willingly if the user wants 
 to pause, or by accident in case of a network issue or server outage.
-
-![Tus PHP demo](https://github.com/ankitpokhrel/tus-php/blob/master/example/demo.gif "")
-
-### Resources
-1. [Medium Article](https://medium.com/@ankitpokhrel/resumable-file-upload-in-php-handle-large-file-uploads-in-an-elegant-way-e6c6dfdeaedb)
-2. [Laravel/Lumen Integration](https://github.com/ankitpokhrel/tus-php/wiki/Laravel-&-Lumen-Integration)
 
 ### Installation
 
