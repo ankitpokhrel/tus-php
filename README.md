@@ -21,7 +21,9 @@
     </a>
 </p>
 
-<i align="center">Resumable file upload in PHP using [tus resumable upload protocol v1.0.0](https://tus.io)</i>
+<p align="center">
+    <i align="center">Resumable file upload in PHP using <a href="https://tus.io">tus resumable upload protocol v1.0.0</a></i>
+</p>
 
 <p align="center">
     <img alt="TusPHP Demo" src="https://github.com/ankitpokhrel/tus-php/blob/master/example/demo.gif" /><br/><br/>
