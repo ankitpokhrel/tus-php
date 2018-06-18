@@ -83,7 +83,7 @@ RewriteRule ^files/?(.*)?$ /server.php/$1 [QSA,L]
 
 Default max upload size is 0 which means there is no restriction. You can set max upload size as described below.
 ```php
-$server->setMaxUploadSize(100000000); // 100 mb in bytes
+$server->setMaxUploadSize(100000000); // 100 MB in bytes
 ```
 
 #### Client
@@ -98,10 +98,10 @@ $key = 'your unique key';
 
 $client->setKey($key)->file('/path/to/file', 'filename.ext');
 
-// Create and upload a chunk of 1mb
+// Create and upload a chunk of 1MB
 $bytesUploaded = $client->upload(1000000);
 
-// Resume, $bytesUploaded = 2mb
+// Resume, $bytesUploaded = 2MB
 $bytesUploaded = $client->upload(1000000);
 
 // To upload whole file, skip length param
@@ -112,7 +112,7 @@ To check if the file was partially uploaded before, you can use `getOffset` meth
 isn't there or invalid, returns total bytes uploaded otherwise.
 
 ```php 
-$offset = $client->getOffset(); // 2000000 bytes or 2mb
+$offset = $client->getOffset(); // 2000000 bytes or 2MB
 ```
 
 Delete partial upload from the cache.
