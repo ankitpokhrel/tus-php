@@ -26,9 +26,16 @@
   },
   "autoload": {
     "psr-4": {
-      "TusPhp\\": "src/",
+      "TusPhp\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
       "TusPhp\\Test\\": "tests/"
     }
+  },
+  "config": {
+    "optimize-autoloader": true
   },
   "bin": [
     "bin/tus"
