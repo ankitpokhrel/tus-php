@@ -392,7 +392,6 @@ class FileStoreTest extends TestCase
 
         $this->assertEquals('hello:cache-key', $this->fileStore->getActualCacheKey('cache-key'));
         $this->assertEquals('hello:cache-key', $this->fileStore->getActualCacheKey('hello:cache-key'));
-
     }
 
     /**

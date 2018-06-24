@@ -48,7 +48,7 @@ class ExpirationCommand extends Command
             $output->writeln('<comment>Nothing to delete.</comment>');
         } else {
             foreach ($deleted as $key => $item) {
-                $output->writeln('<comment>' . ($key + 1) . ". Deleted {$item['name']} from " . dirname($item['file_path']) . "</comment>");
+                $output->writeln('<comment>' . ($key + 1) . ". Deleted {$item['name']} from " . dirname($item['file_path']) . '</comment>');
             }
         }
 
