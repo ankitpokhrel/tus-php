@@ -2,6 +2,6 @@
 
 namespace TusPhp\Exception;
 
-class OutOfRangeException extends \RuntimeException
+class OutOfRangeException extends \OutOfRangeException
 {
 }
