@@ -1824,7 +1824,7 @@ class ServerTest extends TestCase
         $response = $this->tusServerMock->handleGet();
 
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals("attachment; filename=\"$fileName\"", $response->headers->get('content-disposition'));
+        $this->assertEquals("attachment; filename=$fileName", $response->headers->get('content-disposition'));
     }
 
     /**
