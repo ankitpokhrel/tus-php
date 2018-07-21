@@ -125,9 +125,10 @@ class Request
 
         if (false !== strpos($meta, ',')) {
             $pieces = explode(',', $meta);
-            list(, $file) = explode(' ', $pieces[0]);
+
+            list(/* $key */, $file) = explode(' ', $pieces[0]);
         } else {
-            list(, $file) = explode(' ', $meta);
+            list(/* $key */, $file) = explode(' ', $meta);
         }
 
         return base64_decode($file);

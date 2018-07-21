@@ -28,10 +28,10 @@ class FileTest extends TestCase
      */
     public function setUp()
     {
-        $this->file = new File('tus.txt', CacheFactory::make());
-
-        $this->assertInstanceOf(File::class, $this->file->setMeta(100, 1024, '/path/to/file.txt', 'http://tus.local/uploads/file.txt'));
+        $this->file        = new File('tus.txt', CacheFactory::make());
         $this->mockBuilder = (new MockBuilder)->setNamespace('\TusPhp');
+
+        $this->file->setMeta(100, 1024, '/path/to/file.txt', 'http://tus.local/uploads/file.txt');
     }
 
     /**
