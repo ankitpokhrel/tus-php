@@ -269,7 +269,8 @@ class Server extends AbstractTus
      *
      * @return null
      */
-    public function event(string $eventClass, File $file, ...$vars) {
+    public function event(string $eventClass, File $file, ...$vars)
+    {
         // Laravel
         if (function_exists('event')) {
             event(new $eventClass($file, ...$vars));
@@ -472,12 +473,11 @@ class Server extends AbstractTus
 
             // If upload is done, verify checksum and trigger event.
             if ($offset === $fileSize) {
-                if (! $this->verifyChecksum($checksum, $meta['file_path'])) {
+                if ( ! $this->verifyChecksum($checksum, $meta['file_path'])) {
                     return $this->response->send(null, self::HTTP_CHECKSUM_MISMATCH);
                 }
                 $this->event(\TusPhp\Events\Completed::class, $file, $this->getRequest(), $this->getResponse());
             }
-
         } catch (FileException $e) {
             return $this->response->send($e->getMessage(), HttpResponse::HTTP_UNPROCESSABLE_ENTITY);
         } catch (OutOfRangeException $e) {
