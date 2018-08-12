@@ -759,7 +759,7 @@ class ServerTest extends TestCase
 
         $this->tusServerMock
             ->shouldReceive('getRequest')
-            ->times(5)
+            ->times(6)
             ->andReturn($requestMock);
 
         $this->tusServerMock
@@ -855,7 +855,7 @@ class ServerTest extends TestCase
 
         $this->tusServerMock
             ->shouldReceive('getRequest')
-            ->times(5)
+            ->times(6)
             ->andReturn($requestMock);
 
         $this->tusServerMock
@@ -1291,6 +1291,11 @@ class ServerTest extends TestCase
             ->andReturn($fileSize);
 
         $fileMock
+            ->shouldReceive('getOffset')
+            ->once()
+            ->andReturn($fileMeta['offset']);
+
+        $fileMock
             ->shouldReceive('upload')
             ->once()
             ->with($fileSize)
@@ -1371,6 +1376,11 @@ class ServerTest extends TestCase
             ->andReturn($fileSize);
 
         $fileMock
+            ->shouldReceive('getOffset')
+            ->once()
+            ->andReturn($fileMeta['offset']);
+
+        $fileMock
             ->shouldReceive('upload')
             ->once()
             ->with($fileSize)
@@ -1449,6 +1459,11 @@ class ServerTest extends TestCase
             ->shouldReceive('getFileSize')
             ->once()
             ->andReturn($fileSize);
+
+        $fileMock
+            ->shouldReceive('getOffset')
+            ->once()
+            ->andReturn($fileMeta['offset']);
 
         $fileMock
             ->shouldReceive('upload')
@@ -1579,6 +1594,11 @@ class ServerTest extends TestCase
             ->andReturn($fileSize);
 
         $fileMock
+            ->shouldReceive('getOffset')
+            ->once()
+            ->andReturn($fileMeta['offset']);
+
+        $fileMock
             ->shouldReceive('upload')
             ->once()
             ->with($fileSize)
@@ -1657,6 +1677,11 @@ class ServerTest extends TestCase
             ->shouldReceive('getFileSize')
             ->once()
             ->andReturn($fileSize);
+
+        $fileMock
+            ->shouldReceive('getOffset')
+            ->once()
+            ->andReturn($fileMeta['offset']);
 
         $fileMock
             ->shouldReceive('upload')
