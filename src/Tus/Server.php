@@ -262,6 +262,21 @@ class Server extends AbstractTus
     }
 
     /**
+     * Emit events for Laravel and Symfony (TODO);
+     *
+     * @param string $eventClass
+     * @param File $file
+     *
+     * @return null
+     */
+    public function event(string $eventClass, File $file, ...$vars) {
+        // Laravel
+        if (function_exists('event')) {
+            event(new $eventClass($file, ...$vars));
+        }
+    }
+
+    /**
      * Apply middleware.
      *
      * @return null
@@ -363,7 +378,7 @@ class Server extends AbstractTus
 
         $this->cache->set($uploadKey, $file->details() + ['upload_type' => $uploadType]);
 
-        return $this->response->send(
+        $response = $this->response->send(
             null,
             HttpResponse::HTTP_CREATED,
             [
@@ -371,6 +386,10 @@ class Server extends AbstractTus
                 'Upload-Expires' => $this->cache->get($uploadKey)['expires_at'],
             ]
         );
+
+        $this->event(\TusPhp\Events\Created::class, $file, $this->getRequest(), $this->getResponse());
+
+        return $response;
     }
 
     /**
@@ -445,13 +464,20 @@ class Server extends AbstractTus
         $checksum = $meta['checksum'];
 
         try {
-            $fileSize = $file->getFileSize();
-            $offset   = $file->setKey($uploadKey)->setChecksum($checksum)->upload($fileSize);
+            $fileSize   = $file->getFileSize();
+            $prevOffset = $file->getOffset();
+            $offset     = $file->setKey($uploadKey)->setChecksum($checksum)->upload($fileSize);
 
-            // If upload is done, verify checksum.
-            if ($offset === $fileSize && ! $this->verifyChecksum($checksum, $meta['file_path'])) {
-                return $this->response->send(null, self::HTTP_CHECKSUM_MISMATCH);
+            $this->event(\TusPhp\Events\Progress::class, $file, $fileSize, $prevOffset, $offset);
+
+            // If upload is done, verify checksum and trigger event.
+            if ($offset === $fileSize) {
+                if (! $this->verifyChecksum($checksum, $meta['file_path'])) {
+                    return $this->response->send(null, self::HTTP_CHECKSUM_MISMATCH);
+                }
+                $this->event(\TusPhp\Events\Completed::class, $file, $this->getRequest(), $this->getResponse());
             }
+
         } catch (FileException $e) {
             return $this->response->send($e->getMessage(), HttpResponse::HTTP_UNPROCESSABLE_ENTITY);
         } catch (OutOfRangeException $e) {
