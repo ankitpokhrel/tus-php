@@ -2,7 +2,7 @@
 
 namespace TusPhp\Events;
 
-class Created extends TusPhpEvent
+class Created extends Event
 {
     // ...
 }
