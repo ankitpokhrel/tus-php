@@ -26,7 +26,7 @@ class Config
 
         if (is_array($config)) {
             self::$config = $config;
-        } else if (is_string($config)) {
+        } elseif (is_string($config)) {
             self::$config = require $config ?? self::DEFAULT_CONFIG_PATH;
         }
     }

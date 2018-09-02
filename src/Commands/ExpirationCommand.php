@@ -50,6 +50,7 @@ class ExpirationCommand extends Command
         ]);
 
         $config = $input->getOption('config');
+
         if ( ! empty($config)) {
             Config::setConfig($config);
         }
