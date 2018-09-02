@@ -15,7 +15,7 @@ return [
      * File cache configs.
      */
     'file' => [
-        'dir' => '/var/www/.cache/',
+        'dir' => dirname(__DIR__) . DS . '.cache' . DS,
         'name' => 'tus_php.cache',
         'meta' => [
             'name' => 'test'

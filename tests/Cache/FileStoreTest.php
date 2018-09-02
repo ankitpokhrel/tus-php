@@ -138,7 +138,7 @@ class FileStoreTest extends TestCase
      * @covers ::createCacheDir
      * @covers ::isValid
      */
-    public function it_creates_cache_file_if_file_doesnt_exist()
+    public function it_creates_cache_file_if_file_does_not_exist()
     {
         $this->fileStore->set($this->checksum, 'Test');
 
