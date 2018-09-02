@@ -89,7 +89,6 @@ $server->setMaxUploadSize(100000000); // 100 MB in bytes
 #### Client
 The client can be used for creating, resuming and/or deleting uploads.
 
-
 ```php
 $client = new \TusPhp\Tus\Client($baseUrl, 'redis'); // Leave second parameter empty for file based cache
 
@@ -148,15 +147,30 @@ The Server is capable of removing expired but unfinished uploads. You can use th
 $ ./vendor/bin/tus tus:expired --help
 
 Usage:
-  tus:expired [<cache-adapter>]
+  tus:expired [<cache-adapter>] [options]
 
 Arguments:
-  cache-adapter     Cache adapter to use, redis or file. Optional, defaults to file based cache.
+  cache-adapter         Cache adapter to use, redis or file. Optional, defaults to file based cache. [default: "file"]
+
+Options:
+  -c, --config=CONFIG   File to get config parameters from.
   
 eg:
 
 $ ./vendor/bin/tus tus:expired redis
+
+Cleaning server resources
+=========================
+
+1. Deleted 1535888128_35094.jpg from /var/www/uploads
 ```
+
+Default redis and file cache configuration can be found inside `config/default.php` file. To override default config you can simply copy the file 
+to your preferred location and update the parameters. To use your new configuration, you can pass path to your config file using`--config` option. 
+
+ ```shell
+ $ ./vendor/bin/tus tus:expired redis --config=<path to your config file>
+ ```
 
 ### Concatenation
 The Server is capable of concatenating multiple uploads into a single one enabling Clients to perform parallel uploads and to upload non-contiguous chunks.
