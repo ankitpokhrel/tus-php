@@ -99,7 +99,7 @@ class FileStoreTest extends TestCase
         $fileCache = new FileStore($cacheDir);
         $fileStore = new FileStore($cacheDir, $cacheFile);
 
-        $this->assertEquals($cacheDir . $this->fileStore::DEFAULT_CACHE_FILE, $fileCache->getCacheFile());
+        $this->assertEquals($cacheDir . 'tus_php.cache', $fileCache->getCacheFile());
         $this->assertEquals($cacheDir . $cacheFile, $fileStore->getCacheFile());
     }
 

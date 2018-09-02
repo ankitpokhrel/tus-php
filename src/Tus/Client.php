@@ -400,8 +400,7 @@ class Client extends AbstractTus
      */
     protected function sendHeadRequest(string $key) : int
     {
-        $response = $this->getClient()->head($this->apiPath . '/' . $key);
-
+        $response   = $this->getClient()->head($this->apiPath . '/' . $key);
         $statusCode = $response->getStatusCode();
 
         if (HttpResponse::HTTP_OK !== $statusCode) {

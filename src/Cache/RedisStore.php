@@ -3,6 +3,7 @@
 namespace TusPhp\Cache;
 
 use Carbon\Carbon;
+use TusPhp\Config;
 use Predis\Client as RedisClient;
 
 class RedisStore extends AbstractCache
@@ -17,6 +18,8 @@ class RedisStore extends AbstractCache
      */
     public function __construct(array $options = [])
     {
+        $options = empty($options) ? Config::get('redis') : $options;
+
         $this->redis = new RedisClient($options);
     }
 
