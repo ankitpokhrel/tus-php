@@ -52,7 +52,7 @@ class ExpirationCommand extends Command
         $config = $input->getOption('config');
 
         if ( ! empty($config)) {
-            Config::setConfig($config);
+            Config::set($config);
         }
 
         $this->server = new TusServer(CacheFactory::make($input->getArgument('cache-adapter')));
