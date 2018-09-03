@@ -26,7 +26,7 @@ class Config
 
         if (is_array($config)) {
             self::$config = $config;
-        } elseif (is_string($config)) {
+        } else {
             self::$config = require $config ?? self::DEFAULT_CONFIG_PATH;
         }
     }
@@ -40,6 +40,8 @@ class Config
      */
     public static function get(string $key = null)
     {
+        self::setConfig();
+
         if (empty($key)) {
             return self::$config;
         }
