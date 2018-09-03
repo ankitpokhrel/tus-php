@@ -28,7 +28,7 @@ class ConfigTest extends TestCase
     /**
      * @test
      *
-     * @covers ::setConfig
+     * @covers ::set
      * @covers ::get
      */
     public function it_loads_config_from_array()
@@ -45,7 +45,7 @@ class ConfigTest extends TestCase
             ],
         ];
 
-        Config::setConfig($config, true);
+        Config::set($config, true);
 
         $this->assertEquals($config, Config::get());
     }
@@ -53,12 +53,12 @@ class ConfigTest extends TestCase
     /**
      * @test
      *
-     * @covers ::setConfig
+     * @covers ::set
      * @covers ::get
      */
     public function it_loads_config_from_file()
     {
-        Config::setConfig(__DIR__ . '/Fixtures/config.php', true);
+        Config::set(__DIR__ . '/Fixtures/config.php', true);
 
         $this->assertEquals($this->config, Config::get());
     }
@@ -66,12 +66,12 @@ class ConfigTest extends TestCase
     /**
      * @test
      *
-     * @covers ::setConfig
+     * @covers ::set
      * @covers ::get
      */
     public function it_should_not_load_config_if_config_is_set()
     {
-        Config::setConfig([]);
+        Config::set([]);
 
         $this->assertNotEmpty(Config::get());
         $this->assertEquals($this->config, Config::get());

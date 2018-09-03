@@ -18,7 +18,7 @@ class Config
      *
      * @return void
      */
-    public static function setConfig($config = null, bool $force = false)
+    public static function set($config = null, bool $force = false)
     {
         if ( ! $force && ! empty(self::$config)) {
             return;
@@ -40,7 +40,7 @@ class Config
      */
     public static function get(string $key = null)
     {
-        self::setConfig();
+        self::set();
 
         if (empty($key)) {
             return self::$config;
