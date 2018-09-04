@@ -19,6 +19,7 @@
             <directory suffix=".php">src/</directory>
             <exclude>
                 <directory suffix=".php">./src/Commands</directory>
+                <directory suffix=".php">./src/Config</directory>
             </exclude>
         </whitelist>
     </filter>

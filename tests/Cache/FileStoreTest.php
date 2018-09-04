@@ -2,6 +2,7 @@
 
 namespace TusPhp\Test\Cache;
 
+use TusPhp\Config;
 use TusPhp\Cache\FileStore;
 use PHPUnit\Framework\TestCase;
 
@@ -30,8 +31,8 @@ class FileStoreTest extends TestCase
     protected function setUp()
     {
         $this->checksum  = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
-        $this->cacheDir  = dirname(__DIR__) . DS . '.cache' . DS;
-        $this->cacheFile = 'tus_php.cache';
+        $this->cacheDir  = Config::get('file.dir');
+        $this->cacheFile = Config::get('file.name');
         $this->fileStore = new FileStore;
 
         $this->fileStore
@@ -77,12 +78,7 @@ class FileStoreTest extends TestCase
      */
     public function it_sets_default_cache_dir_and_file()
     {
-        $defaultCacheDir  = dirname(__DIR__, 2) . DS . '.cache' . DS;
-        $defaultCacheFile = 'tus_php.cache';
-
-        $fileStore = new FileStore;
-
-        $this->assertEquals($defaultCacheDir . $defaultCacheFile, $fileStore->getCacheFile());
+        $this->assertEquals(Config::get('file.dir') . Config::get('file.name'), (new FileStore)->getCacheFile());
     }
 
     /**
@@ -99,7 +95,7 @@ class FileStoreTest extends TestCase
         $fileCache = new FileStore($cacheDir);
         $fileStore = new FileStore($cacheDir, $cacheFile);
 
-        $this->assertEquals($cacheDir . $this->fileStore::DEFAULT_CACHE_FILE, $fileCache->getCacheFile());
+        $this->assertEquals($cacheDir . 'tus_php.cache', $fileCache->getCacheFile());
         $this->assertEquals($cacheDir . $cacheFile, $fileStore->getCacheFile());
     }
 
@@ -126,7 +122,7 @@ class FileStoreTest extends TestCase
     public function it_sets_and_gets_cache_file()
     {
         $cacheFile       = 'tus_cache.txt';
-        $defaultCacheDir = dirname(__DIR__, 2) . DS . '.cache' . DS;
+        $defaultCacheDir = Config::get('file.dir');
 
         $fileStore = new FileStore;
 
@@ -142,7 +138,7 @@ class FileStoreTest extends TestCase
      * @covers ::createCacheDir
      * @covers ::isValid
      */
-    public function it_creates_cache_file_if_file_doesnt_exist()
+    public function it_creates_cache_file_if_file_does_not_exist()
     {
         $this->fileStore->set($this->checksum, 'Test');
 

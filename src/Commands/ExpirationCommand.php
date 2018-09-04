@@ -2,6 +2,8 @@
 
 namespace TusPhp\Commands;
 
+use TusPhp\Config;
+use TusPhp\Cache\CacheFactory;
 use TusPhp\Tus\Server as TusServer;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -25,7 +27,14 @@ class ExpirationCommand extends Command
             ->addArgument(
                 'cache-adapter',
                 InputArgument::OPTIONAL,
-                'Cache adapter to use, redis or file. Optional, defaults to file based cache.'
+                'Cache adapter to use, redis or file. Optional, defaults to file based cache.',
+                'file'
+            )
+            ->addOption(
+                'config',
+                'c',
+                InputArgument::OPTIONAL,
+                'File to get config parameters from.'
             );
     }
 
@@ -40,7 +49,13 @@ class ExpirationCommand extends Command
             '',
         ]);
 
-        $this->server = new TusServer($input->getArgument('cache-adapter') ?? 'file');
+        $config = $input->getOption('config');
+
+        if ( ! empty($config)) {
+            Config::set($config);
+        }
+
+        $this->server = new TusServer(CacheFactory::make($input->getArgument('cache-adapter')));
 
         $deleted = $this->server->handleExpiration();
 

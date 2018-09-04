@@ -17,13 +17,7 @@ class CacheFactory
     {
         switch ($type) {
             case 'redis':
-                $redisHost = getenv('REDIS_HOST');
-                $redisPort = getenv('REDIS_PORT');
-
-                return new RedisStore([
-                    'host' => $redisHost ? $redisHost : '127.0.0.1',
-                    'port' => $redisPort ? $redisPort : '6379',
-                ]);
+                return new RedisStore;
         }
 
         return new FileStore;
