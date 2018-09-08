@@ -115,7 +115,7 @@ class Request
      *
      * @return string|null
      */
-    public function extractFileName()
+    public function extractFileName() : ?string
     {
         $meta = $this->header('Upload-Metadata');
 
@@ -169,7 +169,7 @@ class Request
      *
      * @return HttpRequest
      */
-    public function getRequest()
+    public function getRequest() : HttpRequest
     {
         return $this->request;
     }

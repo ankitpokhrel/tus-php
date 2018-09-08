@@ -21,7 +21,7 @@ class Client extends AbstractTus
     protected $filePath;
 
     /** @var int */
-    protected $fileSize;
+    protected $fileSize = 0;
 
     /** @var string */
     protected $fileName;
@@ -83,7 +83,7 @@ class Client extends AbstractTus
      *
      * @return string|null
      */
-    public function getFilePath()
+    public function getFilePath() : ?string
     {
         return $this->filePath;
     }
@@ -107,7 +107,7 @@ class Client extends AbstractTus
      *
      * @return string|null
      */
-    public function getFileName()
+    public function getFileName() : ?string
     {
         return $this->fileName;
     }
@@ -115,9 +115,9 @@ class Client extends AbstractTus
     /**
      * Get file size.
      *
-     * @return int|null
+     * @return int
      */
-    public function getFileSize()
+    public function getFileSize() : int
     {
         return $this->fileSize;
     }

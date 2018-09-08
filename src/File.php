@@ -518,7 +518,7 @@ class File
      *
      * @return bool
      */
-    public function deleteFiles(array $files)
+    public function deleteFiles(array $files) : bool
     {
         if (empty($files)) {
             return false;

@@ -144,7 +144,7 @@ class Server extends AbstractTus
      *
      * @return string|null
      */
-    public function getChecksumAlgorithm()
+    public function getChecksumAlgorithm() : ?string
     {
         $checksumHeader = $this->getRequest()->header('Upload-Checksum');
 
@@ -264,7 +264,7 @@ class Server extends AbstractTus
     /**
      * Apply middleware.
      *
-     * @return null
+     * @return void
      */
     protected function applyMiddleware()
     {
