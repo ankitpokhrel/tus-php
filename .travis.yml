@@ -12,7 +12,6 @@ services:
 
 script:
   - ./vendor/bin/phpunit --coverage-clover=coverage.clover
-  - true
 
 after_script:
   - #wget https://scrutinizer-ci.com/ocular.phar
