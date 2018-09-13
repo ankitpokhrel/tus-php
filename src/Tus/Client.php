@@ -47,8 +47,9 @@ class Client extends AbstractTus
      * @param string           $baseUrl
      * @param Cacheable|string $cacheAdapter
      */
-    public function __construct(string $baseUrl, $cacheAdapter = 'file')
+    public function __construct($baseUrl, $cacheAdapter = 'file')
     {
+    	$baseUrl = strval($baseUrl);
         $this->client = new GuzzleClient([
             'base_uri' => $baseUrl,
         ]);
@@ -64,15 +65,17 @@ class Client extends AbstractTus
      *
      * @return Client
      */
-    public function file(string $file, string $name = null) : self
+    public function file($file, $name = null)
     {
+    	$file = strval($file);
+    	$name = strval($name);
         $this->filePath = $file;
 
         if ( ! file_exists($file) || ! is_readable($file)) {
             throw new FileException('Cannot read file: ' . $file);
         }
 
-        $this->fileName = $name ?? basename($this->filePath);
+        $this->fileName = $name === null ? basename($this->filePath) : $name;
         $this->fileSize = filesize($file);
 
         return $this;
@@ -83,7 +86,7 @@ class Client extends AbstractTus
      *
      * @return string|null
      */
-    public function getFilePath() : ?string
+    public function getFilePath()
     {
         return $this->filePath;
     }
@@ -95,9 +98,9 @@ class Client extends AbstractTus
      *
      * @return Client
      */
-    public function setFileName(string $name) : self
+    public function setFileName($name)
     {
-        $this->fileName = $name;
+        $this->fileName = strval($name);
 
         return $this;
     }
@@ -107,7 +110,7 @@ class Client extends AbstractTus
      *
      * @return string|null
      */
-    public function getFileName() : ?string
+    public function getFileName()
     {
         return $this->fileName;
     }
@@ -117,9 +120,9 @@ class Client extends AbstractTus
      *
      * @return int
      */
-    public function getFileSize() : int
+    public function getFileSize()
     {
-        return $this->fileSize;
+        return intval($this->fileSize);
     }
 
     /**
@@ -127,7 +130,7 @@ class Client extends AbstractTus
      *
      * @return GuzzleClient
      */
-    public function getClient() : GuzzleClient
+    public function getClient()
     {
         return $this->client;
     }
@@ -137,13 +140,13 @@ class Client extends AbstractTus
      *
      * @return string
      */
-    public function getChecksum() : string
+    public function getChecksum()
     {
         if (empty($this->checksum)) {
             $this->checksum = hash_file($this->getChecksumAlgorithm(), $this->getFilePath());
         }
 
-        return $this->checksum;
+        return strval($this->checksum);
     }
 
     /**
@@ -153,9 +156,9 @@ class Client extends AbstractTus
      *
      * @return Client
      */
-    public function setKey(string $key) : self
+    public function setKey($key)
     {
-        $this->key = $key;
+        $this->key = strval($key);
 
         return $this;
     }
@@ -165,9 +168,9 @@ class Client extends AbstractTus
      *
      * @return string
      */
-    public function getKey() : string
+    public function getKey()
     {
-        return $this->key;
+        return strval($this->key);
     }
 
     /**
@@ -177,8 +180,9 @@ class Client extends AbstractTus
      *
      * @return Client
      */
-    public function setChecksumAlgorithm(string $algorithm) : self
+    public function setChecksumAlgorithm($algorithm)
     {
+    	$algorithm = strval($algorithm);
         $this->checksumAlgorithm = $algorithm;
 
         return $this;
@@ -189,9 +193,9 @@ class Client extends AbstractTus
      *
      * @return string
      */
-    public function getChecksumAlgorithm() : string
+    public function getChecksumAlgorithm()
     {
-        return $this->checksumAlgorithm;
+        return strval($this->checksumAlgorithm);
     }
 
     /**
@@ -199,9 +203,9 @@ class Client extends AbstractTus
      *
      * @return bool
      */
-    public function isPartial() : bool
+    public function isPartial()
     {
-        return $this->partial;
+        return boolval($this->partial);
     }
 
     /**
@@ -209,9 +213,9 @@ class Client extends AbstractTus
      *
      * @return int
      */
-    public function getPartialOffset() : int
+    public function getPartialOffset()
     {
-        return $this->partialOffset;
+        return intval($this->partialOffset);
     }
 
     /**
@@ -221,9 +225,9 @@ class Client extends AbstractTus
      *
      * @return self
      */
-    public function seek(int $offset) : self
+    public function seek($offset)
     {
-        $this->partialOffset = $offset;
+        $this->partialOffset = intval($offset);
 
         $this->partial();
 
@@ -239,22 +243,25 @@ class Client extends AbstractTus
      *
      * @return int
      */
-    public function upload(int $bytes = -1) : int
+    public function upload($bytes = -1)
     {
+    	$bytes = intval($bytes);
         $bytes = $bytes < 0 ? $this->getFileSize() : $bytes;
         $key   = $this->getKey();
 
         try {
-            // Check if this upload exists with HEAD request.
-            $this->sendHeadRequest($key);
-        } catch (FileException | ClientException $e) {
+	        // Check if this upload exists with HEAD request.
+	        $this->sendHeadRequest($key);
+        } catch (FileException $e) {
+        	$this->create($key);
+        } catch (ClientException $e) {
             $this->create($key);
         } catch (ConnectException $e) {
             throw new ConnectionException("Couldn't connect to server.");
         }
 
         // Now, resume upload with PATCH request.
-        return $this->sendPatchRequest($key, $bytes);
+        return intval($this->sendPatchRequest($key, $bytes));
     }
 
     /**
@@ -268,7 +275,9 @@ class Client extends AbstractTus
 
         try {
             $offset = $this->sendHeadRequest($key);
-        } catch (FileException | ClientException $e) {
+        } catch (FileException $e) {
+        	return false;
+        } catch (ClientException $e) {
             return false;
         }
 
@@ -284,8 +293,9 @@ class Client extends AbstractTus
      *
      * @return void
      */
-    public function create(string $key)
+    public function create($key)
     {
+    	$key = strval($key);
         $headers = [
             'Upload-Length' => $this->fileSize,
             'Upload-Key' => $key,
@@ -316,8 +326,9 @@ class Client extends AbstractTus
      *
      * @return string
      */
-    public function concat(string $key, ...$partials) : string
+    public function concat($key, ...$partials)
     {
+    	$key = strval($key);
         $response = $this->getClient()->post($this->apiPath, [
             'headers' => [
                 'Upload-Length' => $this->fileSize,
@@ -329,14 +340,14 @@ class Client extends AbstractTus
         ]);
 
         $data       = json_decode($response->getBody(), true);
-        $checksum   = $data['data']['checksum'] ?? null;
+        $checksum   = isset($data['data']['checksum']) ? $data['data']['checksum'] : null;
         $statusCode = $response->getStatusCode();
 
         if (HttpResponse::HTTP_CREATED !== $statusCode || ! $checksum) {
             throw new FileException('Unable to create resource.');
         }
 
-        return $checksum;
+        return strval($checksum);
     }
 
     /**
@@ -348,8 +359,9 @@ class Client extends AbstractTus
      *
      * @return void
      */
-    public function delete(string $key)
+    public function delete($key)
     {
+    	$key = strval($key);
         try {
             $this->getClient()->delete($this->apiPath . '/' . $key, [
                 'headers' => [
@@ -372,8 +384,9 @@ class Client extends AbstractTus
      *
      * @return void
      */
-    protected function partial(bool $state = true)
+    protected function partial($state = true)
     {
+    	$state = boolval($state);
         $this->partial = $state;
 
         if ( ! $this->partial) {
@@ -398,8 +411,9 @@ class Client extends AbstractTus
      *
      * @return int
      */
-    protected function sendHeadRequest(string $key) : int
+    protected function sendHeadRequest($key)
     {
+    	$key = strval($key);
         $response   = $this->getClient()->head($this->apiPath . '/' . $key);
         $statusCode = $response->getStatusCode();
 
@@ -422,8 +436,10 @@ class Client extends AbstractTus
      *
      * @return int
      */
-    protected function sendPatchRequest(string $key, int $bytes) : int
+    protected function sendPatchRequest($key, $bytes)
     {
+    	$key = strval($key);
+    	$bytes = intval($bytes);
         $data    = $this->getData($key, $bytes);
         $headers = [
             'Content-Type' => 'application/offset+octet-stream',
@@ -467,8 +483,10 @@ class Client extends AbstractTus
      *
      * @return string
      */
-    protected function getData(string $key, int $bytes) : string
+    protected function getData($key, $bytes)
     {
+    	$key = strval($key);
+    	$bytes = intval($bytes);
         $file   = new File;
         $handle = $file->open($this->getFilePath(), $file::READ_BINARY);
         $offset = $this->partialOffset;
@@ -492,7 +510,7 @@ class Client extends AbstractTus
      *
      * @return string
      */
-    protected function getUploadChecksumHeader() : string
+    protected function getUploadChecksumHeader()
     {
         return $this->getChecksumAlgorithm() . ' ' . base64_encode($this->getChecksum());
     }

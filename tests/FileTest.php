@@ -439,7 +439,7 @@ class FileTest extends TestCase
      * @covers ::copy
      * @covers ::merge
      */
-    public function it_merges_two_or_more_files() : string
+    public function it_merges_two_or_more_files()
     {
         $path  = __DIR__ . '/.tmp/fld';
         $files = [
@@ -471,7 +471,7 @@ class FileTest extends TestCase
      *
      * @covers ::delete
      */
-    public function it_deletes_all_files_and_folder(string $path)
+    public function it_deletes_all_files_and_folder($path)
     {
         $files = [
             "$path/1",
@@ -509,7 +509,7 @@ class FileTest extends TestCase
      * @covers ::delete
      * @covers ::deleteFiles
      */
-    public function it_deletes_files_only() : string
+    public function it_deletes_files_only()
     {
         $path = __DIR__ . '/.tmp/fld';
 
@@ -545,7 +545,7 @@ class FileTest extends TestCase
      * @covers ::delete
      * @covers ::deleteFiles
      */
-    public function it_doesnt_delete_folder_if_file_path_is_not_given(string $path)
+    public function it_doesnt_delete_folder_if_file_path_is_not_given($path)
     {
         $this->file->delete([], true);
 
@@ -560,7 +560,7 @@ class FileTest extends TestCase
      * @covers ::delete
      * @covers ::deleteFiles
      */
-    public function it_deletes_empty_folder(string $path)
+    public function it_deletes_empty_folder($path)
     {
         $this->file->delete(["$path/1"], true);
 

@@ -17,9 +17,9 @@ abstract class AbstractCache implements Cacheable
      *
      * @return self
      */
-    public function setTtl(int $secs) : self
+    public function setTtl($secs)
     {
-        $this->ttl = $secs;
+        $this->ttl = intval($secs);
 
         return $this;
     }
@@ -27,9 +27,9 @@ abstract class AbstractCache implements Cacheable
     /**
      * {@inheritDoc}
      */
-    public function getTtl() : int
+    public function getTtl()
     {
-        return $this->ttl;
+        return intval($this->ttl);
     }
 
     /**
@@ -39,9 +39,9 @@ abstract class AbstractCache implements Cacheable
      *
      * @return Cacheable
      */
-    public function setPrefix(string $prefix) : Cacheable
+    public function setPrefix($prefix)
     {
-        $this->prefix = $prefix;
+        $this->prefix = strval($prefix);
 
         return $this;
     }
@@ -51,9 +51,9 @@ abstract class AbstractCache implements Cacheable
      *
      * @return string
      */
-    public function getPrefix() : string
+    public function getPrefix()
     {
-        return $this->prefix;
+        return strval($this->prefix);
     }
 
     /**
@@ -63,7 +63,7 @@ abstract class AbstractCache implements Cacheable
      *
      * @return bool
      */
-    public function deleteAll(array $keys) : bool
+    public function deleteAll(array $keys)
     {
         if (empty($keys)) {
             return false;

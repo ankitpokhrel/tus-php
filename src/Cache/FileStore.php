@@ -4,6 +4,7 @@ namespace TusPhp\Cache;
 
 use Carbon\Carbon;
 use TusPhp\Config;
+use TusPhp\Json;
 
 class FileStore extends AbstractCache
 {
@@ -19,10 +20,10 @@ class FileStore extends AbstractCache
      * @param string|null $cacheDir
      * @param string|null $cacheFile
      */
-    public function __construct(string $cacheDir = null, string $cacheFile = null)
+    public function __construct($cacheDir = null, $cacheFile = null)
     {
-        $cacheDir  = $cacheDir ?? Config::get('file.dir');
-        $cacheFile = $cacheFile ?? Config::get('file.name');
+        $cacheDir  = $cacheDir === null ? Config::get('file.dir') : strval($cacheDir);
+        $cacheFile = $cacheFile === null ? Config::get('file.name') : strval($cacheFile);
 
         $this->setCacheDir($cacheDir);
         $this->setCacheFile($cacheFile);
@@ -35,9 +36,9 @@ class FileStore extends AbstractCache
      *
      * @return self
      */
-    public function setCacheDir(string $path) : self
+    public function setCacheDir($path)
     {
-        $this->cacheDir = $path;
+        $this->cacheDir = strval($path);
 
         return $this;
     }
@@ -47,9 +48,9 @@ class FileStore extends AbstractCache
      *
      * @return string
      */
-    public function getCacheDir() : string
+    public function getCacheDir()
     {
-        return $this->cacheDir;
+        return strval($this->cacheDir);
     }
 
     /**
@@ -59,9 +60,9 @@ class FileStore extends AbstractCache
      *
      * @return self
      */
-    public function setCacheFile(string $file) : self
+    public function setCacheFile($file)
     {
-        $this->cacheFile = $file;
+        $this->cacheFile = strval($file);
 
         return $this;
     }
@@ -71,7 +72,7 @@ class FileStore extends AbstractCache
      *
      * @return string
      */
-    public function getCacheFile() : string
+    public function getCacheFile()
     {
         return $this->cacheDir . $this->cacheFile;
     }
@@ -107,8 +108,11 @@ class FileStore extends AbstractCache
     /**
      * {@inheritDoc}
      */
-    public function get(string $key, bool $withExpired = false)
+    public function get($key, $withExpired = false)
     {
+    	$key = strval($key);
+    	$withExpired = boolval($withExpired);
+
         $key      = $this->getActualCacheKey($key);
         $contents = $this->getCacheContents();
 
@@ -126,8 +130,10 @@ class FileStore extends AbstractCache
     /**
      * {@inheritDoc}
      */
-    public function set(string $key, $value)
+    public function set($key, $value)
     {
+    	$key = strval($key);
+
         $key       = $this->getActualCacheKey($key);
         $cacheFile = $this->getCacheFile();
 
@@ -135,7 +141,7 @@ class FileStore extends AbstractCache
             $this->createCacheFile();
         }
 
-        $contents = json_decode(file_get_contents($cacheFile), true) ?? [];
+        $contents = Json::decodeOrEmptyArray(file_get_contents($cacheFile));
 
         if ( ! empty($contents[$key]) && is_array($value)) {
             $contents[$key] = $value + $contents[$key];
@@ -149,8 +155,10 @@ class FileStore extends AbstractCache
     /**
      * {@inheritDoc}
      */
-    public function delete(string $key) : bool
+    public function delete($key)
     {
+    	$key = strval($key);
+
         $key      = $this->getActualCacheKey($key);
         $contents = $this->getCacheContents();
 
@@ -166,7 +174,7 @@ class FileStore extends AbstractCache
     /**
      * {@inheritDoc}
      */
-    public function keys() : array
+    public function keys()
     {
         $contents = $this->getCacheContents();
 
@@ -184,10 +192,13 @@ class FileStore extends AbstractCache
      *
      * @return bool
      */
-    public function isValid(string $key) : bool
+    public function isValid($key)
     {
+    	$key = strval($key);
+
         $key  = $this->getActualCacheKey($key);
-        $meta = $this->getCacheContents()[$key] ?? [];
+	    $contents = $this->getCacheContents()[$key];
+	    $meta = $contents === null ? [] : $contents;
 
         if (empty($meta['expires_at'])) {
             return false;
@@ -209,7 +220,7 @@ class FileStore extends AbstractCache
             return false;
         }
 
-        return json_decode(file_get_contents($cacheFile), true) ?? [];
+	    return Json::decodeOrEmptyArray(file_get_contents($cacheFile));
     }
 
     /**
@@ -219,8 +230,9 @@ class FileStore extends AbstractCache
      *
      * @return string
      */
-    public function getActualCacheKey(string $key) : string
+    public function getActualCacheKey($key)
     {
+    	$key = strval($key);
         $prefix = $this->getPrefix();
 
         if (false === strpos($key, $prefix)) {
