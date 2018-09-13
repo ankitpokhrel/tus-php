@@ -17,7 +17,7 @@ class FileStore extends AbstractCache
      * FileStore constructor.
      *
      * @param string|null $cacheDir
-     * @param string      $cacheFile
+     * @param string|null $cacheFile
      */
     public function __construct(string $cacheDir = null, string $cacheFile = null)
     {

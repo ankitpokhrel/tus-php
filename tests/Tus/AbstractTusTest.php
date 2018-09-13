@@ -12,6 +12,7 @@ use TusPhp\Tus\Server as TusServer;
  */
 class AbstractTusTest extends TestCase
 {
+    /** @var TusServer */
     protected $tus;
 
     /**

@@ -10,7 +10,7 @@ class FileFixture
      * @param string $path
      * @param array  $files
      *
-     * @return null
+     * @return void
      */
     public static function makeFilesAndFolder(string $path, array $files)
     {
