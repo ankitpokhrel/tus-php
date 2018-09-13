@@ -11,7 +11,7 @@ services:
   - redis-server
 
 script:
-  - #./vendor/bin/phpunit --coverage-clover=coverage.clover
+  - ./vendor/bin/phpunit --coverage-clover=coverage.clover
   - true
 
 after_script:

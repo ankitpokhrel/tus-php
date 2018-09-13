@@ -197,8 +197,8 @@ class FileStore extends AbstractCache
     	$key = strval($key);
 
         $key  = $this->getActualCacheKey($key);
-	    $contents = $this->getCacheContents()[$key];
-	    $meta = $contents === null ? [] : $contents;
+	    $contents = $this->getCacheContents();
+	    $meta = isset($contents[$key]) ? $contents[$key] : [];
 
         if (empty($meta['expires_at'])) {
             return false;

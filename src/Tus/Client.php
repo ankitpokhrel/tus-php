@@ -68,7 +68,7 @@ class Client extends AbstractTus
     public function file($file, $name = null)
     {
     	$file = strval($file);
-    	$name = strval($name);
+    	$name = $name === null ? null : strval($name);
         $this->filePath = $file;
 
         if ( ! file_exists($file) || ! is_readable($file)) {
