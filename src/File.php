@@ -52,9 +52,9 @@ class File
      * @param string|null    $name
      * @param Cacheable|null $cache
      */
-    public function __construct(string $name = null, Cacheable $cache = null)
+    public function __construct($name = null, Cacheable $cache = null)
     {
-        $this->name  = $name;
+        $this->name  = $name === null ? null : strval($name);
         $this->cache = $cache;
     }
 
@@ -68,12 +68,12 @@ class File
      *
      * @return File
      */
-    public function setMeta(int $offset, int $fileSize, string $filePath, string $location = null) : self
+    public function setMeta($offset, $fileSize, $filePath, $location = null)
     {
-        $this->offset   = $offset;
-        $this->fileSize = $fileSize;
-        $this->filePath = $filePath;
-        $this->location = $location;
+        $this->offset   = intval($offset);
+        $this->fileSize = intval($fileSize);
+        $this->filePath = strval($filePath);
+        $this->location = strval($location);
 
         return $this;
     }
@@ -85,9 +85,9 @@ class File
      *
      * @return File
      */
-    public function setName(string $name) : self
+    public function setName($name)
     {
-        $this->name = $name;
+        $this->name = strval($name);
 
         return $this;
     }
@@ -97,9 +97,9 @@ class File
      *
      * @return string
      */
-    public function getName() : string
+    public function getName()
     {
-        return $this->name;
+        return strval($this->name);
     }
 
     /**
@@ -109,9 +109,9 @@ class File
      *
      * @return File
      */
-    public function setFileSize(int $size) : self
+    public function setFileSize($size)
     {
-        $this->fileSize = $size;
+        $this->fileSize = intval($size);
 
         return $this;
     }
@@ -121,7 +121,7 @@ class File
      *
      * @return int
      */
-    public function getFileSize() : int
+    public function getFileSize()
     {
         return $this->fileSize;
     }
@@ -133,9 +133,9 @@ class File
      *
      * @return File
      */
-    public function setKey(string $key) : self
+    public function setKey($key)
     {
-        $this->key = $key;
+        $this->key = strval($key);
 
         return $this;
     }
@@ -145,7 +145,7 @@ class File
      *
      * @return string
      */
-    public function getKey() : string
+    public function getKey()
     {
         return $this->key;
     }
@@ -157,9 +157,9 @@ class File
      *
      * @return File
      */
-    public function setChecksum(string $checksum) : self
+    public function setChecksum($checksum)
     {
-        $this->checksum = $checksum;
+        $this->checksum = strval($checksum);
 
         return $this;
     }
@@ -169,9 +169,9 @@ class File
      *
      * @return string
      */
-    public function getChecksum() : string
+    public function getChecksum()
     {
-        return $this->checksum;
+        return strval($this->checksum);
     }
 
     /**
@@ -181,9 +181,9 @@ class File
      *
      * @return File
      */
-    public function setOffset(int $offset) : self
+    public function setOffset($offset)
     {
-        $this->offset = $offset;
+        $this->offset = intval($offset);
 
         return $this;
     }
@@ -193,9 +193,9 @@ class File
      *
      * @return int
      */
-    public function getOffset() : int
+    public function getOffset()
     {
-        return $this->offset;
+        return intval($this->offset);
     }
 
     /**
@@ -205,9 +205,9 @@ class File
      *
      * @return File
      */
-    public function setLocation(string $location) : self
+    public function setLocation($location)
     {
-        $this->location = $location;
+        $this->location = strval($location);
 
         return $this;
     }
@@ -217,9 +217,9 @@ class File
      *
      * @return string
      */
-    public function getLocation() : string
+    public function getLocation()
     {
-        return $this->location;
+        return strval($this->location);
     }
 
     /**
@@ -229,9 +229,9 @@ class File
      *
      * @return File
      */
-    public function setFilePath(string $path) : self
+    public function setFilePath($path)
     {
-        $this->filePath = $path;
+        $this->filePath = strval($path);
 
         return $this;
     }
@@ -241,9 +241,9 @@ class File
      *
      * @return string
      */
-    public function getFilePath() : string
+    public function getFilePath()
     {
-        return $this->filePath;
+        return strval($this->filePath);
     }
 
     /**
@@ -251,9 +251,9 @@ class File
      *
      * @return string
      */
-    public function getInputStream() : string
+    public function getInputStream()
     {
-        return self::INPUT_STREAM;
+        return strval(self::INPUT_STREAM);
     }
 
     /**
@@ -261,9 +261,10 @@ class File
      *
      * @return array
      */
-    public function details() : array
+    public function details()
     {
         $now = Carbon::now();
+		$cache = $this->cache;
 
         return [
             'name' => $this->name,
@@ -272,8 +273,8 @@ class File
             'checksum' => $this->checksum,
             'location' => $this->location,
             'file_path' => $this->filePath,
-            'created_at' => $now->format($this->cache::RFC_7231),
-            'expires_at' => $now->addSeconds($this->cache->getTtl())->format($this->cache::RFC_7231),
+            'created_at' => $now->format($cache::RFC_7231),
+            'expires_at' => $now->addSeconds($this->cache->getTtl())->format($cache::RFC_7231),
         ];
     }
 
@@ -286,8 +287,9 @@ class File
      *
      * @return int
      */
-    public function upload(int $totalBytes) : int
+    public function upload($totalBytes)
     {
+    	$totalBytes = intval($totalBytes);
         $bytesWritten = $this->offset;
 
         if ($bytesWritten === $totalBytes) {
@@ -339,8 +341,10 @@ class File
      *
      * @return resource
      */
-    public function open(string $filePath, string $mode)
+    public function open($filePath, $mode)
     {
+    	$filePath = strval($filePath);
+    	$mode = strval($mode);
         $this->exists($filePath, $mode);
 
         $ptr = @fopen($filePath, $mode);
@@ -362,8 +366,10 @@ class File
      *
      * @return bool
      */
-    public function exists(string $filePath, string $mode = self::READ_BINARY) : bool
+    public function exists($filePath, $mode = self::READ_BINARY)
     {
+    	$filePath = strval($filePath);
+    	$mode = strval($mode);
         if (self::INPUT_STREAM === $filePath) {
             return true;
         }
@@ -384,8 +390,10 @@ class File
      *
      * @return int
      */
-    public function seek($handle, int $offset, int $whence = SEEK_SET) : int
+    public function seek($handle, $offset, $whence = SEEK_SET)
     {
+    	$offset = intval($offset);
+    	$whence = intval($whence);
         $position = fseek($handle, $offset, $whence);
 
         if (-1 === $position) {
@@ -405,8 +413,10 @@ class File
      *
      * @return string
      */
-    public function read($handle, int $chunkSize) : string
+    public function read($handle, $chunkSize)
     {
+    	$chunkSize = intval($chunkSize);
+
         $data = fread($handle, $chunkSize);
 
         if (false === $data) {
@@ -427,8 +437,9 @@ class File
      *
      * @return int
      */
-    public function write($handle, string $data, $length = null) : int
+    public function write($handle, $data, $length = null)
     {
+    	$data = strval($data);
         $bytesWritten = is_int($length) ? fwrite($handle, $data, $length) : fwrite($handle, $data);
 
         if (false === $bytesWritten) {
@@ -445,7 +456,7 @@ class File
      *
      * @return int
      */
-    public function merge(array $files) : int
+    public function merge(array $files)
     {
         $destination = $this->getFilePath();
         $firstFile   = array_shift($files);
@@ -481,8 +492,10 @@ class File
      *
      * @return bool
      */
-    public function copy(string $source, string $destination) : bool
+    public function copy($source, $destination)
     {
+    	$source = strval($source);
+    	$destination = strval($destination);
         $status = @copy($source, $destination);
 
         if (false === $status) {
@@ -500,8 +513,9 @@ class File
      *
      * @return bool
      */
-    public function delete(array $files, bool $folder = false) : bool
+    public function delete(array $files, $folder = false)
     {
+    	$folder = boolval($folder);
         $status = $this->deleteFiles($files);
 
         if ($status && $folder) {
@@ -518,7 +532,7 @@ class File
      *
      * @return bool
      */
-    public function deleteFiles(array $files) : bool
+    public function deleteFiles(array $files)
     {
         if (empty($files)) {
             return false;
@@ -542,7 +556,7 @@ class File
      *
      * @return bool
      */
-    public function close($handle) : bool
+    public function close($handle)
     {
         return fclose($handle);
     }
