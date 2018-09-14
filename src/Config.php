@@ -18,7 +18,7 @@ class Config
      *
      * @return void
      */
-    public static function set($config = null, bool $force = false)
+    public static function set($config = null, $force = false)
     {
         if ( ! $force && ! empty(self::$config)) {
             return;
@@ -27,7 +27,10 @@ class Config
         if (is_array($config)) {
             self::$config = $config;
         } else {
-            self::$config = require $config ?? self::DEFAULT_CONFIG_PATH;
+            self::$config = require $config;
+            if (self::$config === null) {
+	            self::$config = self::DEFAULT_CONFIG_PATH;
+            }
         }
     }
 
@@ -38,13 +41,14 @@ class Config
      *
      * @return mixed
      */
-    public static function get(string $key = null)
+    public static function get($key = null)
     {
         self::set();
 
         if (empty($key)) {
             return self::$config;
         }
+        $key = strval($key);
 
         $keys  = explode('.', $key);
         $value = self::$config;

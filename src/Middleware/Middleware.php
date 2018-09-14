@@ -23,7 +23,7 @@ class Middleware
      *
      * @return array
      */
-    public function list() : array
+    public function getList()
     {
         return $this->globalMiddleware;
     }
@@ -35,7 +35,7 @@ class Middleware
      *
      * @return Middleware
      */
-    public function add(...$middleware) : self
+    public function add(...$middleware)
     {
         foreach ($middleware as $m) {
             if ($m instanceof TusMiddleware) {
@@ -55,7 +55,7 @@ class Middleware
      *
      * @return Middleware
      */
-    public function skip(...$middleware) : self
+    public function skip(...$middleware)
     {
         foreach ($middleware as $m) {
             unset($this->globalMiddleware[$m]);
