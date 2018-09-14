@@ -13,12 +13,12 @@ class CacheFactory
      *
      * @return Cacheable
      */
-    public static function make(string $type = 'file') : Cacheable
+    public static function make($type = 'file')
     {
-        switch ($type) {
-            case 'redis':
-                return new RedisStore;
-        }
+//        switch ($type) {
+//            case 'redis':
+//                return new RedisStore;
+//        }
 
         return new FileStore;
     }
