@@ -11,8 +11,7 @@ services:
   - redis-server
 
 script:
-  - #./vendor/bin/phpunit --coverage-clover=coverage.clover
-  - true
+  - ./vendor/bin/phpunit --coverage-clover=coverage.clover
 
 after_script:
   - #wget https://scrutinizer-ci.com/ocular.phar

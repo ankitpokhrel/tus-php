@@ -3,16 +3,15 @@
 namespace TusPhp\Test\Tus;
 
 use TusPhp\Cache\FileStore;
-use TusPhp\Cache\RedisStore;
 use PHPUnit\Framework\TestCase;
-use TusPhp\Tus\Server as TusServer;
+use TusPhp\Tus\Client as TusClient;
 
 /**
  * @coversDefaultClass \TusPhp\Tus\AbstractTus
  */
 class AbstractTusTest extends TestCase
 {
-    /** @var TusServer */
+    /** @var TusClient */
     protected $tus;
 
     /**
@@ -22,7 +21,7 @@ class AbstractTusTest extends TestCase
      */
     public function setUp()
     {
-        $this->tus = new TusServer;
+        $this->tus = new TusClient('http://www.example.com/');
 
         parent::setUp();
     }
@@ -37,13 +36,9 @@ class AbstractTusTest extends TestCase
     {
         $this->assertInstanceOf(FileStore::class, $this->tus->getCache());
 
-        $this->tus->setCache('redis');
-
-        $this->assertInstanceOf(RedisStore::class, $this->tus->getCache());
-
         $fileStore = new FileStore;
 
-        $this->assertInstanceOf(TusServer::class, $this->tus->setCache($fileStore));
+        $this->assertInstanceOf(TusClient::class, $this->tus->setCache($fileStore));
         $this->assertInstanceOf(FileStore::class, $this->tus->getCache());
     }
 
@@ -56,7 +51,7 @@ class AbstractTusTest extends TestCase
     public function it_sets_and_gets_api_path()
     {
         $this->assertEquals('/files', $this->tus->getApiPath());
-        $this->assertInstanceOf(TusServer::class, $this->tus->setApiPath('/api'));
+        $this->assertInstanceOf(TusClient::class, $this->tus->setApiPath('/api'));
         $this->assertEquals('/api', $this->tus->getApiPath());
     }
 }

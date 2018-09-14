@@ -24,7 +24,7 @@ class Request
      *
      * @return string
      */
-    public function method() : string
+    public function method()
     {
         return $this->request->getMethod();
     }
@@ -34,7 +34,7 @@ class Request
      *
      * @return string
      */
-    public function path() : string
+    public function path()
     {
         return $this->request->getPathInfo();
     }
@@ -44,7 +44,7 @@ class Request
      *
      * @return string
      */
-    public function key() : string
+    public function key()
     {
         return basename($this->path());
     }
@@ -54,7 +54,7 @@ class Request
      *
      * @return array
      */
-    public function allowedHttpVerbs() : array
+    public function allowedHttpVerbs()
     {
         return [
             HttpRequest::METHOD_GET,
@@ -74,8 +74,9 @@ class Request
      *
      * @return string|null
      */
-    public function header(string $key, $default = null)
+    public function header($key, $default = null)
     {
+    	$key = strval($key);
         return $this->request->headers->get($key, $default);
     }
 
@@ -84,7 +85,7 @@ class Request
      *
      * @return string
      */
-    public function url() : string
+    public function url()
     {
         return rtrim($this->request->getUriForPath('/'), '/');
     }
@@ -97,14 +98,18 @@ class Request
      *
      * @return array
      */
-    public function extractFromHeader(string $key, string $value) : array
+    public function extractFromHeader($key, $value)
     {
+    	$key = strval($key);
+    	$value = strval($value);
         $meta = $this->header($key);
 
         if (false !== strpos($meta, $value)) {
             $meta = trim(str_replace($value, '', $meta));
 
-            return explode(' ', $meta) ?? [];
+            return explode(' ', $meta);
+            // NOTE: This used to be: "explode(' ', $meta) ?? [];", but
+	        // explode does not ever return null, and coalesce operator only checks undefined/null
         }
 
         return [];
@@ -115,7 +120,7 @@ class Request
      *
      * @return string|null
      */
-    public function extractFileName() : ?string
+    public function extractFileName()
     {
         $meta = $this->header('Upload-Metadata');
 
@@ -139,7 +144,7 @@ class Request
      *
      * @return array
      */
-    public function extractPartials() : array
+    public function extractPartials()
     {
         return $this->extractFromHeader('Upload-Concat', 'final;');
     }
@@ -149,7 +154,7 @@ class Request
      *
      * @return bool
      */
-    public function isPartial() : bool
+    public function isPartial()
     {
         return $this->header('Upload-Concat') === 'partial';
     }
@@ -159,7 +164,7 @@ class Request
      *
      * @return bool
      */
-    public function isFinal() : bool
+    public function isFinal()
     {
         return false !== strpos($this->header('Upload-Concat'), 'final;');
     }
@@ -169,7 +174,7 @@ class Request
      *
      * @return HttpRequest
      */
-    public function getRequest() : HttpRequest
+    public function getRequest()
     {
         return $this->request;
     }
