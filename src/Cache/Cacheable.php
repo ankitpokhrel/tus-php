@@ -15,7 +15,7 @@ interface Cacheable
      *
      * @return mixed
      */
-    public function get(string $key, bool $withExpired = false);
+    public function get($key, $withExpired = false);
 
     /**
      * Set data to the given key.
@@ -25,7 +25,7 @@ interface Cacheable
      *
      * @return mixed
      */
-    public function set(string $key, $value);
+    public function set($key, $value);
 
     /**
      * Delete data associated with the key.
@@ -34,7 +34,7 @@ interface Cacheable
      *
      * @return bool
      */
-    public function delete(string $key) : bool;
+    public function delete($key);
 
     /**
      * Delete all data associated with the keys.
@@ -43,21 +43,21 @@ interface Cacheable
      *
      * @return bool
      */
-    public function deleteAll(array $keys) : bool;
+    public function deleteAll(array $keys);
 
     /**
      * Get time to live.
      *
      * @return int
      */
-    public function getTtl() : int;
+    public function getTtl();
 
     /**
      * Get cache keys.
      *
      * @return array
      */
-    public function keys() : array;
+    public function keys();
 
     /**
      * Set cache prefix.
@@ -66,12 +66,12 @@ interface Cacheable
      *
      * @return self
      */
-    public function setPrefix(string $prefix) : self;
+    public function setPrefix($prefix);
 
     /**
      * Get cache prefix.
      *
      * @return string
      */
-    public function getPrefix() : string;
+    public function getPrefix();
 }

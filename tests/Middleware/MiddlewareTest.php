@@ -33,11 +33,11 @@ class MiddlewareTest extends TestCase
      * @test
      *
      * @covers ::__construct
-     * @covers ::list
+     * @covers ::getList
      */
     public function it_sets_default_middleware()
     {
-        $middleware = $this->middleware->list();
+        $middleware = $this->middleware->getList();
 
         $this->assertInstanceOf(GlobalHeaders::class, $middleware[GlobalHeaders::class]);
         $this->assertInstanceOf(Cors::class, $middleware[Cors::class]);
@@ -47,7 +47,7 @@ class MiddlewareTest extends TestCase
      * @test
      *
      * @covers ::add
-     * @covers ::list
+     * @covers ::getList
      */
     public function it_adds_valid_middleware()
     {
@@ -56,7 +56,7 @@ class MiddlewareTest extends TestCase
 
         $this->assertInstanceOf(Middleware::class, $this->middleware->add($corsMock, TestMiddleware::class));
 
-        $middleware = $this->middleware->list();
+        $middleware = $this->middleware->getList();
 
         $this->assertCount(4, $middleware);
         $this->assertInstanceOf($mockClass, $middleware[$mockClass]);
@@ -68,24 +68,24 @@ class MiddlewareTest extends TestCase
     /**
      * @test
      *
-     * @covers ::list
+     * @covers ::getList
      */
     public function it_gets_middleware_list()
     {
-        $this->assertCount(2, $this->middleware->list());
+        $this->assertCount(2, $this->middleware->getList());
     }
 
     /**
      * @test
      *
      * @covers ::skip
-     * @covers ::list
+     * @covers ::getList
      */
     public function it_skips_given_middleware()
     {
         $this->assertInstanceOf(Middleware::class, $this->middleware->skip(GlobalHeaders::class));
 
-        $middleware = $this->middleware->list();
+        $middleware = $this->middleware->getList();
 
         $this->assertCount(1, $middleware);
         $this->assertInstanceOf(Cors::class, $middleware[Cors::class]);
