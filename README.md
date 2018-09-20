@@ -99,7 +99,7 @@ $server = new \TusPhp\Tus\Server('redis');
 The client can be used for creating, resuming and/or deleting uploads.
 
 ```php
-$client = new \TusPhp\Tus\Client($baseUrl, 'redis'); // Leave second parameter empty for file based cache
+$client = new \TusPhp\Tus\Client($baseUrl);
 
 // Optional. If a key is not set explicitly, the system will generate a unique uuid.
 $key = 'your unique key';

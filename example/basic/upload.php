@@ -10,7 +10,7 @@ use TusPhp\Exception\FileException;
 use TusPhp\Exception\ConnectionException;
 use TusPhp\Exception\Exception as TusException;
 
-$client = new \TusPhp\Tus\Client('http://tus-php-server', 'redis');
+$client = new \TusPhp\Tus\Client('http://tus-php-server');
 
 // Alert: Sanitize all inputs properly in production code
 if ( ! empty($_FILES)) {

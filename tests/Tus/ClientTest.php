@@ -5,7 +5,6 @@ namespace TusPhp\Test;
 use Mockery as m;
 use GuzzleHttp\Client;
 use phpmock\MockBuilder;
-use TusPhp\Cache\FileStore;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use TusPhp\Tus\Client as TusClient;
@@ -235,8 +234,9 @@ class ClientTest extends TestCase
      */
     public function it_uploads_a_file()
     {
-        $bytes = 100;
-        $key   = uniqid();
+        $key    = uniqid();
+        $bytes  = 100;
+        $offset = 0;
 
         $this->tusClientMock
             ->shouldReceive('getKey')
@@ -252,7 +252,7 @@ class ClientTest extends TestCase
         $this->tusClientMock
             ->shouldReceive('sendPatchRequest')
             ->once()
-            ->with($key, $bytes)
+            ->with($bytes, $offset)
             ->andReturn($bytes);
 
         $this->assertEquals($bytes, $this->tusClientMock->upload($bytes));
@@ -265,8 +265,9 @@ class ClientTest extends TestCase
      */
     public function it_uploads_full_file_if_size_is_not_given()
     {
-        $bytes = 100;
-        $key   = uniqid();
+        $key    = uniqid();
+        $bytes  = 100;
+        $offset = 0;
 
         $this->tusClientMock
             ->shouldReceive('getKey')
@@ -287,7 +288,7 @@ class ClientTest extends TestCase
         $this->tusClientMock
             ->shouldReceive('sendPatchRequest')
             ->once()
-            ->with($key, $bytes)
+            ->with($bytes, $offset)
             ->andReturn($bytes);
 
         $this->assertEquals($bytes, $this->tusClientMock->upload());
@@ -300,8 +301,9 @@ class ClientTest extends TestCase
      */
     public function it_creates_and_then_uploads_a_file_in_file_exception()
     {
-        $bytes = 100;
-        $key   = uniqid();
+        $bytes  = 100;
+        $key    = uniqid();
+        $offset = 0;
 
         $this->tusClientMock
             ->shouldReceive('getKey')
@@ -322,7 +324,7 @@ class ClientTest extends TestCase
         $this->tusClientMock
             ->shouldReceive('sendPatchRequest')
             ->once()
-            ->with($key, $bytes)
+            ->with($bytes, $offset)
             ->andReturn($bytes);
 
         $this->assertEquals($bytes, $this->tusClientMock->upload($bytes));
@@ -335,8 +337,9 @@ class ClientTest extends TestCase
      */
     public function it_creates_and_then_uploads_a_file_in_client_exception()
     {
-        $bytes = 100;
-        $key   = uniqid();
+        $bytes  = 100;
+        $key    = uniqid();
+        $offset = 0;
 
         $this->tusClientMock
             ->shouldReceive('getKey')
@@ -357,7 +360,7 @@ class ClientTest extends TestCase
         $this->tusClientMock
             ->shouldReceive('sendPatchRequest')
             ->once()
-            ->with($key, $bytes)
+            ->with($bytes, $offset)
             ->andReturn($bytes);
 
         $this->assertEquals($bytes, $this->tusClientMock->upload($bytes));
@@ -538,14 +541,20 @@ class ClientTest extends TestCase
      */
     public function it_throws_file_exception_for_corrupt_data_in_patch_request()
     {
-        $bytes    = 12;
         $data     = 'Hello World!';
+        $bytes    = 12;
+        $offset   = 0;
         $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
+
+        $this->tusClientMock
+            ->shouldReceive('getKey')
+            ->once()
+            ->andReturn($checksum);
 
         $this->tusClientMock
             ->shouldReceive('getData')
             ->once()
-            ->with($checksum, $bytes)
+            ->with($offset, $bytes)
             ->andReturn($data);
 
         $this->tusClientMock
@@ -586,7 +595,7 @@ class ClientTest extends TestCase
             ])
             ->andThrow($clientExceptionMock);
 
-        $this->tusClientMock->sendPatchRequest($checksum, $bytes);
+        $this->tusClientMock->sendPatchRequest($bytes, $offset);
     }
 
     /**
@@ -599,14 +608,20 @@ class ClientTest extends TestCase
      */
     public function it_throws_connection_exception_if_user_aborts_connection_during_patch_request()
     {
-        $bytes    = 12;
         $data     = 'Hello World!';
+        $bytes    = 12;
+        $offset   = 0;
         $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
+
+        $this->tusClientMock
+            ->shouldReceive('getKey')
+            ->once()
+            ->andReturn($checksum);
 
         $this->tusClientMock
             ->shouldReceive('getData')
             ->once()
-            ->with($checksum, $bytes)
+            ->with($offset, $bytes)
             ->andReturn($data);
 
         $this->tusClientMock
@@ -648,7 +663,7 @@ class ClientTest extends TestCase
             ->andThrow($clientExceptionMock);
 
 
-        $this->tusClientMock->sendPatchRequest($checksum, $bytes);
+        $this->tusClientMock->sendPatchRequest($bytes, $offset);
     }
 
     /**
@@ -662,14 +677,20 @@ class ClientTest extends TestCase
      */
     public function it_throws_exception_for_other_exceptions_in_patch_request()
     {
-        $bytes    = 12;
         $data     = 'Hello World!';
+        $bytes    = 12;
+        $offset   = 0;
         $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
+
+        $this->tusClientMock
+            ->shouldReceive('getKey')
+            ->once()
+            ->andReturn($checksum);
 
         $this->tusClientMock
             ->shouldReceive('getData')
             ->once()
-            ->with($checksum, $bytes)
+            ->with($offset, $bytes)
             ->andReturn($data);
 
         $this->tusClientMock
@@ -715,7 +736,7 @@ class ClientTest extends TestCase
             ])
             ->andThrow($clientExceptionMock);
 
-        $this->tusClientMock->sendPatchRequest($checksum, $bytes);
+        $this->tusClientMock->sendPatchRequest($bytes, $offset);
     }
 
     /**
@@ -728,14 +749,20 @@ class ClientTest extends TestCase
      */
     public function it_throws_connection_exception_if_it_cannot_connect_to_server()
     {
-        $bytes    = 12;
         $data     = 'Hello World!';
+        $bytes    = 12;
+        $offset   = 0;
         $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
+
+        $this->tusClientMock
+            ->shouldReceive('getKey')
+            ->once()
+            ->andReturn($checksum);
 
         $this->tusClientMock
             ->shouldReceive('getData')
             ->once()
-            ->with($checksum, $bytes)
+            ->with($offset, $bytes)
             ->andReturn($data);
 
         $this->tusClientMock
@@ -764,7 +791,7 @@ class ClientTest extends TestCase
             ->andThrow(m::mock(ConnectException::class));
 
 
-        $this->tusClientMock->sendPatchRequest($checksum, $bytes);
+        $this->tusClientMock->sendPatchRequest($bytes, $offset);
     }
 
     /**
@@ -774,14 +801,20 @@ class ClientTest extends TestCase
      */
     public function it_sends_a_patch_request()
     {
-        $bytes    = 12;
         $data     = 'Hello World!';
+        $bytes    = 12;
+        $offset   = 0;
         $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
+
+        $this->tusClientMock
+            ->shouldReceive('getKey')
+            ->once()
+            ->andReturn($checksum);
 
         $this->tusClientMock
             ->shouldReceive('getData')
             ->once()
-            ->with($checksum, $bytes)
+            ->with($offset, $bytes)
             ->andReturn($data);
 
         $this->tusClientMock
@@ -816,7 +849,7 @@ class ClientTest extends TestCase
             ->with('upload-offset')
             ->andReturn([$bytes]);
 
-        $this->assertEquals($bytes, $this->tusClientMock->sendPatchRequest($checksum, $bytes));
+        $this->assertEquals($bytes, $this->tusClientMock->sendPatchRequest($bytes, $offset));
     }
 
     /**
@@ -826,14 +859,20 @@ class ClientTest extends TestCase
      */
     public function it_sends_a_partial_patch_request()
     {
-        $bytes    = 12;
         $data     = 'Hello World!';
+        $bytes    = 12;
+        $offset   = 0;
         $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
+
+        $this->tusClientMock
+            ->shouldReceive('getKey')
+            ->once()
+            ->andReturn($checksum);
 
         $this->tusClientMock
             ->shouldReceive('getData')
             ->once()
-            ->with($checksum, $bytes)
+            ->with($offset, $bytes)
             ->andReturn($data);
 
         $this->tusClientMock
@@ -874,7 +913,7 @@ class ClientTest extends TestCase
             ->with('upload-offset')
             ->andReturn([$bytes]);
 
-        $this->assertEquals($bytes, $this->tusClientMock->sendPatchRequest($checksum, $bytes));
+        $this->assertEquals($bytes, $this->tusClientMock->sendPatchRequest($bytes, $offset));
     }
 
     /**
@@ -1330,7 +1369,7 @@ class ClientTest extends TestCase
      */
     public function it_gets_all_data()
     {
-        $checksum   = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
+        $offset     = 0;
         $filePath   = __DIR__ . '/../Fixtures/data.txt';
         $dataLength = 92;
 
@@ -1339,21 +1378,7 @@ class ClientTest extends TestCase
             ->once()
             ->andReturn($filePath);
 
-        $cacheMock = m::mock(FileStore::class);
-        $cacheMock
-            ->shouldReceive('get')
-            ->once()
-            ->with($checksum)
-            ->andReturn([
-                'offset' => 0,
-            ]);
-
-        $this->tusClientMock
-            ->shouldReceive('getCache')
-            ->once()
-            ->andReturn($cacheMock);
-
-        $data = $this->tusClientMock->getData($checksum, $dataLength);
+        $data = $this->tusClientMock->getData($offset, $dataLength);
 
         $this->assertEquals($dataLength, strlen($data));
         $this->assertEquals(
@@ -1369,7 +1394,7 @@ class ClientTest extends TestCase
      */
     public function it_gets_partial_data()
     {
-        $checksum   = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
+        $offset     = 49;
         $filePath   = __DIR__ . '/../Fixtures/data.txt';
         $dataLength = 15;
 
@@ -1378,21 +1403,7 @@ class ClientTest extends TestCase
             ->once()
             ->andReturn($filePath);
 
-        $cacheMock = m::mock(FileStore::class);
-        $cacheMock
-            ->shouldReceive('get')
-            ->once()
-            ->with($checksum)
-            ->andReturn([
-                'offset' => 49,
-            ]);
-
-        $this->tusClientMock
-            ->shouldReceive('getCache')
-            ->once()
-            ->andReturn($cacheMock);
-
-        $data = $this->tusClientMock->getData($checksum, $dataLength);
+        $data = $this->tusClientMock->getData($offset, $dataLength);
 
         $this->assertEquals($dataLength, strlen($data));
         $this->assertEquals('Sherlock Holmes', $data);

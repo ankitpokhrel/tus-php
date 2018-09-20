@@ -3,7 +3,6 @@
 namespace TusPhp\Tus;
 
 use TusPhp\File;
-use TusPhp\Cache\Cacheable;
 use TusPhp\Exception\Exception;
 use TusPhp\Exception\FileException;
 use GuzzleHttp\Client as GuzzleClient;
@@ -44,16 +43,13 @@ class Client extends AbstractTus
     /**
      * Client constructor.
      *
-     * @param string           $baseUrl
-     * @param Cacheable|string $cacheAdapter
+     * @param string $baseUrl
      */
-    public function __construct(string $baseUrl, $cacheAdapter = 'file')
+    public function __construct(string $baseUrl)
     {
         $this->client = new GuzzleClient([
             'base_uri' => $baseUrl,
         ]);
-
-        $this->setCache($cacheAdapter);
     }
 
     /**
@@ -241,12 +237,13 @@ class Client extends AbstractTus
      */
     public function upload(int $bytes = -1) : int
     {
-        $bytes = $bytes < 0 ? $this->getFileSize() : $bytes;
-        $key   = $this->getKey();
+        $bytes  = $bytes < 0 ? $this->getFileSize() : $bytes;
+        $key    = $this->getKey();
+        $offset = 0;
 
         try {
             // Check if this upload exists with HEAD request.
-            $this->sendHeadRequest($key);
+            $offset = $this->sendHeadRequest($key);
         } catch (FileException | ClientException $e) {
             $this->create($key);
         } catch (ConnectException $e) {
@@ -254,7 +251,7 @@ class Client extends AbstractTus
         }
 
         // Now, resume upload with PATCH request.
-        return $this->sendPatchRequest($key, $bytes);
+        return $this->sendPatchRequest($bytes, $offset);
     }
 
     /**
@@ -413,8 +410,8 @@ class Client extends AbstractTus
     /**
      * Send PATCH request.
      *
-     * @param string $key
-     * @param int    $bytes
+     * @param int $bytes
+     * @param int $offset
      *
      * @throws Exception
      * @throws FileException
@@ -422,9 +419,9 @@ class Client extends AbstractTus
      *
      * @return int
      */
-    protected function sendPatchRequest(string $key, int $bytes) : int
+    protected function sendPatchRequest(int $bytes, int $offset) : int
     {
-        $data    = $this->getData($key, $bytes);
+        $data    = $this->getData($offset, $bytes);
         $headers = [
             'Content-Type' => 'application/offset+octet-stream',
             'Content-Length' => strlen($data),
@@ -436,7 +433,7 @@ class Client extends AbstractTus
         }
 
         try {
-            $response = $this->getClient()->patch($this->apiPath . '/' . $key, [
+            $response = $this->getClient()->patch($this->apiPath . '/' . $this->getKey(), [
                 'body' => $data,
                 'headers' => $headers,
             ]);
@@ -462,21 +459,15 @@ class Client extends AbstractTus
     /**
      * Get X bytes of data from file.
      *
-     * @param string $key
-     * @param int    $bytes
+     * @param int $offset
+     * @param int $bytes
      *
      * @return string
      */
-    protected function getData(string $key, int $bytes) : string
+    protected function getData(int $offset, int $bytes) : string
     {
         $file   = new File;
         $handle = $file->open($this->getFilePath(), $file::READ_BINARY);
-        $offset = $this->partialOffset;
-
-        if ($offset < 0) {
-            $fileMeta = $this->getCache()->get($key);
-            $offset   = $fileMeta['offset'];
-        }
 
         $file->seek($handle, $offset);
 
