@@ -239,7 +239,7 @@ class Client extends AbstractTus
     {
         $key    = $this->getKey();
         $bytes  = $bytes < 0 ? $this->getFileSize() : $bytes;
-        $offset = 0;
+        $offset = $this->partialOffset < 0 ? 0 : $this->partialOffset;
 
         try {
             // Check if this upload exists with HEAD request.
