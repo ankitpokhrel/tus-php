@@ -237,8 +237,8 @@ class Client extends AbstractTus
      */
     public function upload(int $bytes = -1) : int
     {
-        $bytes  = $bytes < 0 ? $this->getFileSize() : $bytes;
         $key    = $this->getKey();
+        $bytes  = $bytes < 0 ? $this->getFileSize() : $bytes;
         $offset = 0;
 
         try {

@@ -301,8 +301,8 @@ class ClientTest extends TestCase
      */
     public function it_creates_and_then_uploads_a_file_in_file_exception()
     {
-        $bytes  = 100;
         $key    = uniqid();
+        $bytes  = 100;
         $offset = 0;
 
         $this->tusClientMock
@@ -337,8 +337,8 @@ class ClientTest extends TestCase
      */
     public function it_creates_and_then_uploads_a_file_in_client_exception()
     {
-        $bytes  = 100;
         $key    = uniqid();
+        $bytes  = 100;
         $offset = 0;
 
         $this->tusClientMock
