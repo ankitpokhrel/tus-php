@@ -38,7 +38,7 @@ to pause, or by accident in case of a network issue or server outage.
 
 Pull the package via composer.
 ```shell
-$ composer require ankitpokhrel/tus-php:dev-master
+$ composer require ankitpokhrel/tus-php
 ```
 
 ## Usage
