@@ -1,4 +1,4 @@
-<h1 align="center">TusPHP</h1>
+﻿<h1 align="center">TusPHP</h1>
 
 <p align="center">
     <a href="https://packagist.org/packages/ankitpokhrel/tus-php">
@@ -334,3 +334,7 @@ Since the server supports tus expiration extension, a cron job is set to run onc
 
 ### Questions about this project?
 Please feel free to report any bug found. Pull requests, issues, and project recommendations are more than welcome!
+
+### Supporters
+[![JET BRAINS](.github/jetbrains.png)](https://www.jetbrains.com/?from=ankitpokhrel/tus-php)
+
