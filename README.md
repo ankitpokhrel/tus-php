@@ -202,7 +202,7 @@ $bytesUploaded = $client->setFileName('chunk_c.ext')->seek(11000)->upload();
 $chunkCkey     = $client->getKey();
 
 // Concatenate partial uploads
-$client->setFileName('actual_file.ext')->concat($uploadKey, $chunkAkey, $chunkBkey, $chunkCkey);
+$client->setFileName('actual_file.ext')->concat($uploadKey, $chunkBkey, $chunkAkey, $chunkCkey);
 ```
 
 Additionally, the server will verify checksum against the merged file to make sure that the file is not corrupt.
