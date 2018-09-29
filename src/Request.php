@@ -123,15 +123,13 @@ class Request
             return null;
         }
 
-        if (false !== strpos($meta, ',')) {
-            $pieces = explode(',', $meta);
-
-            list(/* $key */, $file) = explode(' ', $pieces[0]);
-        } else {
-            list(/* $key */, $file) = explode(' ', $meta);
+        $pieces = explode(',', $meta);
+        foreach ($pieces as $piece) {
+          list($metaName, $metaValue) = explode(' ', $piece);
+          $metaValues[$metaName] = base64_decode($metaValue);
         }
 
-        return base64_decode($file);
+        return $metaValues['filename'];
     }
 
     /**
