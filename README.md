@@ -101,7 +101,7 @@ The client can be used for creating, resuming and/or deleting uploads.
 ```php
 $client = new \TusPhp\Tus\Client($baseUrl);
 
-// Optional. If a key is not set explicitly, the system will generate a unique uuid.
+// Optional. If key is not set explicitly, the system will generate an unique uuid.
 $key = 'your unique key';
 
 $client->setKey($key)->file('/path/to/file', 'filename.ext');
