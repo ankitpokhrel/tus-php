@@ -127,11 +127,11 @@ class RequestTest extends TestCase
      */
     public function it_extracts_data_from_header()
     {
-        $this->request->getRequest()->headers->set('Upload-Metadata', 'filename test');
+        $this->request->getRequest()->headers->set('Upload-Metadata', 'filename dGVzdA==');
         $this->request->getRequest()->headers->set('Upload-Concat', 'final;/files/a /files/b');
 
         $this->assertEquals([], $this->request->extractFromHeader('Upload-Metadata', 'invalid'));
-        $this->assertEquals(['test'], $this->request->extractFromHeader('Upload-Metadata', 'filename'));
+        $this->assertEquals(['dGVzdA=='], $this->request->extractFromHeader('Upload-Metadata', 'filename'));
         $this->assertEquals(['/files/a', '/files/b'], $this->request->extractFromHeader('Upload-Concat', 'final;'));
     }
 
@@ -146,23 +146,6 @@ class RequestTest extends TestCase
         $filename = 'file.txt';
 
         $this->request->getRequest()->headers->set('Upload-Metadata', 'name ' . base64_encode($filename));
-        $this->assertEquals($filename, $this->request->extractFileName());
-    }
-
-    /**
-     * @test
-     *
-     * @covers ::extractMeta
-     * @covers ::extractFileName
-     */
-    public function it_extracts_file_name_from_concatenated_headers()
-    {
-        $filename = 'file.txt';
-
-        $this->request
-            ->getRequest()
-            ->headers
-            ->set('Upload-Metadata', 'filename ' . base64_encode($filename) . ',type image');
 
         $this->assertEquals($filename, $this->request->extractFileName());
     }
@@ -185,7 +168,7 @@ class RequestTest extends TestCase
             ->set(
                 'Upload-Metadata',
                 sprintf(
-                    'name %s,type %s,accept %s',
+                    'filename %s,type %s,accept %s',
                     base64_encode($filename),
                     base64_encode($fileType),
                     base64_encode($accept)
@@ -200,7 +183,7 @@ class RequestTest extends TestCase
     /**
      * @test
      *
-     * d@covers ::extractMeta
+     * @covers ::extractMeta
      */
     public function it_returns_empty_if_upload_metadata_header_not_present()
     {
