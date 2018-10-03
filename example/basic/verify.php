@@ -8,7 +8,6 @@
 require __DIR__ . '/../../vendor/autoload.php';
 
 use TusPhp\Exception\FileException;
-use TusPhp\Exception\ConnectionException;
 use GuzzleHttp\Exception\ConnectException;
 
 $client = new \TusPhp\Tus\Client('http://tus-php-server');
@@ -31,9 +30,9 @@ if ( ! empty($_FILES)) {
         echo json_encode([
             'status' => $status,
             'bytes_uploaded' => $offset,
-            'checksum' => $client->getChecksum(),
+            'upload_key' => $uploadKey,
         ]);
-    } catch (ConnectionException | ConnectException $e) {
+    } catch (ConnectException $e) {
         echo json_encode([
             'status' => 'error',
             'bytes_uploaded' => -1,
@@ -42,7 +41,7 @@ if ( ! empty($_FILES)) {
         echo json_encode([
             'status' => 'resume',
             'bytes_uploaded' => 0,
-            'checksum' => '',
+            'upload_key' => '',
         ]);
     }
 } else {
