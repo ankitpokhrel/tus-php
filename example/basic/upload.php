@@ -25,13 +25,13 @@ if ( ! empty($_FILES)) {
         echo json_encode([
             'status' => 'uploading',
             'bytes_uploaded' => $bytesUploaded,
-            'checksum' => $client->getChecksum(),
+            'upload_key' => $uploadKey
         ]);
     } catch (ConnectionException | FileException | TusException $e) {
         echo json_encode([
             'status' => 'error',
             'bytes_uploaded' => -1,
-            'checksum' => '',
+            'upload_key' => '',
             'error' => $e->getMessage(),
         ]);
     }
