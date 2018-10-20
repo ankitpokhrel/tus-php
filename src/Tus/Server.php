@@ -518,6 +518,10 @@ class Server extends AbstractTus
         $path = explode('/', str_replace('/get', '', $this->request->path()));
         $key  = end($path);
 
+        if (empty($key)) {
+            return $this->response->send('400 bad request.', HttpResponse::HTTP_BAD_REQUEST);
+        }
+
         if ( ! $fileMeta = $this->cache->get($key)) {
             return $this->response->send('404 upload not found.', HttpResponse::HTTP_NOT_FOUND);
         }
