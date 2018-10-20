@@ -1769,7 +1769,7 @@ class ServerTest extends TestCase
      * @covers ::handleGet
      * @covers ::handleDownload
      */
-    public function it_returns_400_for_request_without_hash()
+    public function it_returns_404_for_request_without_key()
     {
         $this->tusServerMock
             ->getRequest()
@@ -1777,15 +1777,22 @@ class ServerTest extends TestCase
             ->server
             ->add([
                 'REQUEST_METHOD' => 'GET',
-                'REQUEST_URI' => '/tus/files',
+                'REQUEST_URI' => '/tus/files//get',
             ]);
 
-        $this->tusServerMock->setApiPath('/tus/files');
+        $cacheMock = m::mock(FileStore::class);
+        $cacheMock
+            ->shouldReceive('get')
+            ->once()
+            ->with('')
+            ->andReturn([]);
 
-        $response = $this->tusServerMock->handleDownload();
+        $this->tusServerMock->setCache($cacheMock);
 
-        $this->assertEquals(400, $response->getStatusCode());
-        $this->assertEquals('400 bad request.', $response->getContent());
+        $response = $this->tusServerMock->handleGet();
+
+        $this->assertEquals(404, $response->getStatusCode());
+        $this->assertEquals('404 upload not found.', $response->getContent());
     }
 
     /**
@@ -1796,7 +1803,7 @@ class ServerTest extends TestCase
      */
     public function it_returns_404_for_invalid_download_request()
     {
-        $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
+        $uploadKey = '74f02d6da32082463e3';
 
         $this->tusServerMock
             ->getRequest()
@@ -1804,14 +1811,14 @@ class ServerTest extends TestCase
             ->server
             ->add([
                 'REQUEST_METHOD' => 'GET',
-                'REQUEST_URI' => '/files/' . $checksum . '/get',
+                'REQUEST_URI' => '/files/' . $uploadKey . '/get',
             ]);
 
         $cacheMock = m::mock(FileStore::class);
         $cacheMock
             ->shouldReceive('get')
             ->once()
-            ->with($checksum)
+            ->with($uploadKey)
             ->andReturn([]);
 
         $this->tusServerMock->setCache($cacheMock);
