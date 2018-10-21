@@ -130,6 +130,34 @@ class ClientTest extends TestCase
     /**
      * @test
      *
+     * @covers ::__construct
+     * @covers ::getClient
+     */
+    public function it_injects_options_in_client()
+    {
+        $headers = [
+            'User-Agent' => 'testing/1.0',
+            'Accept' => 'application/json',
+        ];
+
+        $tusClient = new TusClient('http://tus.local', [
+            'connect_timeout' => 3.14,
+            'allow_redirects' => false,
+            'base_uri' => 'http://should-not-override',
+            'headers' => $headers,
+        ]);
+
+        $guzzleConfig = $tusClient->getClient()->getConfig();
+
+        $this->assertEquals('http://tus.local', $guzzleConfig['base_uri']);
+        $this->assertEquals(3.14, $guzzleConfig['connect_timeout']);
+        $this->assertFalse($guzzleConfig['allow_redirects']);
+        $this->assertEquals($headers, $guzzleConfig['headers']);
+    }
+
+    /**
+     * @test
+     *
      * @covers ::getChecksum
      */
     public function it_sets_and_gets_checksum()
