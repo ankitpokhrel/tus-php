@@ -43,13 +43,14 @@ class Client extends AbstractTus
     /**
      * Client constructor.
      *
-     * @param string $baseUrl
+     * @param string $baseUri
+     * @param array  $options
      */
-    public function __construct(string $baseUrl)
+    public function __construct(string $baseUri, array $options = [])
     {
-        $this->client = new GuzzleClient([
-            'base_uri' => $baseUrl,
-        ]);
+        $this->client = new GuzzleClient(
+            ['base_uri' => $baseUri] + $options
+        );
     }
 
     /**
@@ -231,6 +232,7 @@ class Client extends AbstractTus
      *
      * @param int $bytes Bytes to upload
      *
+     * @throws Exception
      * @throws ConnectionException
      *
      * @return int
