@@ -125,6 +125,7 @@ class ClientTest extends TestCase
     public function it_gets_client()
     {
         $this->assertInstanceOf(Client::class, $this->tusClient->getClient());
+        $this->assertEquals('http://tus.local', $this->tusClient->getClient()->getConfig()['base_uri']);
     }
 
     /**
