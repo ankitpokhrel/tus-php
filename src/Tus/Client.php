@@ -452,7 +452,7 @@ class Client extends AbstractTus
                 throw new ConnectionException('Connection aborted by user.');
             }
 
-            if (HttpResponse::HTTP_UNSUPPORTED_MEDIA_TYPE == $statusCode) {
+            if (HttpResponse::HTTP_UNSUPPORTED_MEDIA_TYPE === $statusCode) {
                 throw new ConnectionException('Unsupported media Types.');
             }
 
