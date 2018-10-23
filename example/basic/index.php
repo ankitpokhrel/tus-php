@@ -229,10 +229,10 @@
           bytesUploaded = data;
 
           renderProgressBar(bytesUploaded, fileSize);
-        }, function (checksum) {
+        }, function (uploadKey) {
           cleanUp();
 
-          listUploadedFiles(fileMeta, checksum);
+          listUploadedFiles(fileMeta, uploadKey);
         });
       });
     });
@@ -260,7 +260,7 @@
         if ('uploaded' === response.status) {
           cleanUp();
 
-          listUploadedFiles(fileMeta, response.checksum)
+          listUploadedFiles(fileMeta, response.upload_key)
         } else if ('error' !== response.status) {
           cb();
         }
@@ -300,7 +300,7 @@
         if (bytesUploaded < fileSize) {
           upload(formData, fileSize, cb, onComplete);
         } else {
-          onComplete(response.checksum);
+          onComplete(response.upload_key);
         }
       },
       error: function (error) {
@@ -322,13 +322,13 @@
     $('#tus-file').attr('disabled', false);
   };
 
-  var listUploadedFiles = function (fileMeta, checksum) {
+  var listUploadedFiles = function (fileMeta, uploadKey) {
     var completedUploads = $('div.completed-uploads');
 
     completedUploads.find('p.info').remove();
     completedUploads.append(
       '<div class="panel panel-default"><div class="panel-body"><a href="<?= (string) (getenv('SERVER_URL') ?? '') ?>/files/'
-      + checksum + '">' + fileMeta.name + '</a> (' + fileMeta.size + ' bytes)</div></div>'
+      + uploadKey + '/get">' + fileMeta.name + '</a> (' + fileMeta.size + ' bytes)</div></div>'
     );
   };
 

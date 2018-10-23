@@ -113,25 +113,39 @@ class Request
     /**
      * Extract base64 encoded filename from header.
      *
-     * @return string|null
+     * @return string
      */
-    public function extractFileName() : ?string
+    public function extractFileName() : string
     {
-        $meta = $this->header('Upload-Metadata');
+        return $this->extractMeta('name') ?: $this->extractMeta('filename');
+    }
 
-        if (empty($meta)) {
-            return null;
+    /**
+     * Extracts the meta data from the request header.
+     *
+     * @param string $requestedKey
+     *
+     * @return string
+     */
+    public function extractMeta(string $requestedKey) : string
+    {
+        $uploadMetaData = $this->request->headers->get('Upload-Metadata');
+
+        if (empty($uploadMetaData)) {
+            return '';
         }
 
-        if (false !== strpos($meta, ',')) {
-            $pieces = explode(',', $meta);
+        $uploadMetaDataChunks = explode(',', $uploadMetaData);
 
-            list(/* $key */, $file) = explode(' ', $pieces[0]);
-        } else {
-            list(/* $key */, $file) = explode(' ', $meta);
+        foreach ($uploadMetaDataChunks as $chunk) {
+            list($key, $value) = explode(' ', $chunk);
+
+            if ($key === $requestedKey) {
+                return base64_decode($value);
+            }
         }
 
-        return base64_decode($file);
+        return '';
     }
 
     /**

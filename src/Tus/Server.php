@@ -506,15 +506,31 @@ class Server extends AbstractTus
     /**
      * Handle GET request.
      *
+     * As per RFC7231, we need to treat HEAD and GET as an identical request.
+     * All major PHP frameworks follows the same and silently transforms each
+     * HEAD requests to GET.
+     *
      * @return BinaryFileResponse|HttpResponse
      */
     protected function handleGet()
     {
-        $key = $this->request->key();
-
-        if ($this->request->path() === $this->getApiPath()) {
-            return $this->response->send('400 bad request.', HttpResponse::HTTP_BAD_REQUEST);
+        // We will treat '/files/<key>/get' as a download request.
+        if ('get' === $this->request->key()) {
+            return $this->handleDownload();
         }
+
+        return $this->handleHead();
+    }
+
+    /**
+     * Handle Download request.
+     *
+     * @return BinaryFileResponse|HttpResponse
+     */
+    protected function handleDownload()
+    {
+        $path = explode('/', str_replace('/get', '', $this->request->path()));
+        $key  = end($path);
 
         if ( ! $fileMeta = $this->cache->get($key)) {
             return $this->response->send('404 upload not found.', HttpResponse::HTTP_NOT_FOUND);
