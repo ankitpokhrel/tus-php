@@ -1263,7 +1263,7 @@ class ServerTest extends TestCase
             'upload_type' => 'normal',
         ];
 
-      $this->tusServerMock
+        $this->tusServerMock
           ->getRequest()
           ->getRequest()
           ->headers
