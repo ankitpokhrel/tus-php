@@ -493,11 +493,11 @@ class Server extends AbstractTus
         $contentType   = $this->request->header('Content-Type');
         $contentLength = $this->request->header('Content-Length');
 
-        if (!$contentType || $contentType !== self::TUS_EXTENSION_CONTENT_TYPE ) {
+        if ( ! $contentType || $contentType !== self::TUS_EXTENSION_CONTENT_TYPE) {
             return HTTPRESPONSE::HTTP_UNSUPPORTED_MEDIA_TYPE;
         }
 
-        if (!$contentLength || $contentLength <= 0) {
+        if ( ! $contentLength || $contentLength <= 0) {
             return HttpResponse::HTTP_BAD_REQUEST;
         }
 
