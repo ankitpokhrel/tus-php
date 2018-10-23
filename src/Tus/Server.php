@@ -33,7 +33,7 @@ class Server extends AbstractTus
     const TUS_EXTENSION_CONCATENATION = 'concatenation';
 
     /** @const string Tus Content Type Extension  */
-    const TUS_EXTENSION_CONTENT_TYPE = 'application/offset+octet-stream';
+    const HEADER_CONTENT_TYPE = 'application/offset+octet-stream';
 
     /** @const array All supported tus extensions */
     const TUS_EXTENSIONS = [
@@ -42,7 +42,6 @@ class Server extends AbstractTus
         self::TUS_EXTENSION_CHECKSUM,
         self::TUS_EXTENSION_EXPIRATION,
         self::TUS_EXTENSION_CONCATENATION,
-        self::TUS_EXTENSION_CONTENT_TYPE,
     ];
 
     /** @const int 460 Checksum Mismatch */
@@ -493,7 +492,7 @@ class Server extends AbstractTus
         $contentType   = $this->request->header('Content-Type');
         $contentLength = $this->request->header('Content-Length');
 
-        if ( ! $contentType || $contentType !== self::TUS_EXTENSION_CONTENT_TYPE) {
+        if ( ! $contentType || $contentType !== self::HEADER_CONTENT_TYPE) {
             return HTTPRESPONSE::HTTP_UNSUPPORTED_MEDIA_TYPE;
         }
 
