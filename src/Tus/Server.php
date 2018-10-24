@@ -494,7 +494,7 @@ class Server extends AbstractTus
             return HttpResponse::HTTP_CONFLICT;
         }
 
-        $contentType   = $this->request->header('Content-Type');
+        $contentType = $this->request->header('Content-Type');
 
         if ($contentType !== self::HEADER_CONTENT_TYPE) {
             return HTTPRESPONSE::HTTP_UNSUPPORTED_MEDIA_TYPE;
