@@ -22,14 +22,14 @@ abstract class AbstractTus
     /** @const string Upload type final. */
     const UPLOAD_TYPE_FINAL = 'final';
 
+    /** @const string Header Content Type */
+    const HEADER_CONTENT_TYPE = 'application/offset+octet-stream';
+
     /** @var Cacheable */
     protected $cache;
 
     /** @var string */
     protected $apiPath = '/files';
-
-    /** @const string Content Type */
-    const HEADER_CONTENT_TYPE = 'application/offset+octet-stream';
 
     /**
      * Set cache.
