@@ -32,9 +32,6 @@ class Server extends AbstractTus
     /** @const string Tus Concatenation Extension */
     const TUS_EXTENSION_CONCATENATION = 'concatenation';
 
-    /** @const string Tus Content Type Extension  */
-    const HEADER_CONTENT_TYPE = 'application/offset+octet-stream';
-
     /** @const array All supported tus extensions */
     const TUS_EXTENSIONS = [
         self::TUS_EXTENSION_CREATION,
@@ -464,7 +461,7 @@ class Server extends AbstractTus
         }
 
         return $this->response->send(null, HttpResponse::HTTP_NO_CONTENT, [
-            'Content-Type' => 'application/offset+octet-stream',
+            'Content-Type' => self::HEADER_CONTENT_TYPE,
             'Upload-Expires' => $this->cache->get($uploadKey)['expires_at'],
             'Upload-Offset' => $offset,
         ]);
@@ -490,14 +487,9 @@ class Server extends AbstractTus
         }
 
         $contentType   = $this->request->header('Content-Type');
-        $contentLength = $this->request->header('Content-Length');
 
-        if ( ! $contentType || $contentType !== self::HEADER_CONTENT_TYPE) {
+        if ($contentType !== self::HEADER_CONTENT_TYPE) {
             return HTTPRESPONSE::HTTP_UNSUPPORTED_MEDIA_TYPE;
-        }
-
-        if ( ! $contentLength || $contentLength <= 0) {
-            return HttpResponse::HTTP_BAD_REQUEST;
         }
 
         return HttpResponse::HTTP_OK;

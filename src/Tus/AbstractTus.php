@@ -28,6 +28,9 @@ abstract class AbstractTus
     /** @var string */
     protected $apiPath = '/files';
 
+    /** @const string Content Type */
+    const HEADER_CONTENT_TYPE = 'application/offset+octet-stream';
+
     /**
      * Set cache.
      *
