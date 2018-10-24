@@ -2706,7 +2706,7 @@ class ServerTest extends TestCase
             'size' => $fileSize,
             'offset' => 0,
             'checksum' => $checksum,
-            'file_path' => dirname(__DIR__) . DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR . $fileName,
+            'file_path' => dirname(__DIR__) . DIRECTORY_SEPARATOR . $fileName,
             'location' => $location,
             'created_at' => 'Fri, 08 Dec 2017 00:00:00 GMT',
             'expires_at' => $expiresAt,
