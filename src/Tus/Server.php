@@ -256,6 +256,14 @@ class Server extends AbstractTus
             return $this->response->send(null, HttpResponse::HTTP_METHOD_NOT_ALLOWED);
         }
 
+        $clientVersion = $this->getRequest()->header('Tus-Resumable');
+
+        if ($clientVersion && $clientVersion !== self::TUS_PROTOCOL_VERSION) {
+            return $this->response->send(null, HttpResponse::HTTP_PRECONDITION_FAILED, [
+                'Tus-Version' => self::TUS_PROTOCOL_VERSION,
+            ]);
+        }
+
         $method = 'handle' . ucfirst(strtolower($requestMethod));
 
         return $this->{$method}();

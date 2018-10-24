@@ -139,6 +139,7 @@ class ClientTest extends TestCase
         $headers = [
             'User-Agent' => 'testing/1.0',
             'Accept' => 'application/json',
+            'Tus-Resumable' => '1.0.0',
         ];
 
         $tusClient = new TusClient('http://tus.local', [
@@ -620,6 +621,7 @@ class ClientTest extends TestCase
                     'Content-Type' => 'application/offset+octet-stream',
                     'Content-Length' => strlen($data),
                     'Upload-Checksum' => $checksum,
+                    'Upload-Offset' => $offset,
                 ],
             ])
             ->andThrow($clientExceptionMock);
@@ -687,10 +689,10 @@ class ClientTest extends TestCase
                     'Content-Type' => 'application/offset+octet-stream',
                     'Content-Length' => strlen($data),
                     'Upload-Checksum' => $checksum,
+                    'Upload-Offset' => $offset,
                 ],
             ])
             ->andThrow($clientExceptionMock);
-
 
         $this->tusClientMock->sendPatchRequest($bytes, $offset);
     }
@@ -761,6 +763,7 @@ class ClientTest extends TestCase
                     'Content-Type' => 'application/offset+octet-stream',
                     'Content-Length' => strlen($data),
                     'Upload-Checksum' => $checksum,
+                    'Upload-Offset' => $offset,
                 ],
             ])
             ->andThrow($clientExceptionMock);
@@ -815,6 +818,7 @@ class ClientTest extends TestCase
                     'Content-Type' => 'application/offset+octet-stream',
                     'Content-Length' => strlen($data),
                     'Upload-Checksum' => $checksum,
+                    'Upload-Offset' => $offset,
                 ],
             ])
             ->andThrow(m::mock(ConnectException::class));
@@ -868,6 +872,7 @@ class ClientTest extends TestCase
                     'Content-Type' => 'application/offset+octet-stream',
                     'Content-Length' => strlen($data),
                     'Upload-Checksum' => $checksum,
+                    'Upload-Offset' => $offset,
                 ],
             ])
             ->andReturn($responseMock);
@@ -1275,18 +1280,14 @@ class ClientTest extends TestCase
      */
     public function it_sends_a_delete_request()
     {
-        $checksum     = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
+        $uploadKey    = '74f02d6da32';
         $guzzleMock   = m::mock(Client::class);
         $responseMock = m::mock(Response::class);
 
         $guzzleMock
             ->shouldReceive('delete')
             ->once()
-            ->with('/files/' . $checksum, [
-                'headers' => [
-                    'Tus-Resumable' => '1.0.0',
-                ],
-            ])
+            ->with('/files/' . $uploadKey)
             ->andReturn($responseMock);
 
         $this->tusClientMock
@@ -1294,7 +1295,7 @@ class ClientTest extends TestCase
             ->once()
             ->andReturn($guzzleMock);
 
-        $response = $this->tusClientMock->delete($checksum);
+        $response = $this->tusClientMock->delete($uploadKey);
 
         $this->assertNull($response);
     }
@@ -1309,7 +1310,7 @@ class ClientTest extends TestCase
      */
     public function it_throws_404_for_invalid_delete_request()
     {
-        $checksum     = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
+        $uploadKey    = '74f02d6da32';
         $guzzleMock   = m::mock(Client::class);
         $responseMock = m::mock(Response::class);
 
@@ -1323,11 +1324,7 @@ class ClientTest extends TestCase
         $guzzleMock
             ->shouldReceive('delete')
             ->once()
-            ->with('/files/' . $checksum, [
-                'headers' => [
-                    'Tus-Resumable' => '1.0.0',
-                ],
-            ])
+            ->with('/files/' . $uploadKey)
             ->andThrow($clientExceptionMock);
 
         $responseMock
@@ -1340,7 +1337,7 @@ class ClientTest extends TestCase
             ->once()
             ->andReturn($guzzleMock);
 
-        $response = $this->tusClientMock->delete($checksum);
+        $response = $this->tusClientMock->delete($uploadKey);
 
         $this->assertNull($response);
     }
@@ -1355,7 +1352,7 @@ class ClientTest extends TestCase
      */
     public function it_throws_404_for_response_http_gone()
     {
-        $checksum     = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
+        $uploadKey    = '74f02d6da32';
         $guzzleMock   = m::mock(Client::class);
         $responseMock = m::mock(Response::class);
 
@@ -1369,11 +1366,7 @@ class ClientTest extends TestCase
         $guzzleMock
             ->shouldReceive('delete')
             ->once()
-            ->with('/files/' . $checksum, [
-                'headers' => [
-                    'Tus-Resumable' => '1.0.0',
-                ],
-            ])
+            ->with('/files/' . $uploadKey)
             ->andThrow($clientExceptionMock);
 
         $responseMock
@@ -1386,7 +1379,7 @@ class ClientTest extends TestCase
             ->once()
             ->andReturn($guzzleMock);
 
-        $response = $this->tusClientMock->delete($checksum);
+        $response = $this->tusClientMock->delete($uploadKey);
 
         $this->assertNull($response);
     }
