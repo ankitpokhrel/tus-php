@@ -1475,12 +1475,6 @@ class ServerTest extends TestCase
             ->set('Content-Type', 'application/offset+octet-stream');
 
         $this->tusServerMock
-            ->getRequest()
-            ->getRequest()
-            ->headers
-            ->set('Content-Length', 200);
-
-        $this->tusServerMock
             ->shouldReceive('buildFile')
             ->once()
             ->with($fileMeta)
@@ -1584,12 +1578,6 @@ class ServerTest extends TestCase
         $this->tusServerMock
             ->getRequest()
             ->getRequest()
-            ->headers
-            ->set('Content-Length', 200);
-
-        $this->tusServerMock
-            ->getRequest()
-            ->getRequest()
             ->server
             ->add([
                 'REQUEST_METHOD' => 'PATCH',
@@ -1672,12 +1660,6 @@ class ServerTest extends TestCase
             ->getRequest()
             ->headers
             ->set('Content-Type', 'application/offset+octet-stream');
-
-        $this->tusServerMock
-            ->getRequest()
-            ->getRequest()
-            ->headers
-            ->set('Content-Length', 200);
 
         $this->tusServerMock
             ->getRequest()
@@ -2642,12 +2624,6 @@ class ServerTest extends TestCase
                 'REQUEST_METHOD' => 'PATCH',
                 'REQUEST_URI' => '/files/' . $key,
             ]);
-
-        $this->tusServerMock
-            ->getRequest()
-            ->getRequest()
-            ->headers
-            ->set('Content-Length', 100);
 
         $cacheMock = m::mock(FileStore::class);
         $cacheMock
