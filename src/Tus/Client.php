@@ -48,6 +48,10 @@ class Client extends AbstractTus
      */
     public function __construct(string $baseUri, array $options = [])
     {
+        $options['headers'] = [
+            'Tus-Resumable' => self::TUS_PROTOCOL_VERSION,
+        ] + ($options['headers'] ?? []);
+
         $this->client = new GuzzleClient(
             ['base_uri' => $baseUri] + $options
         );
@@ -350,11 +354,7 @@ class Client extends AbstractTus
     public function delete(string $key)
     {
         try {
-            $this->getClient()->delete($this->apiPath . '/' . $key, [
-                'headers' => [
-                    'Tus-Resumable' => self::TUS_PROTOCOL_VERSION,
-                ],
-            ]);
+            $this->getClient()->delete($this->apiPath . '/' . $key);
         } catch (ClientException $e) {
             $statusCode = $e->getResponse()->getStatusCode();
 
@@ -432,6 +432,8 @@ class Client extends AbstractTus
 
         if ($this->isPartial()) {
             $headers += ['Upload-Concat' => self::UPLOAD_TYPE_PARTIAL];
+        } else {
+            $headers += ['Upload-Offset' => $offset];
         }
 
         try {

@@ -197,6 +197,103 @@ class ServerTest extends TestCase
      *
      * @covers ::serve
      */
+    public function it_sends_412_if_pre_condition_fails()
+    {
+        $tusServerMock = m::mock(TusServer::class)
+                          ->shouldAllowMockingProtectedMethods()
+                          ->makePartial();
+
+        $tusServerMock
+            ->shouldReceive('setCache')
+            ->once()
+            ->with('file')
+            ->andReturnSelf();
+
+        $tusServerMock->__construct('file');
+
+        $tusServerMock
+            ->shouldReceive('applyMiddleware')
+            ->once()
+            ->andReturnNull();
+
+        $tusServerMock
+            ->getRequest()
+            ->getRequest()
+            ->server
+            ->set('REQUEST_METHOD', 'HEAD');
+
+        $requestMock = m::mock(Request::class, ['file'])->makePartial();
+        $requestMock
+            ->getRequest()
+            ->headers
+            ->add(['Tus-Resumable' => '0.1.0']);
+
+        $tusServerMock
+            ->shouldReceive('getRequest')
+            ->times(3)
+            ->andReturn($requestMock);
+
+        $response = $tusServerMock->serve();
+
+        $this->assertEquals(412, $response->getStatusCode());
+        $this->assertEquals('1.0.0', $response->headers->get('Tus-Version'));
+        $this->assertEmpty($response->getContent());
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::serve
+     */
+    public function it_passes_pre_condition_check_if_requests_matches_tus_resumable_header()
+    {
+        $tusServerMock = m::mock(TusServer::class)
+                          ->shouldAllowMockingProtectedMethods()
+                          ->makePartial();
+
+        $tusServerMock
+            ->shouldReceive('setCache')
+            ->once()
+            ->with('file')
+            ->andReturnSelf();
+
+        $tusServerMock->__construct('file');
+
+        $tusServerMock
+            ->shouldReceive('applyMiddleware')
+            ->once()
+            ->andReturnNull();
+
+        $tusServerMock
+            ->getRequest()
+            ->getRequest()
+            ->server
+            ->set('REQUEST_METHOD', 'HEAD');
+
+        $requestMock = m::mock(Request::class, ['file'])->makePartial();
+        $requestMock
+            ->getRequest()
+            ->headers
+            ->add(['Tus-Resumable' => '1.0.0']);
+
+        $tusServerMock
+            ->shouldReceive('getRequest')
+            ->times(3)
+            ->andReturn($requestMock);
+
+        $tusServerMock
+            ->shouldReceive('handleHead')
+            ->once()
+            ->andReturn(m::mock(HttpResponse::class));
+
+        $this->assertInstanceOf(HttpResponse::class, $tusServerMock->serve());
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::serve
+     */
     public function it_calls_proper_handle_method()
     {
         foreach (self::ALLOWED_HTTP_VERBS as $method) {
@@ -259,7 +356,7 @@ class ServerTest extends TestCase
 
         $tusServerMock
             ->shouldReceive('getRequest')
-            ->times(5)
+            ->times(6)
             ->andReturn($requestMock);
 
         $tusServerMock
