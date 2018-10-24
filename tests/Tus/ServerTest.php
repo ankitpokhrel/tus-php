@@ -1361,6 +1361,12 @@ class ServerTest extends TestCase
         ];
 
         $this->tusServerMock
+          ->getRequest()
+          ->getRequest()
+          ->headers
+          ->set('Content-Type', 'application/offset+octet-stream');
+
+        $this->tusServerMock
             ->getRequest()
             ->getRequest()
             ->server
@@ -1439,6 +1445,12 @@ class ServerTest extends TestCase
             'expires_at' => $expiresAt,
             'upload_type' => 'normal',
         ];
+
+        $this->tusServerMock
+            ->getRequest()
+            ->getRequest()
+            ->headers
+            ->set('Content-Type', 'application/offset+octet-stream');
 
         $this->tusServerMock
             ->getRequest()
@@ -1554,6 +1566,12 @@ class ServerTest extends TestCase
             ->andThrow(new ConnectionException);
 
         $this->tusServerMock
+            ->getRequest()
+            ->getRequest()
+            ->headers
+            ->set('Content-Type', 'application/offset+octet-stream');
+
+        $this->tusServerMock
             ->shouldReceive('buildFile')
             ->once()
             ->with($fileMeta)
@@ -1651,6 +1669,12 @@ class ServerTest extends TestCase
         $this->tusServerMock
             ->getRequest()
             ->getRequest()
+            ->headers
+            ->set('Content-Type', 'application/offset+octet-stream');
+
+        $this->tusServerMock
+            ->getRequest()
+            ->getRequest()
             ->server
             ->add([
                 'REQUEST_METHOD' => 'PATCH',
@@ -1727,6 +1751,12 @@ class ServerTest extends TestCase
             'expires_at' => $expiresAt,
             'upload_type' => 'normal',
         ];
+
+        $this->tusServerMock
+            ->getRequest()
+            ->getRequest()
+            ->headers
+            ->set('Content-Type', 'application/offset+octet-stream');
 
         $this->tusServerMock
             ->getRequest()
@@ -2655,6 +2685,56 @@ class ServerTest extends TestCase
         $this->assertTrue($this->tusServerMock->verifyChecksum('', $filePath));
         $this->assertFalse($this->tusServerMock->verifyChecksum('invalid', $filePath));
         $this->assertTrue($this->tusServerMock->verifyChecksum($checksum, $filePath));
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::handlePatch
+     * @covers ::verifyPatchRequest
+     */
+    public function it_returns_415_for_content_type_mismatch()
+    {
+        $key       = uniqid();
+        $fileName  = 'file.txt';
+        $fileSize  = 1024;
+        $checksum  = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
+        $location  = 'http://tus.local/uploads/file.txt';
+        $expiresAt = 'Sat, 09 Dec 2017 00:00:00 GMT';
+        $fileMeta  = [
+            'name' => $fileName,
+            'size' => $fileSize,
+            'offset' => 0,
+            'checksum' => $checksum,
+            'file_path' => dirname(__DIR__) . DIRECTORY_SEPARATOR . $fileName,
+            'location' => $location,
+            'created_at' => 'Fri, 08 Dec 2017 00:00:00 GMT',
+            'expires_at' => $expiresAt,
+            'upload_type' => 'normal',
+        ];
+
+        $this->tusServerMock
+            ->getRequest()
+            ->getRequest()
+            ->server
+            ->add([
+                'REQUEST_METHOD' => 'PATCH',
+                'REQUEST_URI' => '/files/' . $key,
+            ]);
+
+        $cacheMock = m::mock(FileStore::class);
+        $cacheMock
+            ->shouldReceive('get')
+            ->once()
+            ->with($key)
+            ->andReturn($fileMeta);
+
+        $this->tusServerMock->setCache($cacheMock);
+
+        $response = $this->tusServerMock->handlePatch();
+
+        $this->assertEquals(415, $response->getStatusCode());
+        $this->assertEmpty($response->getContent());
     }
 
     /**

@@ -425,7 +425,7 @@ class Client extends AbstractTus
     {
         $data    = $this->getData($offset, $bytes);
         $headers = [
-            'Content-Type' => 'application/offset+octet-stream',
+            'Content-Type' => self::HEADER_CONTENT_TYPE,
             'Content-Length' => strlen($data),
             'Upload-Checksum' => $this->getUploadChecksumHeader(),
         ];
@@ -452,6 +452,10 @@ class Client extends AbstractTus
 
             if (HttpResponse::HTTP_CONTINUE === $statusCode) {
                 throw new ConnectionException('Connection aborted by user.');
+            }
+
+            if (HttpResponse::HTTP_UNSUPPORTED_MEDIA_TYPE === $statusCode) {
+                throw new Exception('Unsupported media Types.');
             }
 
             throw new Exception($e->getResponse()->getBody(), $statusCode);

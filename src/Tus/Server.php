@@ -469,7 +469,7 @@ class Server extends AbstractTus
         }
 
         return $this->response->send(null, HttpResponse::HTTP_NO_CONTENT, [
-            'Content-Type' => 'application/offset+octet-stream',
+            'Content-Type' => self::HEADER_CONTENT_TYPE,
             'Upload-Expires' => $this->cache->get($uploadKey)['expires_at'],
             'Upload-Offset' => $offset,
         ]);
@@ -492,6 +492,12 @@ class Server extends AbstractTus
 
         if ($uploadOffset && $uploadOffset !== (string) $meta['offset']) {
             return HttpResponse::HTTP_CONFLICT;
+        }
+
+        $contentType = $this->request->header('Content-Type');
+
+        if ($contentType !== self::HEADER_CONTENT_TYPE) {
+            return HTTPRESPONSE::HTTP_UNSUPPORTED_MEDIA_TYPE;
         }
 
         return HttpResponse::HTTP_OK;
