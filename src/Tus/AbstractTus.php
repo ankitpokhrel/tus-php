@@ -2,6 +2,8 @@
 
 namespace TusPhp\Tus;
 
+use ReflectionClass;
+use ReflectionException;
 use TusPhp\Cache\Cacheable;
 use TusPhp\Cache\CacheFactory;
 
@@ -45,6 +47,14 @@ abstract class AbstractTus
         } elseif ($cache instanceof Cacheable) {
             $this->cache = $cache;
         }
+
+        try {
+            $prefix = 'tus:' . strtolower((new ReflectionClass(static::class))->getShortName()) . ':';
+        } catch (ReflectionException $e) {
+            $prefix = 'tus:';
+        }
+
+        $this->cache->setPrefix($prefix);
 
         return $this;
     }

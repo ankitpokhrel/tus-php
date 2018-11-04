@@ -3,6 +3,8 @@
 namespace TusPhp\Tus;
 
 use TusPhp\File;
+use Carbon\Carbon;
+use TusPhp\Config;
 use TusPhp\Exception\Exception;
 use TusPhp\Exception\FileException;
 use GuzzleHttp\Client as GuzzleClient;
@@ -27,6 +29,9 @@ class Client extends AbstractTus
 
     /** @var string */
     protected $key;
+
+    /** @var string */
+    protected $url;
 
     /** @var string */
     protected $checksum;
@@ -55,6 +60,10 @@ class Client extends AbstractTus
         $this->client = new GuzzleClient(
             ['base_uri' => $baseUri] + $options
         );
+
+        Config::set(__DIR__ . '/../Config/client.php');
+
+        $this->setCache('file');
     }
 
     /**
@@ -172,6 +181,34 @@ class Client extends AbstractTus
     }
 
     /**
+     * Set key.
+     *
+     * @param string $url
+     *
+     * @return Client
+     */
+    public function setUrl(string $url) : self
+    {
+        $this->url = $url;
+
+        return $this;
+    }
+
+    /**
+     * Get key.
+     *
+     * @return string|null
+     */
+    public function getUrl() : ?string
+    {
+        if ( ! $this->url) {
+            return $this->getCache()->get($this->getKey())['location'] ?? null;
+        }
+
+        return $this->url;
+    }
+
+    /**
      * Set checksum algorithm.
      *
      * @param string $algorithm
@@ -249,9 +286,15 @@ class Client extends AbstractTus
 
         try {
             // Check if this upload exists with HEAD request.
-            $offset = $this->sendHeadRequest($key);
+            $location = $this->getUrl();
+
+            if ( ! $location) {
+                throw new FileException('File not found.');
+            }
+
+            $offset = $this->sendHeadRequest();
         } catch (FileException | ClientException $e) {
-            $this->create($key);
+            $this->url = $this->create($key);
         } catch (ConnectException $e) {
             throw new ConnectionException("Couldn't connect to server.");
         }
@@ -267,10 +310,14 @@ class Client extends AbstractTus
      */
     public function getOffset()
     {
-        $key = $this->getKey();
+        $location = $this->getUrl();
+
+        if ( ! $location) {
+            return false;
+        }
 
         try {
-            $offset = $this->sendHeadRequest($key);
+            $offset = $this->sendHeadRequest();
         } catch (FileException | ClientException $e) {
             return false;
         }
@@ -285,9 +332,9 @@ class Client extends AbstractTus
      *
      * @throws FileException
      *
-     * @return void
+     * @return string
      */
-    public function create(string $key)
+    public function create(string $key) : string
     {
         $headers = [
             'Upload-Length' => $this->fileSize,
@@ -309,6 +356,15 @@ class Client extends AbstractTus
         if (HttpResponse::HTTP_CREATED !== $statusCode) {
             throw new FileException('Unable to create resource.');
         }
+
+        $uploadLocation = current($response->getHeader('location'));
+
+        $this->getCache()->set($this->getKey(), [
+            'location' => $uploadLocation,
+            'expires_at' => Carbon::now()->addSeconds($this->getCache()->getTtl())->format($this->getCache()::RFC_7231),
+        ]);
+
+        return $uploadLocation;
     }
 
     /**
@@ -345,16 +401,14 @@ class Client extends AbstractTus
     /**
      * Send DELETE request.
      *
-     * @param string $key
-     *
      * @throws FileException
      *
      * @return void
      */
-    public function delete(string $key)
+    public function delete()
     {
         try {
-            $this->getClient()->delete($this->apiPath . '/' . $key);
+            $this->getClient()->delete($this->getUrl());
         } catch (ClientException $e) {
             $statusCode = $e->getResponse()->getStatusCode();
 
@@ -391,15 +445,13 @@ class Client extends AbstractTus
     /**
      * Send HEAD request.
      *
-     * @param string $key
-     *
      * @throws FileException
      *
      * @return int
      */
-    protected function sendHeadRequest(string $key) : int
+    protected function sendHeadRequest() : int
     {
-        $response   = $this->getClient()->head($this->apiPath . '/' . $key);
+        $response   = $this->getClient()->head($this->getUrl());
         $statusCode = $response->getStatusCode();
 
         if (HttpResponse::HTTP_OK !== $statusCode) {
@@ -416,7 +468,6 @@ class Client extends AbstractTus
      * @param int $offset
      *
      * @throws Exception
-     * @throws FileException
      * @throws ConnectionException
      *
      * @return int
@@ -437,7 +488,7 @@ class Client extends AbstractTus
         }
 
         try {
-            $response = $this->getClient()->patch($this->apiPath . '/' . $this->getKey(), [
+            $response = $this->getClient()->patch($this->getUrl(), [
                 'body' => $data,
                 'headers' => $headers,
             ]);
