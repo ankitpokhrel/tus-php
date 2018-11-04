@@ -181,7 +181,7 @@ class Client extends AbstractTus
     }
 
     /**
-     * Set key.
+     * Set url.
      *
      * @param string $url
      *
@@ -195,14 +195,14 @@ class Client extends AbstractTus
     }
 
     /**
-     * Get key.
+     * Get url.
      *
      * @return string|null
      */
     public function getUrl() : ?string
     {
         if ( ! $this->url) {
-            return $this->getCache()->get($this->getKey())['location'] ?? null;
+            $this->url = $this->getCache()->get($this->getKey())['location'] ?? null;
         }
 
         return $this->url;
