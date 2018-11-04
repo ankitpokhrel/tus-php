@@ -36,6 +36,8 @@ abstract class AbstractTus
      *
      * @param mixed $cache
      *
+     * @throws \ReflectionException
+     *
      * @return self
      */
     public function setCache($cache) : self
@@ -46,11 +48,7 @@ abstract class AbstractTus
             $this->cache = $cache;
         }
 
-        try {
-            $prefix = 'tus:' . strtolower((new \ReflectionClass(static::class))->getShortName()) . ':';
-        } catch (\ReflectionException $e) {
-            $prefix = 'tus:';
-        }
+        $prefix = 'tus:' . strtolower((new \ReflectionClass(static::class))->getShortName()) . ':';
 
         $this->cache->setPrefix($prefix);
 
