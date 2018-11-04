@@ -495,7 +495,7 @@ class Client extends AbstractTus
 
             return (int) current($response->getHeader('upload-offset'));
         } catch (ClientException $e) {
-            $this->handleClientException($e);
+            throw $this->handleClientException($e);
         } catch (ConnectException $e) {
             throw new ConnectionException("Couldn't connect to server.");
         }
@@ -506,28 +506,25 @@ class Client extends AbstractTus
      *
      * @param ClientException $e
      *
-     * @throws Exception
-     * @throws ConnectionException
-     *
-     * @return void
+     * @return mixed
      */
     protected function handleClientException(ClientException $e)
     {
         $statusCode = $e->getResponse()->getStatusCode();
 
         if (HttpResponse::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE === $statusCode) {
-            throw new FileException('The uploaded file is corrupt.');
+            return new FileException('The uploaded file is corrupt.');
         }
 
         if (HttpResponse::HTTP_CONTINUE === $statusCode) {
-            throw new ConnectionException('Connection aborted by user.');
+            return new ConnectionException('Connection aborted by user.');
         }
 
         if (HttpResponse::HTTP_UNSUPPORTED_MEDIA_TYPE === $statusCode) {
-            throw new Exception('Unsupported media Types.');
+            return new Exception('Unsupported media Types.');
         }
 
-        throw new Exception($e->getResponse()->getBody(), $statusCode);
+        return new Exception($e->getResponse()->getBody(), $statusCode);
     }
 
     /**
