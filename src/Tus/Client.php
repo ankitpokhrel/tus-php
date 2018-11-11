@@ -181,28 +181,16 @@ class Client extends AbstractTus
     }
 
     /**
-     * Set url.
-     *
-     * @param string $url
-     *
-     * @return Client
-     */
-    public function setUrl(string $url) : self
-    {
-        $this->url = $url;
-
-        return $this;
-    }
-
-    /**
      * Get url.
      *
      * @return string|null
      */
     public function getUrl() : ?string
     {
+        $this->url = $this->getCache()->get($this->getKey())['location'] ?? null;
+
         if ( ! $this->url) {
-            $this->url = $this->getCache()->get($this->getKey())['location'] ?? null;
+            throw new FileException('File not found.');
         }
 
         return $this->url;
@@ -280,21 +268,13 @@ class Client extends AbstractTus
      */
     public function upload(int $bytes = -1) : int
     {
-        $key    = $this->getKey();
         $bytes  = $bytes < 0 ? $this->getFileSize() : $bytes;
         $offset = $this->partialOffset < 0 ? 0 : $this->partialOffset;
 
         try {
-            // Check if this upload exists with HEAD request.
-            $location = $this->getUrl();
-
-            if ( ! $location) {
-                throw new FileException('File not found.');
-            }
-
             $offset = $this->sendHeadRequest();
         } catch (FileException | ClientException $e) {
-            $this->url = $this->create($key);
+            $this->url = $this->create($this->getKey());
         } catch (ConnectException $e) {
             throw new ConnectionException("Couldn't connect to server.");
         }
@@ -310,12 +290,6 @@ class Client extends AbstractTus
      */
     public function getOffset()
     {
-        $location = $this->getUrl();
-
-        if ( ! $location) {
-            return false;
-        }
-
         try {
             $offset = $this->sendHeadRequest();
         } catch (FileException | ClientException $e) {
@@ -521,7 +495,7 @@ class Client extends AbstractTus
         }
 
         if (HttpResponse::HTTP_UNSUPPORTED_MEDIA_TYPE === $statusCode) {
-            return new Exception('Unsupported media Types.');
+            return new Exception('Unsupported media types.');
         }
 
         return new Exception($e->getResponse()->getBody(), $statusCode);

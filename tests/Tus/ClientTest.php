@@ -193,6 +193,70 @@ class ClientTest extends TestCase
     /**
      * @test
      *
+     * @covers ::getUrl
+     */
+    public function it_gets_url_from_cache()
+    {
+        $key = uniqid();
+        $url = 'https://server.tus.local';
+
+        $cacheMock = m::mock(FileStore::class);
+        $cacheMock
+            ->shouldReceive('get')
+            ->once()
+            ->with($key)
+            ->andReturn([
+                'location' => $url,
+            ]);
+
+        $this->tusClientMock
+            ->shouldReceive('getKey')
+            ->once()
+            ->andReturn($key);
+
+        $this->tusClientMock
+            ->shouldReceive('getCache')
+            ->once()
+            ->andReturn($cacheMock);
+
+        $this->assertEquals($url, $this->tusClientMock->getUrl());
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::getUrl
+     *
+     * @expectedException \TusPhp\Exception\FileException
+     * @expectedExceptionMessage File not found.
+     */
+    public function it_throws_file_exception_for_empty_url()
+    {
+        $key = uniqid();
+
+        $cacheMock = m::mock(FileStore::class);
+        $cacheMock
+            ->shouldReceive('get')
+            ->once()
+            ->with($key)
+            ->andReturnNull();
+
+        $this->tusClientMock
+            ->shouldReceive('getKey')
+            ->once()
+            ->andReturn($key);
+
+        $this->tusClientMock
+            ->shouldReceive('getCache')
+            ->once()
+            ->andReturn($cacheMock);
+
+        $this->tusClientMock->getUrl();
+    }
+
+    /**
+     * @test
+     *
      * @covers ::setChecksumAlgorithm
      * @covers ::getChecksumAlgorithm
      */
@@ -265,19 +329,8 @@ class ClientTest extends TestCase
      */
     public function it_uploads_a_file()
     {
-        $key    = uniqid();
         $bytes  = 100;
         $offset = 0;
-
-        $this->tusClientMock
-            ->shouldReceive('getKey')
-            ->once()
-            ->andReturn($key);
-
-        $this->tusClientMock
-            ->shouldReceive('getUrl')
-            ->once()
-            ->andReturn('http://tus-server/files/' . $key);
 
         $this->tusClientMock
             ->shouldReceive('sendHeadRequest')
@@ -300,19 +353,8 @@ class ClientTest extends TestCase
      */
     public function it_uploads_full_file_if_size_is_not_given()
     {
-        $key    = uniqid();
         $bytes  = 100;
         $offset = 0;
-
-        $this->tusClientMock
-            ->shouldReceive('getKey')
-            ->once()
-            ->andReturn($key);
-
-        $this->tusClientMock
-            ->shouldReceive('getUrl')
-            ->once()
-            ->andReturn('http://tus-server/files/' . $key);
 
         $this->tusClientMock
             ->shouldReceive('getFileSize')
@@ -350,11 +392,6 @@ class ClientTest extends TestCase
             ->andReturn($key);
 
         $this->tusClientMock
-            ->shouldReceive('getUrl')
-            ->once()
-            ->andReturn('http://tus-server/files/' . $key);
-
-        $this->tusClientMock
             ->shouldReceive('sendHeadRequest')
             ->once()
             ->andThrow(new FileException);
@@ -390,11 +427,6 @@ class ClientTest extends TestCase
             ->andReturn($key);
 
         $this->tusClientMock
-            ->shouldReceive('getUrl')
-            ->once()
-            ->andReturn('http://tus-server/files/' . $key);
-
-        $this->tusClientMock
             ->shouldReceive('sendHeadRequest')
             ->once()
             ->andThrow(m::mock(ClientException::class));
@@ -423,18 +455,6 @@ class ClientTest extends TestCase
      */
     public function it_throws_connection_exception_for_network_issues()
     {
-        $key = uniqid();
-
-        $this->tusClientMock
-            ->shouldReceive('getKey')
-            ->once()
-            ->andReturn($key);
-
-        $this->tusClientMock
-            ->shouldReceive('getUrl')
-            ->once()
-            ->andReturn('http://tus-server/files/' . $key);
-
         $this->tusClientMock
             ->shouldReceive('sendHeadRequest')
             ->once()
@@ -450,13 +470,6 @@ class ClientTest extends TestCase
      */
     public function it_returns_false_for_file_exception_in_get_offset()
     {
-        $key = uniqid();
-
-        $this->tusClientMock
-            ->shouldReceive('getUrl')
-            ->once()
-            ->andReturn('http://tus-server/files/' . $key);
-
         $this->tusClientMock
             ->shouldReceive('sendHeadRequest')
             ->once()
@@ -472,13 +485,6 @@ class ClientTest extends TestCase
      */
     public function it_returns_false_for_client_exception_in_get_offset()
     {
-        $key = uniqid();
-
-        $this->tusClientMock
-            ->shouldReceive('getUrl')
-            ->once()
-            ->andReturn('http://tus-server/files/' . $key);
-
         $this->tusClientMock
             ->shouldReceive('sendHeadRequest')
             ->once()
@@ -494,13 +500,6 @@ class ClientTest extends TestCase
      */
     public function it_gets_offset_for_partially_uploaded_resource()
     {
-        $key = uniqid();
-
-        $this->tusClientMock
-            ->shouldReceive('getUrl')
-            ->once()
-            ->andReturn('http://tus-server/files/' . $key);
-
         $this->tusClientMock
             ->shouldReceive('sendHeadRequest')
             ->once()
@@ -592,6 +591,7 @@ class ClientTest extends TestCase
      * @test
      *
      * @covers ::sendPatchRequest
+     * @covers ::handleClientException
      *
      * @expectedException \TusPhp\Exception\FileException
      * @expectedExceptionMessage The uploaded file is corrupt.
@@ -660,6 +660,7 @@ class ClientTest extends TestCase
      * @test
      *
      * @covers ::sendPatchRequest
+     * @covers ::handleClientException
      *
      * @expectedException \TusPhp\Exception\ConnectionException
      * @expectedExceptionMessage Connection aborted by user.
@@ -728,6 +729,76 @@ class ClientTest extends TestCase
      * @test
      *
      * @covers ::sendPatchRequest
+     * @covers ::handleClientException
+     *
+     * @expectedException \TusPhp\Exception\Exception
+     * @expectedExceptionMessage Unsupported media types.
+     */
+    public function it_throws_tus_exception_for_unsupported_media_types()
+    {
+        $data     = 'Hello World!';
+        $bytes    = 12;
+        $offset   = 0;
+        $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
+
+        $this->tusClientMock
+            ->shouldReceive('getData')
+            ->once()
+            ->with($offset, $bytes)
+            ->andReturn($data);
+
+        $this->tusClientMock
+            ->shouldReceive('getUploadChecksumHeader')
+            ->once()
+            ->andReturn($checksum);
+
+        $this->tusClientMock
+            ->shouldReceive('getUrl')
+            ->once()
+            ->andReturn('http://tus-server/files/' . $checksum);
+
+        $guzzleMock   = m::mock(Client::class);
+        $responseMock = m::mock(Response::class);
+
+        $clientExceptionMock = m::mock(ClientException::class);
+
+        $clientExceptionMock
+            ->shouldReceive('getResponse')
+            ->once()
+            ->andReturn($responseMock);
+
+        $responseMock
+            ->shouldReceive('getStatusCode')
+            ->once()
+            ->andReturn(415);
+
+        $this->tusClientMock
+            ->shouldReceive('getClient')
+            ->once()
+            ->andReturn($guzzleMock);
+
+        $guzzleMock
+            ->shouldReceive('patch')
+            ->once()
+            ->with('http://tus-server/files/' . $checksum, [
+                'body' => $data,
+                'headers' => [
+                    'Content-Type' => 'application/offset+octet-stream',
+                    'Content-Length' => strlen($data),
+                    'Upload-Checksum' => $checksum,
+                    'Upload-Offset' => $offset,
+                ],
+            ])
+            ->andThrow($clientExceptionMock);
+
+        $this->tusClientMock->sendPatchRequest($bytes, $offset);
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::sendPatchRequest
+     * @covers ::handleClientException
      *
      * @expectedException \TusPhp\Exception\Exception
      * @expectedExceptionMessage Unable to open file.
@@ -802,6 +873,7 @@ class ClientTest extends TestCase
      * @test
      *
      * @covers ::sendPatchRequest
+     * @covers ::handleClientException
      *
      * @expectedException \TusPhp\Exception\ConnectionException
      * @expectedExceptionMessage Couldn't connect to server.
