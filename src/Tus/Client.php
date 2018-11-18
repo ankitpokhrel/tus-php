@@ -50,6 +50,8 @@ class Client extends AbstractTus
      *
      * @param string $baseUri
      * @param array  $options
+     *
+     * @throws \ReflectionException
      */
     public function __construct(string $baseUri, array $options = [])
     {
