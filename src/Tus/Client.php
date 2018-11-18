@@ -274,8 +274,10 @@ class Client extends AbstractTus
         $offset = $this->partialOffset < 0 ? 0 : $this->partialOffset;
 
         try {
+            // Check if this upload exists with HEAD request.
             $offset = $this->sendHeadRequest();
         } catch (FileException | ClientException $e) {
+            // Create a new upload.
             $this->url = $this->create($this->getKey());
         } catch (ConnectException $e) {
             throw new ConnectionException("Couldn't connect to server.");
