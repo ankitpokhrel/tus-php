@@ -145,7 +145,7 @@ class FileStoreTest extends TestCase
         $this->assertTrue(file_exists($this->cacheDir));
         $this->assertTrue(file_exists($this->cacheDir . $this->cacheFile));
 
-        // Cache is invalid, should return null
+        // Cache is invalid, should return null.
         $this->assertEquals(null, $this->fileStore->get($this->checksum));
     }
 
@@ -158,6 +158,7 @@ class FileStoreTest extends TestCase
      * @covers ::isValid
      * @covers ::set
      * @covers ::get
+     * @covers ::put
      */
     public function it_sets_cache_contents()
     {
@@ -175,6 +176,7 @@ class FileStoreTest extends TestCase
      *
      * @covers ::set
      * @covers ::get
+     * @covers ::put
      */
     public function it_doesnt_replace_cache_key_in_set()
     {
@@ -290,8 +292,9 @@ class FileStoreTest extends TestCase
      * @covers ::set
      * @covers ::get
      * @covers ::getCacheContents
+     * @covers ::sharedGet
      */
-    public function it_gets_cache_contents()
+    public function it_gets_all_cache_contents()
     {
         $cacheContent = ['expires_at' => 'Fri, 08 Dec 2017 16:25:51 GMT', 'offset' => 100];
 
@@ -312,6 +315,7 @@ class FileStoreTest extends TestCase
      * @covers ::set
      * @covers ::get
      * @covers ::delete
+     * @covers ::put
      * @covers ::getCacheContents
      */
     public function it_deletes_cache_content()
@@ -388,6 +392,53 @@ class FileStoreTest extends TestCase
 
         $this->assertEquals('hello:cache-key', $this->fileStore->getActualCacheKey('cache-key'));
         $this->assertEquals('hello:cache-key', $this->fileStore->getActualCacheKey('hello:cache-key'));
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::put
+     * @covers ::sharedGet
+     */
+    public function it_gets_data_with_shared_lock()
+    {
+        $filePath  = __DIR__ . '/../.tmp/shared.txt';
+        $fileStore = new FileStore(__DIR__ . '/../.tmp/', 'shared.txt');
+
+        $contents = '';
+        for ($i = 0; $i < 10000; $i++) {
+            $contents .= $i;
+        }
+
+        touch($filePath);
+
+        for ($i = 0; $i < 20; $i++) {
+            $pid = pcntl_fork();
+
+            if ( ! $pid) { // Child process.
+                $fileStore->put($filePath, $contents);
+
+                exit($fileStore->sharedGet($filePath) === $contents ? 0 : 1);
+            }
+        }
+
+        while (-1 !== pcntl_waitpid(0, $status)) {
+            $status = pcntl_wexitstatus($status);
+
+            $this->assertTrue($status === 0);
+        }
+
+        @unlink($filePath);
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::sharedGet
+     */
+    public function it_gets_empty_contents_for_invalid_file_in_shared_get()
+    {
+        $this->assertEmpty($this->fileStore->sharedGet(__DIR__ . '/.tmp/invalid.file'));
     }
 
     /**
