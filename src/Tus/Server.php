@@ -72,6 +72,8 @@ class Server extends AbstractTus
      * TusServer constructor.
      *
      * @param Cacheable|string $cacheAdapter
+     *
+     * @throws \ReflectionException
      */
     public function __construct($cacheAdapter = 'file')
     {

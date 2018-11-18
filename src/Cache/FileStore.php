@@ -124,26 +124,69 @@ class FileStore extends AbstractCache
     }
 
     /**
+     * Get contents of a file with shared access.
+     *
+     * @param string $path
+     *
+     * @return string
+     */
+    public function sharedGet(string $path) : string
+    {
+        $contents  = '';
+        $chunkSize = 1048576; // 1 mb.
+        $handle    = @fopen($path, 'r');
+
+        if (false === $handle) {
+            return $contents;
+        }
+
+        try {
+            if (flock($handle, LOCK_SH)) {
+                while ( ! feof($handle)) {
+                    $contents .= fread($handle, $chunkSize);
+                }
+            }
+        } finally {
+            fclose($handle);
+        }
+
+        return $contents;
+    }
+
+    /**
+     * Write the contents of a file with exclusive lock.
+     *
+     * @param  string $path
+     * @param  string $contents
+     *
+     * @return int
+     */
+    public function put(string $path, string $contents) : int
+    {
+        return file_put_contents($path, $contents, LOCK_EX);
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function set(string $key, $value)
     {
-        $key       = $this->getActualCacheKey($key);
+        $cacheKey  = $this->getActualCacheKey($key);
         $cacheFile = $this->getCacheFile();
 
-        if ( ! file_exists($cacheFile) || ! $this->isValid($key)) {
+        if ( ! file_exists($cacheFile) || ! $this->isValid($cacheKey)) {
             $this->createCacheFile();
         }
 
-        $contents = json_decode(file_get_contents($cacheFile), true) ?? [];
+        $contents = json_decode($this->sharedGet($cacheFile), true) ?? [];
 
-        if ( ! empty($contents[$key]) && is_array($value)) {
-            $contents[$key] = $value + $contents[$key];
+        if ( ! empty($contents[$cacheKey]) && is_array($value)) {
+            $contents[$cacheKey] = $value + $contents[$cacheKey];
         } else {
-            $contents[$key] = $value;
+            $contents[$cacheKey] = $value;
         }
 
-        return file_put_contents($cacheFile, json_encode($contents));
+        return $this->put($cacheFile, json_encode($contents));
     }
 
     /**
@@ -151,13 +194,13 @@ class FileStore extends AbstractCache
      */
     public function delete(string $key) : bool
     {
-        $key      = $this->getActualCacheKey($key);
+        $cacheKey = $this->getActualCacheKey($key);
         $contents = $this->getCacheContents();
 
-        if (isset($contents[$key])) {
-            unset($contents[$key]);
+        if (isset($contents[$cacheKey])) {
+            unset($contents[$cacheKey]);
 
-            return false !== file_put_contents($this->getCacheFile(), json_encode($contents));
+            return false !== $this->put($this->getCacheFile(), json_encode($contents));
         }
 
         return false;
@@ -209,7 +252,7 @@ class FileStore extends AbstractCache
             return false;
         }
 
-        return json_decode(file_get_contents($cacheFile), true) ?? [];
+        return json_decode($this->sharedGet($cacheFile), true) ?? [];
     }
 
     /**
