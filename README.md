@@ -30,8 +30,8 @@
     <a href="https://medium.com/@ankitpokhrel/resumable-file-upload-in-php-handle-large-file-uploads-in-an-elegant-way-e6c6dfdeaedb">Medium Article</a>&nbsp;⚡&nbsp;<a href="https://github.com/ankitpokhrel/tus-php/wiki/Laravel-&-Lumen-Integration">Laravel & Lumen Integration</a>&nbsp;⚡&nbsp;<a href="https://github.com/ankitpokhrel/tus-php/wiki/Symfony-Integration">Symfony Integration</a>&nbsp;⚡&nbsp;<a href="https://github.com/ankitpokhrel/tus-php/wiki/CakePHP-Integration">CakePHP Integration</a>
 </p>
 
-**tus** is a HTTP based protocol for resumable file uploads. Resumable means you can carry on where you left off without 
-re-uploading whole data again in case of any interruptions. An interruption may happen willingly if the user wants 
+**tus** is a HTTP based protocol for resumable file uploads. Resumable means you can carry on where you left off without
+re-uploading whole data again in case of any interruptions. An interruption may happen willingly if the user wants
 to pause, or by accident in case of a network issue or server outage.
 
 ### Installation
@@ -42,8 +42,8 @@ $ composer require ankitpokhrel/tus-php
 ```
 
 ## Usage
-| ![Basic Tus Architecture](https://cdn-images-1.medium.com/max/2000/1*N4JhqeXJgWA1Z7pc6_5T_A.png "Basic Tus Architecture") | 
-|:--:| 
+| ![Basic Tus Architecture](https://cdn-images-1.medium.com/max/2000/1*N4JhqeXJgWA1Z7pc6_5T_A.png "Basic Tus Architecture") |
+|:--:|
 | Basic Tus Architecture |
 
 #### Server
@@ -86,7 +86,7 @@ Default max upload size is 0 which means there is no restriction. You can set ma
 $server->setMaxUploadSize(100000000); // 100 MB in bytes
 ```
 
-Default redis and file configuration can be found inside `config/default.php` file. To override default config you can simply copy the file 
+Default redis and file configuration can be found inside `config/default.php` file. To override default config you can simply copy the file
 to your preferred location and update the parameters. You then need to set the config before doing anything else.
 
 ```
@@ -116,10 +116,10 @@ $bytesUploaded = $client->upload(1000000);
 $client->file('/path/to/file', 'filename.ext')->upload();
 ```
 
-To check if the file was partially uploaded before, you can use `getOffset` method. It returns false if the upload 
+To check if the file was partially uploaded before, you can use `getOffset` method. It returns false if the upload
 isn't there or invalid, returns total bytes uploaded otherwise.
 
-```php 
+```php
 $offset = $client->getOffset(); // 2000000 bytes or 2MB
 ```
 
@@ -135,8 +135,8 @@ By default, the client uses `/files` as an API path. You can change it with `set
 $client->setApiPath('/api');
 ```
 
-By default, the server will use `sha256` algorithm to verify the integrity of the upload. If you want to use a different hash algorithm, you can do so by 
-using `setChecksumAlgorithm` method. To get the list of supported hash algorithms, you can send `OPTIONS` request to the server. 
+By default, the server will use `sha256` algorithm to verify the integrity of the upload. If you want to use a different hash algorithm, you can do so by
+using `setChecksumAlgorithm` method. To get the list of supported hash algorithms, you can send `OPTIONS` request to the server.
 
 ```php
 $client->setChecksumAlgorithm('crc32');
@@ -163,7 +163,7 @@ Arguments:
 
 Options:
   -c, --config=CONFIG   File to get config parameters from.
-  
+
 eg:
 
 $ ./vendor/bin/tus tus:expired redis
@@ -174,7 +174,7 @@ Cleaning server resources
 1. Deleted 1535888128_35094.jpg from /var/www/uploads
 ```
 
-You can use`--config` option to override default redis or file configuration. 
+You can use`--config` option to override default redis or file configuration.
 
  ```shell
  $ ./vendor/bin/tus tus:expired redis --config=<path to your config file>
@@ -226,7 +226,7 @@ use TusPhp\Middleware\TusMiddleware;
 class Authenticated implements TusMiddleware
 {
     // ...
-    
+
     /**
      * {@inheritDoc}
      */
@@ -239,14 +239,14 @@ class Authenticated implements TusMiddleware
 
         $request->getRequest()->headers->set('Authorization', 'Bearer ' . $this->user->token());
     }
-    
+
     // ...
 }
 ```
 
 #### Adding a Middleware
 To add a middleware, get middleware object from server and simply pass middleware classes.
- 
+
 ```php
 $server->middleware()->add(Authenticated::class, AnotherMiddleware::class);
 ```
@@ -260,15 +260,15 @@ $server->middleware()->add($authenticated);
 
 #### Skipping a Middleware
 If you wish to skip or ignore any middleware, you can do so by using the `skip` method.
- 
+
 ```php
 $server->middleware()->skip(Cors::class, AnotherMiddleware::class);
  ```
-  
+
 ### Compatible with [Uppy](https://uppy.io/)
 Uppy is a sleek, modular file uploader plugin developed by same folks behind tus protocol.
-You can use uppy to seamlessly integrate official [tus-js-client](https://github.com/tus/tus-js-client) with tus-php server. 
-Check out more details in [uppy docs](https://uppy.io/docs/tus/). 
+You can use uppy to seamlessly integrate official [tus-js-client](https://github.com/tus/tus-js-client) with tus-php server.
+Check out more details in [uppy docs](https://uppy.io/docs/tus/).
 ```js
 uppy.use(Tus, {
   endpoint: 'https://tus-server.yoursite.com/files/', // use your tus endpoint here
@@ -280,26 +280,26 @@ uppy.use(Tus, {
 
 ### Setting up a dev environment and/or running examples locally
 An ajax based example for this implementation can be found in `examples/` folder. You can either build and run it using docker or use kubernetes locally with minikube.
- 
+
 #### Docker
-Make sure that [docker](https://docs.docker.com/engine/installation/) and [docker-compose](https://docs.docker.com/compose/install/) 
+Make sure that [docker](https://docs.docker.com/engine/installation/) and [docker-compose](https://docs.docker.com/compose/install/)
 are installed in your system. Then, run docker script from project root.
 ```shell
 $ bin/docker.sh
 ```
 
-Now, the client can be accessed at http://0.0.0.0:8080 and server can be accessed at http://0.0.0.0:8081. Default API endpoint is set to`/files` 
+Now, the client can be accessed at http://0.0.0.0:8080 and server can be accessed at http://0.0.0.0:8081. Default API endpoint is set to`/files`
 and uploaded files can be found inside `uploads` folder. All docker configs can be found in `docker/` folder.
 
 #### Kubernetes with minikube
-Make sure you have [minikube](https://github.com/kubernetes/minikube) and [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) 
+Make sure you have [minikube](https://github.com/kubernetes/minikube) and [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
 are installed in your system. Then, build and spin up containers using k8s script from project root.
 ```shell
 $ bin/k8s.sh
 ```
 
-The script will set minikube docker env, build all required docker images locally, create kubernetes objects and serve client at port `30020`. After successful build, 
-the client can be accessed at http://192.168.99.100:30020 and server can be accessed at http://192.168.99.100:30021. 
+The script will set minikube docker env, build all required docker images locally, create kubernetes objects and serve client at port `30020`. After successful build,
+the client can be accessed at http://192.168.99.100:30020 and server can be accessed at http://192.168.99.100:30021.
 
 The script will create 1 client replica and 3 server replicas by default. All kubernetes configs can be found inside `k8s/` folder, you can tweak it as required.
 
@@ -315,7 +315,7 @@ $ bin/minikube.sh redis
 $ bin/minikube.sh clear-cache
 ```
 
-Since the server supports tus expiration extension, a cron job is set to run once a day at midnight to free server resources. You can adjust it as required in `k8s/cron.yml`. 
+Since the server supports tus expiration extension, a cron job is set to run once a day at midnight to free server resources. You can adjust it as required in `k8s/cron.yml`.
 
 ### Contributing
 1. Install [PHPUnit](https://phpunit.de/) and [composer](https://getcomposer.org/) if you haven't already.
@@ -326,9 +326,17 @@ Since the server supports tus expiration extension, a cron job is set to run onc
 3. Run tests with phpunit
     ```shell
     $ ./vendor/bin/phpunit
+
+    # or
+
+    $ composer test
     ```
 4. Validate changes against [PSR2 Coding Standards](http://www.php-fig.org/psr/psr-2/)
     ```shell
+    $ composer cs-fixer
+
+    # or
+
     $ ./vendor/bin/php-cs-fixer fix <changes> --rules=@PSR2,not_operator_with_space,single_quote
     ```
 
