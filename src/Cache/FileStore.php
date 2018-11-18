@@ -133,7 +133,6 @@ class FileStore extends AbstractCache
     public function sharedGet(string $path) : string
     {
         $contents  = '';
-        $chunkSize = 1048576; // 1 mb.
         $handle    = @fopen($path, 'r');
 
         if (false === $handle) {
@@ -142,9 +141,11 @@ class FileStore extends AbstractCache
 
         try {
             if (flock($handle, LOCK_SH)) {
-                while ( ! feof($handle)) {
-                    $contents .= fread($handle, $chunkSize);
-                }
+                clearstatcache(true, $path);
+
+                $contents = fread($handle, filesize($path) ?: 1);
+
+                flock($handle, LOCK_UN);
             }
         } finally {
             fclose($handle);
