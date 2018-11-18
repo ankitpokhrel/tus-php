@@ -8,7 +8,7 @@ return [
     'redis' => [
         'host' => getenv('REDIS_HOST') ?? '127.0.0.1',
         'port' => getenv('REDIS_PORT') ?? '6379',
-        'database' => 0,
+        'database' => 1,
     ],
 
     /**
@@ -16,6 +16,6 @@ return [
      */
     'file' => [
         'dir' => dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . '.cache' . DIRECTORY_SEPARATOR,
-        'name' => 'tus_php.cache',
+        'name' => 'tus_php.client.cache',
     ],
 ];

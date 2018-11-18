@@ -5,6 +5,7 @@ namespace TusPhp\Test;
 use Mockery as m;
 use GuzzleHttp\Client;
 use phpmock\MockBuilder;
+use TusPhp\Cache\FileStore;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use TusPhp\Tus\Client as TusClient;
@@ -192,6 +193,70 @@ class ClientTest extends TestCase
     /**
      * @test
      *
+     * @covers ::getUrl
+     */
+    public function it_gets_url_from_cache()
+    {
+        $key = uniqid();
+        $url = 'https://server.tus.local';
+
+        $cacheMock = m::mock(FileStore::class);
+        $cacheMock
+            ->shouldReceive('get')
+            ->once()
+            ->with($key)
+            ->andReturn([
+                'location' => $url,
+            ]);
+
+        $this->tusClientMock
+            ->shouldReceive('getKey')
+            ->once()
+            ->andReturn($key);
+
+        $this->tusClientMock
+            ->shouldReceive('getCache')
+            ->once()
+            ->andReturn($cacheMock);
+
+        $this->assertEquals($url, $this->tusClientMock->getUrl());
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::getUrl
+     *
+     * @expectedException \TusPhp\Exception\FileException
+     * @expectedExceptionMessage File not found.
+     */
+    public function it_throws_file_exception_for_empty_url()
+    {
+        $key = uniqid();
+
+        $cacheMock = m::mock(FileStore::class);
+        $cacheMock
+            ->shouldReceive('get')
+            ->once()
+            ->with($key)
+            ->andReturnNull();
+
+        $this->tusClientMock
+            ->shouldReceive('getKey')
+            ->once()
+            ->andReturn($key);
+
+        $this->tusClientMock
+            ->shouldReceive('getCache')
+            ->once()
+            ->andReturn($cacheMock);
+
+        $this->tusClientMock->getUrl();
+    }
+
+    /**
+     * @test
+     *
      * @covers ::setChecksumAlgorithm
      * @covers ::getChecksumAlgorithm
      */
@@ -264,19 +329,12 @@ class ClientTest extends TestCase
      */
     public function it_uploads_a_file()
     {
-        $key    = uniqid();
         $bytes  = 100;
         $offset = 0;
 
         $this->tusClientMock
-            ->shouldReceive('getKey')
-            ->once()
-            ->andReturn($key);
-
-        $this->tusClientMock
             ->shouldReceive('sendHeadRequest')
             ->once()
-            ->with($key)
             ->andReturn(0);
 
         $this->tusClientMock
@@ -295,14 +353,8 @@ class ClientTest extends TestCase
      */
     public function it_uploads_full_file_if_size_is_not_given()
     {
-        $key    = uniqid();
         $bytes  = 100;
         $offset = 0;
-
-        $this->tusClientMock
-            ->shouldReceive('getKey')
-            ->once()
-            ->andReturn($key);
 
         $this->tusClientMock
             ->shouldReceive('getFileSize')
@@ -312,7 +364,6 @@ class ClientTest extends TestCase
         $this->tusClientMock
             ->shouldReceive('sendHeadRequest')
             ->once()
-            ->with($key)
             ->andReturn(0);
 
         $this->tusClientMock
@@ -343,7 +394,6 @@ class ClientTest extends TestCase
         $this->tusClientMock
             ->shouldReceive('sendHeadRequest')
             ->once()
-            ->with($key)
             ->andThrow(new FileException);
 
         $this->tusClientMock
@@ -379,7 +429,6 @@ class ClientTest extends TestCase
         $this->tusClientMock
             ->shouldReceive('sendHeadRequest')
             ->once()
-            ->with($key)
             ->andThrow(m::mock(ClientException::class));
 
         $this->tusClientMock
@@ -406,17 +455,9 @@ class ClientTest extends TestCase
      */
     public function it_throws_connection_exception_for_network_issues()
     {
-        $key = uniqid();
-
-        $this->tusClientMock
-            ->shouldReceive('getKey')
-            ->once()
-            ->andReturn($key);
-
         $this->tusClientMock
             ->shouldReceive('sendHeadRequest')
             ->once()
-            ->with($key)
             ->andThrow(m::mock(ConnectException::class));
 
         $this->tusClientMock->upload(100);
@@ -429,20 +470,12 @@ class ClientTest extends TestCase
      */
     public function it_returns_false_for_file_exception_in_get_offset()
     {
-        $key = uniqid();
-
-        $this->tusClientMock
-            ->shouldReceive('getKey')
-            ->once()
-            ->andReturn($key);
-
         $this->tusClientMock
             ->shouldReceive('sendHeadRequest')
             ->once()
-            ->with($key)
             ->andThrow(new FileException);
 
-        $this->assertFalse($this->tusClientMock->getOffset($key));
+        $this->assertFalse($this->tusClientMock->getOffset());
     }
 
     /**
@@ -452,20 +485,12 @@ class ClientTest extends TestCase
      */
     public function it_returns_false_for_client_exception_in_get_offset()
     {
-        $key = uniqid();
-
-        $this->tusClientMock
-            ->shouldReceive('getKey')
-            ->once()
-            ->andReturn($key);
-
         $this->tusClientMock
             ->shouldReceive('sendHeadRequest')
             ->once()
-            ->with($key)
             ->andThrow(m::mock(ClientException::class));
 
-        $this->assertFalse($this->tusClientMock->getOffset($key));
+        $this->assertFalse($this->tusClientMock->getOffset());
     }
 
     /**
@@ -475,20 +500,12 @@ class ClientTest extends TestCase
      */
     public function it_gets_offset_for_partially_uploaded_resource()
     {
-        $key = uniqid();
-
-        $this->tusClientMock
-            ->shouldReceive('getKey')
-            ->once()
-            ->andReturn($key);
-
         $this->tusClientMock
             ->shouldReceive('sendHeadRequest')
             ->once()
-            ->with($key)
             ->andReturn(100);
 
-        $this->assertEquals(100, $this->tusClientMock->getOffset($key));
+        $this->assertEquals(100, $this->tusClientMock->getOffset());
     }
 
     /**
@@ -498,14 +515,14 @@ class ClientTest extends TestCase
      */
     public function it_sends_a_head_request()
     {
-        $checksum     = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
+        $key          = '74f02d6da32';
         $guzzleMock   = m::mock(Client::class);
         $responseMock = m::mock(Response::class);
 
         $guzzleMock
             ->shouldReceive('head')
             ->once()
-            ->with('/files/' . $checksum)
+            ->with('/files/' . $key)
             ->andReturn($responseMock);
 
         $responseMock
@@ -518,13 +535,18 @@ class ClientTest extends TestCase
             ->once()
             ->andReturn($guzzleMock);
 
+        $this->tusClientMock
+            ->shouldReceive('getUrl')
+            ->once()
+            ->andReturn('/files/' . $key);
+
         $responseMock
             ->shouldReceive('getHeader')
             ->once()
             ->with('upload-offset')
             ->andReturn([100]);
 
-        $this->assertEquals(100, $this->tusClientMock->sendHeadRequest($checksum));
+        $this->assertEquals(100, $this->tusClientMock->sendHeadRequest());
     }
 
     /**
@@ -537,15 +559,14 @@ class ClientTest extends TestCase
      */
     public function it_throws_file_exception_in_head_request()
     {
-        $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
-
+        $key          = '74f02d6da32';
         $guzzleMock   = m::mock(Client::class);
         $responseMock = m::mock(Response::class);
 
         $guzzleMock
             ->shouldReceive('head')
             ->once()
-            ->with('/files/' . $checksum)
+            ->with('/files/' . $key)
             ->andReturn($responseMock);
 
         $responseMock
@@ -558,13 +579,19 @@ class ClientTest extends TestCase
             ->once()
             ->andReturn($guzzleMock);
 
-        $this->tusClientMock->sendHeadRequest($checksum);
+        $this->tusClientMock
+            ->shouldReceive('getUrl')
+            ->once()
+            ->andReturn('/files/' . $key);
+
+        $this->tusClientMock->sendHeadRequest();
     }
 
     /**
      * @test
      *
      * @covers ::sendPatchRequest
+     * @covers ::handleClientException
      *
      * @expectedException \TusPhp\Exception\FileException
      * @expectedExceptionMessage The uploaded file is corrupt.
@@ -575,11 +602,6 @@ class ClientTest extends TestCase
         $bytes    = 12;
         $offset   = 0;
         $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
-
-        $this->tusClientMock
-            ->shouldReceive('getKey')
-            ->once()
-            ->andReturn($checksum);
 
         $this->tusClientMock
             ->shouldReceive('getData')
@@ -612,10 +634,15 @@ class ClientTest extends TestCase
             ->once()
             ->andReturn($guzzleMock);
 
+        $this->tusClientMock
+            ->shouldReceive('getUrl')
+            ->once()
+            ->andReturn('http://tus-server/files/' . $checksum);
+
         $guzzleMock
             ->shouldReceive('patch')
             ->once()
-            ->with('/files/' . $checksum, [
+            ->with('http://tus-server/files/' . $checksum, [
                 'body' => $data,
                 'headers' => [
                     'Content-Type' => 'application/offset+octet-stream',
@@ -633,6 +660,7 @@ class ClientTest extends TestCase
      * @test
      *
      * @covers ::sendPatchRequest
+     * @covers ::handleClientException
      *
      * @expectedException \TusPhp\Exception\ConnectionException
      * @expectedExceptionMessage Connection aborted by user.
@@ -645,11 +673,6 @@ class ClientTest extends TestCase
         $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
 
         $this->tusClientMock
-            ->shouldReceive('getKey')
-            ->once()
-            ->andReturn($checksum);
-
-        $this->tusClientMock
             ->shouldReceive('getData')
             ->once()
             ->with($offset, $bytes)
@@ -659,6 +682,11 @@ class ClientTest extends TestCase
             ->shouldReceive('getUploadChecksumHeader')
             ->once()
             ->andReturn($checksum);
+
+        $this->tusClientMock
+            ->shouldReceive('getUrl')
+            ->once()
+            ->andReturn('http://tus-server/files/' . $checksum);
 
         $guzzleMock   = m::mock(Client::class);
         $responseMock = m::mock(Response::class);
@@ -683,7 +711,7 @@ class ClientTest extends TestCase
         $guzzleMock
             ->shouldReceive('patch')
             ->once()
-            ->with('/files/' . $checksum, [
+            ->with('http://tus-server/files/' . $checksum, [
                 'body' => $data,
                 'headers' => [
                     'Content-Type' => 'application/offset+octet-stream',
@@ -701,6 +729,76 @@ class ClientTest extends TestCase
      * @test
      *
      * @covers ::sendPatchRequest
+     * @covers ::handleClientException
+     *
+     * @expectedException \TusPhp\Exception\Exception
+     * @expectedExceptionMessage Unsupported media types.
+     */
+    public function it_throws_tus_exception_for_unsupported_media_types()
+    {
+        $data     = 'Hello World!';
+        $bytes    = 12;
+        $offset   = 0;
+        $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
+
+        $this->tusClientMock
+            ->shouldReceive('getData')
+            ->once()
+            ->with($offset, $bytes)
+            ->andReturn($data);
+
+        $this->tusClientMock
+            ->shouldReceive('getUploadChecksumHeader')
+            ->once()
+            ->andReturn($checksum);
+
+        $this->tusClientMock
+            ->shouldReceive('getUrl')
+            ->once()
+            ->andReturn('http://tus-server/files/' . $checksum);
+
+        $guzzleMock   = m::mock(Client::class);
+        $responseMock = m::mock(Response::class);
+
+        $clientExceptionMock = m::mock(ClientException::class);
+
+        $clientExceptionMock
+            ->shouldReceive('getResponse')
+            ->once()
+            ->andReturn($responseMock);
+
+        $responseMock
+            ->shouldReceive('getStatusCode')
+            ->once()
+            ->andReturn(415);
+
+        $this->tusClientMock
+            ->shouldReceive('getClient')
+            ->once()
+            ->andReturn($guzzleMock);
+
+        $guzzleMock
+            ->shouldReceive('patch')
+            ->once()
+            ->with('http://tus-server/files/' . $checksum, [
+                'body' => $data,
+                'headers' => [
+                    'Content-Type' => 'application/offset+octet-stream',
+                    'Content-Length' => strlen($data),
+                    'Upload-Checksum' => $checksum,
+                    'Upload-Offset' => $offset,
+                ],
+            ])
+            ->andThrow($clientExceptionMock);
+
+        $this->tusClientMock->sendPatchRequest($bytes, $offset);
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::sendPatchRequest
+     * @covers ::handleClientException
      *
      * @expectedException \TusPhp\Exception\Exception
      * @expectedExceptionMessage Unable to open file.
@@ -714,11 +812,6 @@ class ClientTest extends TestCase
         $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
 
         $this->tusClientMock
-            ->shouldReceive('getKey')
-            ->once()
-            ->andReturn($checksum);
-
-        $this->tusClientMock
             ->shouldReceive('getData')
             ->once()
             ->with($offset, $bytes)
@@ -728,6 +821,11 @@ class ClientTest extends TestCase
             ->shouldReceive('getUploadChecksumHeader')
             ->once()
             ->andReturn($checksum);
+
+        $this->tusClientMock
+            ->shouldReceive('getUrl')
+            ->once()
+            ->andReturn('http://tus-server/files/' . $checksum);
 
         $guzzleMock   = m::mock(Client::class);
         $responseMock = m::mock(Response::class);
@@ -757,7 +855,7 @@ class ClientTest extends TestCase
         $guzzleMock
             ->shouldReceive('patch')
             ->once()
-            ->with('/files/' . $checksum, [
+            ->with('http://tus-server/files/' . $checksum, [
                 'body' => $data,
                 'headers' => [
                     'Content-Type' => 'application/offset+octet-stream',
@@ -775,6 +873,7 @@ class ClientTest extends TestCase
      * @test
      *
      * @covers ::sendPatchRequest
+     * @covers ::handleClientException
      *
      * @expectedException \TusPhp\Exception\ConnectionException
      * @expectedExceptionMessage Couldn't connect to server.
@@ -787,11 +886,6 @@ class ClientTest extends TestCase
         $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
 
         $this->tusClientMock
-            ->shouldReceive('getKey')
-            ->once()
-            ->andReturn($checksum);
-
-        $this->tusClientMock
             ->shouldReceive('getData')
             ->once()
             ->with($offset, $bytes)
@@ -801,6 +895,11 @@ class ClientTest extends TestCase
             ->shouldReceive('getUploadChecksumHeader')
             ->once()
             ->andReturn($checksum);
+
+        $this->tusClientMock
+            ->shouldReceive('getUrl')
+            ->once()
+            ->andReturn('http://tus-server/files/' . $checksum);
 
         $guzzleMock = m::mock(Client::class);
 
@@ -812,7 +911,7 @@ class ClientTest extends TestCase
         $guzzleMock
             ->shouldReceive('patch')
             ->once()
-            ->with('/files/' . $checksum, [
+            ->with('http://tus-server/files/' . $checksum, [
                 'body' => $data,
                 'headers' => [
                     'Content-Type' => 'application/offset+octet-stream',
@@ -840,11 +939,6 @@ class ClientTest extends TestCase
         $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
 
         $this->tusClientMock
-            ->shouldReceive('getKey')
-            ->once()
-            ->andReturn($checksum);
-
-        $this->tusClientMock
             ->shouldReceive('getData')
             ->once()
             ->with($offset, $bytes)
@@ -854,6 +948,11 @@ class ClientTest extends TestCase
             ->shouldReceive('getUploadChecksumHeader')
             ->once()
             ->andReturn($checksum);
+
+        $this->tusClientMock
+            ->shouldReceive('getUrl')
+            ->once()
+            ->andReturn('http://tus-server/files/' . $checksum);
 
         $guzzleMock   = m::mock(Client::class);
         $responseMock = m::mock(Response::class);
@@ -866,7 +965,7 @@ class ClientTest extends TestCase
         $guzzleMock
             ->shouldReceive('patch')
             ->once()
-            ->with('/files/' . $checksum, [
+            ->with('http://tus-server/files/' . $checksum, [
                 'body' => $data,
                 'headers' => [
                     'Content-Type' => 'application/offset+octet-stream',
@@ -899,11 +998,6 @@ class ClientTest extends TestCase
         $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
 
         $this->tusClientMock
-            ->shouldReceive('getKey')
-            ->once()
-            ->andReturn($checksum);
-
-        $this->tusClientMock
             ->shouldReceive('getData')
             ->once()
             ->with($offset, $bytes)
@@ -913,6 +1007,11 @@ class ClientTest extends TestCase
             ->shouldReceive('getUploadChecksumHeader')
             ->once()
             ->andReturn($checksum);
+
+        $this->tusClientMock
+            ->shouldReceive('getUrl')
+            ->once()
+            ->andReturn('http://tus-server/files/' . $checksum);
 
         $guzzleMock   = m::mock(Client::class);
         $responseMock = m::mock(Response::class);
@@ -930,7 +1029,7 @@ class ClientTest extends TestCase
         $guzzleMock
             ->shouldReceive('patch')
             ->once()
-            ->with('/files/' . $checksum, [
+            ->with('http://tus-server/files/' . $checksum, [
                 'body' => $data,
                 'headers' => [
                     'Content-Type' => 'application/offset+octet-stream',
@@ -963,11 +1062,32 @@ class ClientTest extends TestCase
         $fileName     = 'file.txt';
         $guzzleMock   = m::mock(Client::class);
         $responseMock = m::mock(Response::class);
+        $cacheMock    = m::mock(FileStore::class);
+
+        $cacheMock
+            ->shouldReceive('set')
+            ->once()
+            ->with($key, [
+                'location' => 'http://tus-server/files/' . $key,
+                'expires_at' => 'Sat, 09 Dec 2017 00:00:00 GMT',
+            ])
+            ->andReturnNull();
+
+        $cacheMock
+            ->shouldReceive('getTtl')
+            ->once()
+            ->andReturn(86400);
 
         $responseMock
             ->shouldReceive('getStatusCode')
             ->once()
             ->andReturn(201);
+
+        $responseMock
+            ->shouldReceive('getHeader')
+            ->once()
+            ->with('location')
+            ->andReturn(['http://tus-server/files/' . $key]);
 
         $this->tusClientMock
             ->shouldReceive('getChecksum')
@@ -978,6 +1098,16 @@ class ClientTest extends TestCase
             ->shouldReceive('getClient')
             ->once()
             ->andReturn($guzzleMock);
+
+        $this->tusClientMock
+            ->shouldReceive('getCache')
+            ->times(3)
+            ->andReturn($cacheMock);
+
+        $this->tusClientMock
+            ->shouldReceive('getKey')
+            ->once()
+            ->andReturn($key);
 
         $this->tusClientMock->file($filePath, $fileName);
 
@@ -994,7 +1124,7 @@ class ClientTest extends TestCase
             ])
             ->andReturn($responseMock);
 
-        $this->assertEmpty($this->tusClientMock->create($key));
+        $this->assertEquals('http://tus-server/files/' . $key, $this->tusClientMock->create($key));
     }
 
     /**
@@ -1010,11 +1140,32 @@ class ClientTest extends TestCase
         $fileName     = 'file.txt';
         $guzzleMock   = m::mock(Client::class);
         $responseMock = m::mock(Response::class);
+        $cacheMock    = m::mock(FileStore::class);
+
+        $cacheMock
+            ->shouldReceive('set')
+            ->once()
+            ->with($key, [
+                'location' => 'http://tus-server/files/' . $key,
+                'expires_at' => 'Sat, 09 Dec 2017 00:00:00 GMT',
+            ])
+            ->andReturnNull();
+
+        $cacheMock
+            ->shouldReceive('getTtl')
+            ->once()
+            ->andReturn(86400);
 
         $responseMock
             ->shouldReceive('getStatusCode')
             ->once()
             ->andReturn(201);
+
+        $responseMock
+            ->shouldReceive('getHeader')
+            ->once()
+            ->with('location')
+            ->andReturn(['http://tus-server/files/' . $key]);
 
         $this->tusClientMock
             ->shouldReceive('getChecksum')
@@ -1025,6 +1176,16 @@ class ClientTest extends TestCase
             ->shouldReceive('getClient')
             ->once()
             ->andReturn($guzzleMock);
+
+        $this->tusClientMock
+            ->shouldReceive('getCache')
+            ->times(3)
+            ->andReturn($cacheMock);
+
+        $this->tusClientMock
+            ->shouldReceive('getKey')
+            ->once()
+            ->andReturn($key);
 
         $this->tusClientMock
             ->shouldReceive('isPartial')
@@ -1047,7 +1208,7 @@ class ClientTest extends TestCase
             ])
             ->andReturn($responseMock);
 
-        $this->assertEmpty($this->tusClientMock->create($key));
+        $this->assertEquals('http://tus-server/files/' . $key, $this->tusClientMock->create($key));
     }
 
     /**
@@ -1287,7 +1448,6 @@ class ClientTest extends TestCase
         $guzzleMock
             ->shouldReceive('delete')
             ->once()
-            ->with('/files/' . $uploadKey)
             ->andReturn($responseMock);
 
         $this->tusClientMock
@@ -1295,7 +1455,12 @@ class ClientTest extends TestCase
             ->once()
             ->andReturn($guzzleMock);
 
-        $response = $this->tusClientMock->delete($uploadKey);
+        $this->tusClientMock
+            ->shouldReceive('getUrl')
+            ->once()
+            ->andReturn('http://tus-server/' . $uploadKey);
+
+        $response = $this->tusClientMock->delete();
 
         $this->assertNull($response);
     }
@@ -1324,7 +1489,6 @@ class ClientTest extends TestCase
         $guzzleMock
             ->shouldReceive('delete')
             ->once()
-            ->with('/files/' . $uploadKey)
             ->andThrow($clientExceptionMock);
 
         $responseMock
@@ -1337,7 +1501,12 @@ class ClientTest extends TestCase
             ->once()
             ->andReturn($guzzleMock);
 
-        $response = $this->tusClientMock->delete($uploadKey);
+        $this->tusClientMock
+            ->shouldReceive('getUrl')
+            ->once()
+            ->andReturn('http://tus-server/' . $uploadKey);
+
+        $response = $this->tusClientMock->delete();
 
         $this->assertNull($response);
     }
@@ -1366,7 +1535,6 @@ class ClientTest extends TestCase
         $guzzleMock
             ->shouldReceive('delete')
             ->once()
-            ->with('/files/' . $uploadKey)
             ->andThrow($clientExceptionMock);
 
         $responseMock
@@ -1379,7 +1547,12 @@ class ClientTest extends TestCase
             ->once()
             ->andReturn($guzzleMock);
 
-        $response = $this->tusClientMock->delete($uploadKey);
+        $this->tusClientMock
+            ->shouldReceive('getUrl')
+            ->once()
+            ->andReturn('http://tus-server/' . $uploadKey);
+
+        $response = $this->tusClientMock->delete();
 
         $this->assertNull($response);
     }

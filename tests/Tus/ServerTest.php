@@ -509,6 +509,12 @@ class ServerTest extends TestCase
             ->with($checksum)
             ->andReturn(null);
 
+        $cacheMock
+            ->shouldReceive('setPrefix')
+            ->once()
+            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->andReturnSelf();
+
         $this->tusServerMock->setCache($cacheMock);
 
         $response = $this->tusServerMock->handleHead();
@@ -544,6 +550,12 @@ class ServerTest extends TestCase
             ->andReturn([
                 'name' => 'file.txt',
             ]);
+
+        $cacheMock
+            ->shouldReceive('setPrefix')
+            ->once()
+            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->andReturnSelf();
 
         $this->tusServerMock->setCache($cacheMock);
 
@@ -582,6 +594,12 @@ class ServerTest extends TestCase
                 'size' => 50,
                 'upload_type' => 'normal',
             ]);
+
+        $cacheMock
+            ->shouldReceive('setPrefix')
+            ->once()
+            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->andReturnSelf();
 
         $this->tusServerMock->setCache($cacheMock);
 
@@ -625,6 +643,12 @@ class ServerTest extends TestCase
                 'upload_type' => 'partial',
             ]);
 
+        $cacheMock
+            ->shouldReceive('setPrefix')
+            ->once()
+            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->andReturnSelf();
+
         $this->tusServerMock->setCache($cacheMock);
 
         $response = $this->tusServerMock->handleHead();
@@ -666,6 +690,12 @@ class ServerTest extends TestCase
                 'upload_type' => 'final',
                 'size' => 100,
             ]);
+
+        $cacheMock
+            ->shouldReceive('setPrefix')
+            ->once()
+            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->andReturnSelf();
 
         $this->tusServerMock->setCache($cacheMock);
 
@@ -879,6 +909,12 @@ class ServerTest extends TestCase
             ]);
 
         $cacheMock
+            ->shouldReceive('setPrefix')
+            ->once()
+            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->andReturnSelf();
+
+        $cacheMock
             ->shouldReceive('getTtl')
             ->once()
             ->andReturn(86400);
@@ -975,6 +1011,12 @@ class ServerTest extends TestCase
             ]);
 
         $cacheMock
+            ->shouldReceive('setPrefix')
+            ->once()
+            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->andReturnSelf();
+
+        $cacheMock
             ->shouldReceive('getTtl')
             ->once()
             ->andReturn(86400);
@@ -1063,6 +1105,12 @@ class ServerTest extends TestCase
             ->once()
             ->with('file_a')
             ->andReturn($files[0]);
+
+        $cacheMock
+            ->shouldReceive('setPrefix')
+            ->once()
+            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->andReturnSelf();
 
         $cacheMock
             ->shouldReceive('get')
@@ -1193,6 +1241,12 @@ class ServerTest extends TestCase
             ->andReturn($files[0]);
 
         $cacheMock
+            ->shouldReceive('setPrefix')
+            ->once()
+            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->andReturnSelf();
+
+        $cacheMock
             ->shouldReceive('get')
             ->once()
             ->with('file_b')
@@ -1270,6 +1324,12 @@ class ServerTest extends TestCase
             ->with($checksum)
             ->andReturn(null);
 
+        $cacheMock
+            ->shouldReceive('setPrefix')
+            ->once()
+            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->andReturnSelf();
+
         $this->tusServerMock->setCache($cacheMock);
 
         $response = $this->tusServerMock->handlePatch();
@@ -1325,6 +1385,12 @@ class ServerTest extends TestCase
             ->once()
             ->with($key)
             ->andReturn($fileMeta);
+
+        $cacheMock
+            ->shouldReceive('setPrefix')
+            ->once()
+            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->andReturnSelf();
 
         $this->tusServerMock->setCache($cacheMock);
 
@@ -1412,6 +1478,12 @@ class ServerTest extends TestCase
             ->with($key)
             ->andReturn($fileMeta);
 
+        $cacheMock
+            ->shouldReceive('setPrefix')
+            ->once()
+            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->andReturnSelf();
+
         $this->tusServerMock->setCache($cacheMock);
 
         $response = $this->tusServerMock->handlePatch();
@@ -1497,6 +1569,12 @@ class ServerTest extends TestCase
             ->once()
             ->with($key)
             ->andReturn($fileMeta);
+
+        $cacheMock
+            ->shouldReceive('setPrefix')
+            ->once()
+            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->andReturnSelf();
 
         $this->tusServerMock->setCache($cacheMock);
 
@@ -1584,6 +1662,12 @@ class ServerTest extends TestCase
             ->with($key)
             ->andReturn($fileMeta);
 
+        $cacheMock
+            ->shouldReceive('setPrefix')
+            ->once()
+            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->andReturnSelf();
+
         $this->tusServerMock->setCache($cacheMock);
 
         $response = $this->tusServerMock->handlePatch();
@@ -1631,6 +1715,12 @@ class ServerTest extends TestCase
             ->once()
             ->with($checksum)
             ->andReturn($fileMeta);
+
+        $cacheMock
+            ->shouldReceive('setPrefix')
+            ->once()
+            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->andReturnSelf();
 
         $this->tusServerMock->setCache($cacheMock);
 
@@ -1718,6 +1808,12 @@ class ServerTest extends TestCase
             ->with($key)
             ->andReturn($fileMeta);
 
+        $cacheMock
+            ->shouldReceive('setPrefix')
+            ->once()
+            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->andReturnSelf();
+
         $this->tusServerMock->setCache($cacheMock);
 
         $response = $this->tusServerMock->handlePatch();
@@ -1803,6 +1899,12 @@ class ServerTest extends TestCase
             ->twice()
             ->with($key)
             ->andReturn($fileMeta);
+
+        $cacheMock
+            ->shouldReceive('setPrefix')
+            ->once()
+            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->andReturnSelf();
 
         $this->tusServerMock->setCache($cacheMock);
 
@@ -1914,6 +2016,12 @@ class ServerTest extends TestCase
             ->with('')
             ->andReturn([]);
 
+        $cacheMock
+            ->shouldReceive('setPrefix')
+            ->once()
+            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->andReturnSelf();
+
         $this->tusServerMock->setCache($cacheMock);
 
         $response = $this->tusServerMock->handleGet();
@@ -1947,6 +2055,12 @@ class ServerTest extends TestCase
             ->once()
             ->with($uploadKey)
             ->andReturn([]);
+
+        $cacheMock
+            ->shouldReceive('setPrefix')
+            ->once()
+            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->andReturnSelf();
 
         $this->tusServerMock->setCache($cacheMock);
 
@@ -1983,6 +2097,12 @@ class ServerTest extends TestCase
             ->andReturn([
                 'file_path' => '/path/to/invalid/file.txt',
             ]);
+
+        $cacheMock
+            ->shouldReceive('setPrefix')
+            ->once()
+            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->andReturnSelf();
 
         $this->tusServerMock->setCache($cacheMock);
 
@@ -2031,6 +2151,12 @@ class ServerTest extends TestCase
             ->with($checksum)
             ->andReturn($fileMeta);
 
+        $cacheMock
+            ->shouldReceive('setPrefix')
+            ->once()
+            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->andReturnSelf();
+
         $this->tusServerMock->setCache($cacheMock);
 
         $response = $this->tusServerMock->handleGet();
@@ -2063,6 +2189,12 @@ class ServerTest extends TestCase
             ->once()
             ->with($checksum)
             ->andReturn(null);
+
+        $cacheMock
+            ->shouldReceive('setPrefix')
+            ->once()
+            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->andReturnSelf();
 
         $this->tusServerMock->setCache($cacheMock);
 
@@ -2098,6 +2230,12 @@ class ServerTest extends TestCase
             ->andReturn([
                 'file_path' => __DIR__ . '/../Fixtures/empty.txt',
             ]);
+
+        $cacheMock
+            ->shouldReceive('setPrefix')
+            ->once()
+            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->andReturnSelf();
 
         $cacheMock
             ->shouldReceive('delete')
@@ -2139,6 +2277,12 @@ class ServerTest extends TestCase
             ->andReturn([
                 'file_path' => __DIR__ . '/../Fixtures/empty.txt',
             ]);
+
+        $cacheMock
+            ->shouldReceive('setPrefix')
+            ->once()
+            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->andReturnSelf();
 
         $cacheMock
             ->shouldReceive('delete')
@@ -2497,6 +2641,12 @@ class ServerTest extends TestCase
             ->andReturn(['expires_at' => 'Sat, 09 Dec 2017 00:00:00 GMT']);
 
         $cacheMock
+            ->shouldReceive('setPrefix')
+            ->once()
+            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->andReturnSelf();
+
+        $cacheMock
             ->shouldReceive('get')
             ->once()
             ->with('expired_but_uploaded', true)
@@ -2569,6 +2719,12 @@ class ServerTest extends TestCase
             ]);
 
         $cacheMock
+            ->shouldReceive('setPrefix')
+            ->once()
+            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->andReturnSelf();
+
+        $cacheMock
             ->shouldReceive('delete')
             ->with('expired_true')
             ->once()
@@ -2630,6 +2786,12 @@ class ServerTest extends TestCase
             ->once()
             ->with('file_b')
             ->andReturn($files[1]);
+
+        $cacheMock
+            ->shouldReceive('setPrefix')
+            ->once()
+            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->andReturnSelf();
 
         $this->tusServerMock->setCache($cacheMock);
 
@@ -2728,6 +2890,12 @@ class ServerTest extends TestCase
             ->once()
             ->with($key)
             ->andReturn($fileMeta);
+
+        $cacheMock
+            ->shouldReceive('setPrefix')
+            ->once()
+            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->andReturnSelf();
 
         $this->tusServerMock->setCache($cacheMock);
 

@@ -5,7 +5,7 @@ namespace TusPhp;
 class Config
 {
     /** @const string */
-    const DEFAULT_CONFIG_PATH = __DIR__ . '/Config/default.php';
+    const DEFAULT_CONFIG_PATH = __DIR__ . '/Config/server.php';
 
     /** @var array */
     protected static $config = [];
