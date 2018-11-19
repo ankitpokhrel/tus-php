@@ -416,6 +416,8 @@ class FileStoreTest extends TestCase
             $pid = pcntl_fork();
 
             if ( ! $pid) { // Child process.
+                usleep($i);
+
                 $fileStore->put($filePath, $contents);
 
                 exit($fileStore->sharedGet($filePath) === $contents ? 0 : 1);
