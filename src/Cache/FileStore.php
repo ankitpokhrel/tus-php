@@ -4,6 +4,7 @@ namespace TusPhp\Cache;
 
 use Carbon\Carbon;
 use TusPhp\Config;
+use TusPhp\File;
 
 class FileStore extends AbstractCache
 {
@@ -133,7 +134,7 @@ class FileStore extends AbstractCache
     public function sharedGet(string $path) : string
     {
         $contents = '';
-        $handle   = @fopen($path, 'r');
+        $handle   = @fopen($path, File::READ_BINARY);
 
         if (false === $handle) {
             return $contents;
