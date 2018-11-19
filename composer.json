@@ -20,6 +20,7 @@
     "nesbot/carbon": "^1.25"
   },
   "require-dev": {
+    "ext-pcntl": "*",
     "phpunit/phpunit": "6.5.x-dev",
     "mockery/mockery": "^1.0@dev",
     "php-mock/php-mock": "dev-master",
