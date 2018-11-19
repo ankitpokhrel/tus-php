@@ -2,9 +2,9 @@
 
 namespace TusPhp\Cache;
 
+use TusPhp\File;
 use Carbon\Carbon;
 use TusPhp\Config;
-use TusPhp\File;
 
 class FileStore extends AbstractCache
 {
