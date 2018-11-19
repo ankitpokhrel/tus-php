@@ -132,8 +132,8 @@ class FileStore extends AbstractCache
      */
     public function sharedGet(string $path) : string
     {
-        $contents  = '';
-        $handle    = @fopen($path, 'r');
+        $contents = '';
+        $handle   = @fopen($path, 'r');
 
         if (false === $handle) {
             return $contents;
@@ -157,8 +157,8 @@ class FileStore extends AbstractCache
     /**
      * Write the contents of a file with exclusive lock.
      *
-     * @param  string $path
-     * @param  string $contents
+     * @param string $path
+     * @param string $contents
      *
      * @return int
      */
