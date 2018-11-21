@@ -5,7 +5,7 @@ namespace TusPhp\Tus;
 use TusPhp\File;
 use Carbon\Carbon;
 use TusPhp\Config;
-use TusPhp\Exception\Exception;
+use TusPhp\Exception\TusException;
 use TusPhp\Exception\FileException;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\ClientException;
@@ -263,7 +263,7 @@ class Client extends AbstractTus
      *
      * @param int $bytes Bytes to upload
      *
-     * @throws Exception
+     * @throws TusException
      * @throws ConnectionException
      *
      * @return int
@@ -445,7 +445,8 @@ class Client extends AbstractTus
      * @param int $bytes
      * @param int $offset
      *
-     * @throws Exception
+     * @throws TusException
+     * @throws FileException
      * @throws ConnectionException
      *
      * @return int
@@ -499,10 +500,10 @@ class Client extends AbstractTus
         }
 
         if (HttpResponse::HTTP_UNSUPPORTED_MEDIA_TYPE === $statusCode) {
-            return new Exception('Unsupported media types.');
+            return new TusException('Unsupported media types.');
         }
 
-        return new Exception($e->getResponse()->getBody(), $statusCode);
+        return new TusException($e->getResponse()->getBody(), $statusCode);
     }
 
     /**

@@ -731,7 +731,7 @@ class ClientTest extends TestCase
      * @covers ::sendPatchRequest
      * @covers ::handleClientException
      *
-     * @expectedException \TusPhp\Exception\Exception
+     * @expectedException \TusPhp\Exception\TusException
      * @expectedExceptionMessage Unsupported media types.
      */
     public function it_throws_tus_exception_for_unsupported_media_types()
@@ -800,7 +800,7 @@ class ClientTest extends TestCase
      * @covers ::sendPatchRequest
      * @covers ::handleClientException
      *
-     * @expectedException \TusPhp\Exception\Exception
+     * @expectedException \TusPhp\Exception\TusException
      * @expectedExceptionMessage Unable to open file.
      * @expectedExceptionCode    403
      */

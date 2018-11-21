@@ -6,9 +6,9 @@
 
 require __DIR__ . '/../../vendor/autoload.php';
 
+use TusPhp\Exception\TusException;
 use TusPhp\Exception\FileException;
 use TusPhp\Exception\ConnectionException;
-use TusPhp\Exception\Exception as TusException;
 
 $client = new \TusPhp\Tus\Client('http://tus-php-server');
 

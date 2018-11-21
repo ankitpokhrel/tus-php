@@ -2,6 +2,6 @@
 
 namespace TusPhp\Exception;
 
-class Exception extends \Exception
+class TusException extends \Exception
 {
 }
