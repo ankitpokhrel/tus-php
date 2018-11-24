@@ -4,6 +4,7 @@
 infection.json.dist
 infection-log.txt
 .DS_Store
+composer.lock
 
 /coverage/
 /vendor/

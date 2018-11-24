@@ -1427,10 +1427,10 @@ class ServerTest extends TestCase
         ];
 
         $this->tusServerMock
-          ->getRequest()
-          ->getRequest()
-          ->headers
-          ->set('Content-Type', 'application/offset+octet-stream');
+            ->getRequest()
+            ->getRequest()
+            ->headers
+            ->set('Content-Type', 'application/offset+octet-stream');
 
         $this->tusServerMock
             ->getRequest()
@@ -2162,7 +2162,10 @@ class ServerTest extends TestCase
         $response = $this->tusServerMock->handleGet();
 
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals("attachment; filename=$fileName", $response->headers->get('content-disposition'));
+        $this->assertRegExp(
+            "/attachment; filename=($fileName|\"$fileName\")/",
+            $response->headers->get('content-disposition')
+        );
     }
 
     /**
