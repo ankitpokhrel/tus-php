@@ -162,7 +162,7 @@ class ResponseTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertRegExp(
-            "/inline; filename=(empty.txt|\"empty.txt\")/",
+            '/inline; filename=(empty.txt|"empty.txt")/',
             $response->headers->get('content-disposition')
         );
     }
