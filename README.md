@@ -207,6 +207,46 @@ $client->setFileName('actual_file.ext')->concat($uploadKey, $chunkBkey, $chunkAk
 
 Additionally, the server will verify checksum against the merged file to make sure that the file is not corrupt.
 
+### Events
+Often times, you may want to perform some operation after the upload is complete or created. For example, you may want to crop images after upload or transcode a file and email it to your user.
+You can utilize tus events for these operations. Following events are dispatched by server during different point of execution.
+
+| Event Name | Dispatched |
+-------------|------------|
+| `tus-server.upload.created` | after the upload is created during `POST` request. |
+| `tus-server.upload.progress` | after a chunk is uploaded during `PATCH` request. |
+| `tus-server.upload.complete` | after the upload is complete and checksum verification is done. |
+| `tus-server.upload.merged` | after all partial uploads are merged during concatenation request. |
+
+#### Responding to an Event
+To listen to an event, you can simply attach a listener to the event name. An `TusEvent` instance is created and passed to all of the listeners.
+
+```php
+$server->event()->addListener('tus-server.upload.complete', function (\TusPhp\Events\TusEvent $event) {
+    $fileMeta = $event->getFile()->details();
+    $request  = $event->getRequest();
+    $response = $event->getResponse();
+
+    // ...
+});
+```
+
+or, you can also bind some method of a custom class.
+
+```php
+class SomeListener
+{
+    public function postUploadOperation(\TusPhp\Events\TusEvent $event)
+    {
+        // ...
+    }
+}
+
+$listener = new SomeListener();
+
+$server->event()->addListener('tus-server.upload.complete', [$listener, 'postUploadOperation']);
+```
+
 ### Middleware
 You can manipulate request and response of a server using a middleware. Middleware can be used to run a piece of code before a server calls the actual handle method.
 You can use middleware to authenticate a request, handle CORS, whitelist/blacklist an IP etc.
@@ -345,4 +385,3 @@ Please feel free to report any bug found. Pull requests, issues, and project rec
 
 ### Supporters
 [![JET BRAINS](.github/jetbrains.png)](https://www.jetbrains.com/?from=ankitpokhrel/tus-php)
-

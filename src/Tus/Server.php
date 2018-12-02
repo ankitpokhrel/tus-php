@@ -8,6 +8,10 @@ use TusPhp\Request;
 use TusPhp\Response;
 use Ramsey\Uuid\Uuid;
 use TusPhp\Cache\Cacheable;
+use TusPhp\Events\UploadMerged;
+use TusPhp\Events\UploadCreated;
+use TusPhp\Events\UploadComplete;
+use TusPhp\Events\UploadProgress;
 use TusPhp\Middleware\Middleware;
 use TusPhp\Exception\FileException;
 use TusPhp\Exception\ConnectionException;
@@ -373,6 +377,11 @@ class Server extends AbstractTus
 
         $this->cache->set($uploadKey, $file->details() + ['upload_type' => $uploadType]);
 
+        $this->event()->dispatch(
+            UploadCreated::NAME,
+            new UploadCreated($file, $this->getRequest(), $this->getResponse())
+        );
+
         return $this->response->send(
             null,
             HttpResponse::HTTP_CREATED,
@@ -423,6 +432,11 @@ class Server extends AbstractTus
             $this->cache->deleteAll($partials);
         }
 
+        $this->event()->dispatch(
+            UploadMerged::NAME,
+            new UploadMerged($file, $this->getRequest(), $this->getResponse())
+        );
+
         return $this->response->send(
             ['data' => ['checksum' => $checksum]],
             HttpResponse::HTTP_CREATED,
@@ -459,8 +473,20 @@ class Server extends AbstractTus
             $offset   = $file->setKey($uploadKey)->setChecksum($checksum)->upload($fileSize);
 
             // If upload is done, verify checksum.
-            if ($offset === $fileSize && ! $this->verifyChecksum($checksum, $meta['file_path'])) {
-                return $this->response->send(null, self::HTTP_CHECKSUM_MISMATCH);
+            if ($offset === $fileSize) {
+                if ( ! $this->verifyChecksum($checksum, $meta['file_path'])) {
+                    return $this->response->send(null, self::HTTP_CHECKSUM_MISMATCH);
+                }
+
+                $this->event()->dispatch(
+                    UploadComplete::NAME,
+                    new UploadComplete($file, $this->getRequest(), $this->getResponse())
+                );
+            } else {
+                $this->event()->dispatch(
+                    UploadProgress::NAME,
+                    new UploadProgress($file, $this->getRequest(), $this->getResponse())
+                );
             }
         } catch (FileException $e) {
             return $this->response->send($e->getMessage(), HttpResponse::HTTP_UNPROCESSABLE_ENTITY);

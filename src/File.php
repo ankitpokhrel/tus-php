@@ -288,10 +288,8 @@ class File
      */
     public function upload(int $totalBytes) : int
     {
-        $bytesWritten = $this->offset;
-
-        if ($bytesWritten === $totalBytes) {
-            return $bytesWritten;
+        if ($this->offset === $totalBytes) {
+            return $this->offset;
         }
 
         $input  = $this->open($this->getInputStream(), self::READ_BINARY);
@@ -299,7 +297,7 @@ class File
         $key    = $this->getKey();
 
         try {
-            $this->seek($output, $bytesWritten);
+            $this->seek($output, $this->offset);
 
             while ( ! feof($input)) {
                 if (CONNECTION_NORMAL !== connection_status()) {
@@ -309,15 +307,15 @@ class File
                 $data  = $this->read($input, self::CHUNK_SIZE);
                 $bytes = $this->write($output, $data, self::CHUNK_SIZE);
 
-                $bytesWritten += $bytes;
+                $this->offset += $bytes;
 
-                $this->cache->set($key, ['offset' => $bytesWritten]);
+                $this->cache->set($key, ['offset' => $this->offset]);
 
-                if ($bytesWritten > $totalBytes) {
+                if ($this->offset > $totalBytes) {
                     throw new OutOfRangeException('The uploaded file is corrupt.');
                 }
 
-                if ($bytesWritten === $totalBytes) {
+                if ($this->offset === $totalBytes) {
                     break;
                 }
             }
@@ -326,7 +324,7 @@ class File
             $this->close($output);
         }
 
-        return $bytesWritten;
+        return $this->offset;
     }
 
     /**
