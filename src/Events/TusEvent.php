@@ -5,9 +5,9 @@ namespace TusPhp\Events;
 use TusPhp\File;
 use TusPhp\Request;
 use TusPhp\Response;
-use Symfony\Component\EventDispatcher\Event as BaseEvent;
+use Symfony\Component\EventDispatcher\Event;
 
-class TusEvent extends BaseEvent
+class TusEvent extends Event
 {
     /** @var File */
     protected $file;

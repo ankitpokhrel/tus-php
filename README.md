@@ -234,7 +234,10 @@ $server->event()->addListener('tus-server.upload.complete', function (\TusPhp\Ev
 or, you can also bind some method of a custom class.
 
 ```php
-class SomeListener
+/**
+ * Listener can be method from any normal class.
+ */
+class SomeClass
 {
     public function postUploadOperation(\TusPhp\Events\TusEvent $event)
     {
@@ -242,7 +245,7 @@ class SomeListener
     }
 }
 
-$listener = new SomeListener();
+$listener = new SomeClass();
 
 $server->event()->addListener('tus-server.upload.complete', [$listener, 'postUploadOperation']);
 ```
