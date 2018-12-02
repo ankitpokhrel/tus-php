@@ -886,7 +886,7 @@ class ServerTest extends TestCase
 
         $this->tusServerMock
             ->shouldReceive('getRequest')
-            ->times(5)
+            ->times(6)
             ->andReturn($requestMock);
 
         $this->tusServerMock
@@ -988,7 +988,7 @@ class ServerTest extends TestCase
 
         $this->tusServerMock
             ->shouldReceive('getRequest')
-            ->times(5)
+            ->times(6)
             ->andReturn($requestMock);
 
         $this->tusServerMock
@@ -1096,7 +1096,7 @@ class ServerTest extends TestCase
 
         $this->tusServerMock
             ->shouldReceive('getRequest')
-            ->times(3)
+            ->times(4)
             ->andReturn($requestMock);
 
         $cacheMock = m::mock(FileStore::class);
