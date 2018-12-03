@@ -4,6 +4,7 @@ namespace TusPhp\Tus;
 
 use TusPhp\Cache\Cacheable;
 use TusPhp\Cache\CacheFactory;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 abstract class AbstractTus
 {
@@ -30,6 +31,9 @@ abstract class AbstractTus
 
     /** @var string */
     protected $apiPath = '/files';
+
+    /** @var EventDispatcher */
+    protected $dispatcher;
 
     /**
      * Set cache.
@@ -87,5 +91,19 @@ abstract class AbstractTus
     public function getApiPath() : string
     {
         return $this->apiPath;
+    }
+
+    /**
+     * Set and get event dispatcher.
+     *
+     * @return EventDispatcher
+     */
+    public function event() : EventDispatcher
+    {
+        if ( ! $this->dispatcher) {
+            $this->dispatcher = new EventDispatcher();
+        }
+
+        return $this->dispatcher;
     }
 }

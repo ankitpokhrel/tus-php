@@ -11,12 +11,17 @@ use phpmock\MockBuilder;
 use TusPhp\Middleware\Cors;
 use TusPhp\Cache\FileStore;
 use PHPUnit\Framework\TestCase;
+use TusPhp\Events\UploadMerged;
+use TusPhp\Events\UploadCreated;
+use TusPhp\Events\UploadComplete;
+use TusPhp\Events\UploadProgress;
 use TusPhp\Middleware\Middleware;
 use TusPhp\Tus\Server as TusServer;
 use TusPhp\Exception\FileException;
 use TusPhp\Middleware\GlobalHeaders;
 use TusPhp\Exception\ConnectionException;
 use TusPhp\Exception\OutOfRangeException;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 /**
@@ -838,6 +843,7 @@ class ServerTest extends TestCase
      * @test
      *
      * @covers ::handlePost
+     * @covers \TusPhp\Events\UploadCreated::__construct
      */
     public function it_handles_post_for_partial_request()
     {
@@ -886,7 +892,7 @@ class ServerTest extends TestCase
 
         $this->tusServerMock
             ->shouldReceive('getRequest')
-            ->times(5)
+            ->times(6)
             ->andReturn($requestMock);
 
         $this->tusServerMock
@@ -935,6 +941,17 @@ class ServerTest extends TestCase
             ])
             ->andReturn(null);
 
+        $eventDispatcherMock = m::mock(EventDispatcher::class);
+        $eventDispatcherMock
+            ->shouldReceive('dispatch')
+            ->once()
+            ->with('tus-server.upload.created', m::type(UploadCreated::class));
+
+        $this->tusServerMock
+            ->shouldReceive('event')
+            ->once()
+            ->andReturn($eventDispatcherMock);
+
         $this->tusServerMock->setCache($cacheMock);
 
         $response = $this->tusServerMock->handlePost();
@@ -950,6 +967,7 @@ class ServerTest extends TestCase
      * @test
      *
      * @covers ::handlePost
+     * @covers \TusPhp\Events\UploadCreated::__construct
      */
     public function it_handles_post_request()
     {
@@ -988,7 +1006,7 @@ class ServerTest extends TestCase
 
         $this->tusServerMock
             ->shouldReceive('getRequest')
-            ->times(5)
+            ->times(6)
             ->andReturn($requestMock);
 
         $this->tusServerMock
@@ -1037,6 +1055,17 @@ class ServerTest extends TestCase
             ])
             ->andReturn(null);
 
+        $eventDispatcherMock = m::mock(EventDispatcher::class);
+        $eventDispatcherMock
+            ->shouldReceive('dispatch')
+            ->once()
+            ->with('tus-server.upload.created', m::type(UploadCreated::class));
+
+        $this->tusServerMock
+            ->shouldReceive('event')
+            ->once()
+            ->andReturn($eventDispatcherMock);
+
         $this->tusServerMock->setCache($cacheMock);
 
         $response = $this->tusServerMock->handlePost();
@@ -1053,6 +1082,7 @@ class ServerTest extends TestCase
      *
      * @covers ::handleConcatenation
      * @covers ::getPartialsMeta
+     * @covers \TusPhp\Events\UploadMerged::__construct
      */
     public function it_handles_concatenation_request()
     {
@@ -1096,7 +1126,7 @@ class ServerTest extends TestCase
 
         $this->tusServerMock
             ->shouldReceive('getRequest')
-            ->times(3)
+            ->times(4)
             ->andReturn($requestMock);
 
         $cacheMock = m::mock(FileStore::class);
@@ -1129,6 +1159,17 @@ class ServerTest extends TestCase
             ->once()
             ->with(['file_a', 'file_b'])
             ->andReturn(true);
+
+        $eventDispatcherMock = m::mock(EventDispatcher::class);
+        $eventDispatcherMock
+            ->shouldReceive('dispatch')
+            ->once()
+            ->with('tus-server.upload.merged', m::type(UploadMerged::class));
+
+        $this->tusServerMock
+            ->shouldReceive('event')
+            ->once()
+            ->andReturn($eventDispatcherMock);
 
         $this->tusServerMock->setCache($cacheMock);
 
@@ -1827,6 +1868,120 @@ class ServerTest extends TestCase
      *
      * @covers ::handlePatch
      * @covers ::verifyPatchRequest
+     * @covers \TusPhp\Events\UploadComplete::__construct
+     */
+    public function it_handles_final_patch_request()
+    {
+        $key       = uniqid();
+        $fileName  = 'file.txt';
+        $fileSize  = 1024;
+        $checksum  = 'invalid';
+        $location  = 'http://tus.local/uploads/file.txt';
+        $expiresAt = 'Sat, 09 Dec 2017 00:00:00 GMT';
+        $fileMeta  = [
+            'name' => $fileName,
+            'size' => $fileSize,
+            'offset' => 0,
+            'checksum' => $checksum,
+            'file_path' => __DIR__ . '/../Fixtures/empty.txt',
+            'location' => $location,
+            'created_at' => 'Fri, 08 Dec 2017 00:00:00 GMT',
+            'expires_at' => $expiresAt,
+            'upload_type' => 'normal',
+        ];
+
+        $this->tusServerMock
+            ->getRequest()
+            ->getRequest()
+            ->headers
+            ->set('Content-Type', 'application/offset+octet-stream');
+
+        $this->tusServerMock
+            ->getRequest()
+            ->getRequest()
+            ->server
+            ->add([
+                'REQUEST_METHOD' => 'PATCH',
+                'REQUEST_URI' => '/files/' . $key,
+            ]);
+
+        $fileMock = m::mock(File::class);
+        $fileMock
+            ->shouldReceive('setKey')
+            ->once()
+            ->with($key)
+            ->andReturnSelf();
+
+        $fileMock
+            ->shouldReceive('setChecksum')
+            ->once()
+            ->with($checksum)
+            ->andReturnSelf();
+
+        $fileMock
+            ->shouldReceive('getFileSize')
+            ->once()
+            ->andReturn($fileSize);
+
+        $fileMock
+            ->shouldReceive('upload')
+            ->once()
+            ->with($fileSize)
+            ->andReturn($fileSize);
+
+        $this->tusServerMock
+            ->shouldReceive('buildFile')
+            ->once()
+            ->with($fileMeta)
+            ->andReturn($fileMock);
+
+        $this->tusServerMock
+            ->shouldReceive('verifyChecksum')
+            ->with($checksum, $fileMeta['file_path'])
+            ->andReturn(true);
+
+        $eventDispatcherMock = m::mock(EventDispatcher::class);
+        $eventDispatcherMock
+            ->shouldReceive('dispatch')
+            ->once()
+            ->with('tus-server.upload.complete', m::type(UploadComplete::class));
+
+        $this->tusServerMock
+            ->shouldReceive('event')
+            ->once()
+            ->andReturn($eventDispatcherMock);
+
+        $cacheMock = m::mock(FileStore::class);
+        $cacheMock
+            ->shouldReceive('get')
+            ->twice()
+            ->with($key)
+            ->andReturn($fileMeta);
+
+        $cacheMock
+            ->shouldReceive('setPrefix')
+            ->once()
+            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->andReturnSelf();
+
+        $this->tusServerMock->setCache($cacheMock);
+
+        $response = $this->tusServerMock->handlePatch();
+
+        $this->assertEquals(204, $response->getStatusCode());
+        $this->assertEquals($expiresAt, $response->headers->get('upload-expires'));
+        $this->assertEquals($fileSize, $response->headers->get('upload-offset'));
+        $this->assertEquals('1.0.0', $response->headers->get('tus-resumable'));
+        $this->assertEquals('application/offset+octet-stream', $response->headers->get('content-type'));
+        $this->assertEmpty($response->getContent());
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::handlePatch
+     * @covers ::verifyPatchRequest
+     * @covers \TusPhp\Events\UploadProgress::__construct
      */
     public function it_handles_patch_request()
     {
@@ -1892,6 +2047,17 @@ class ServerTest extends TestCase
             ->once()
             ->with($fileMeta)
             ->andReturn($fileMock);
+
+        $eventDispatcherMock = m::mock(EventDispatcher::class);
+        $eventDispatcherMock
+            ->shouldReceive('dispatch')
+            ->once()
+            ->with('tus-server.upload.progress', m::type(UploadProgress::class));
+
+        $this->tusServerMock
+            ->shouldReceive('event')
+            ->once()
+            ->andReturn($eventDispatcherMock);
 
         $cacheMock = m::mock(FileStore::class);
         $cacheMock

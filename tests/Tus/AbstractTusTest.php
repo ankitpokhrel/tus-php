@@ -6,6 +6,7 @@ use TusPhp\Cache\FileStore;
 use TusPhp\Cache\RedisStore;
 use PHPUnit\Framework\TestCase;
 use TusPhp\Tus\Server as TusServer;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @coversDefaultClass \TusPhp\Tus\AbstractTus
@@ -58,5 +59,15 @@ class AbstractTusTest extends TestCase
         $this->assertEquals('/files', $this->tus->getApiPath());
         $this->assertInstanceOf(TusServer::class, $this->tus->setApiPath('/api'));
         $this->assertEquals('/api', $this->tus->getApiPath());
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::event
+     */
+    public function it_sets_and_gets_event_dispatcher()
+    {
+        $this->assertInstanceOf(EventDispatcher::class, $this->tus->event());
     }
 }
