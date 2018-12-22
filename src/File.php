@@ -328,7 +328,7 @@ class File
     }
 
     /**
-     * Open file in append binary mode.
+     * Open file in given mode.
      *
      * @param string $filePath
      * @param string $mode
@@ -374,6 +374,8 @@ class File
     }
 
     /**
+     * Move file pointer to given offset.
+     *
      * @param Resource $handle
      * @param int      $offset
      * @param int      $whence
@@ -510,7 +512,7 @@ class File
     }
 
     /**
-     * Delete files.
+     * Delete multiple files.
      *
      * @param array $files
      *

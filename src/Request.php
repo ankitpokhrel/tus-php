@@ -2,6 +2,7 @@
 
 namespace TusPhp;
 
+use TusPhp\Tus\Server;
 use Symfony\Component\HttpFoundation\Request as HttpRequest;
 
 class Request
@@ -155,7 +156,7 @@ class Request
      */
     public function extractPartials() : array
     {
-        return $this->extractFromHeader('Upload-Concat', 'final;');
+        return $this->extractFromHeader('Upload-Concat', Server::UPLOAD_TYPE_FINAL . ';');
     }
 
     /**
@@ -165,7 +166,7 @@ class Request
      */
     public function isPartial() : bool
     {
-        return $this->header('Upload-Concat') === 'partial';
+        return Server::UPLOAD_TYPE_PARTIAL === $this->header('Upload-Concat');
     }
 
     /**
@@ -175,7 +176,7 @@ class Request
      */
     public function isFinal() : bool
     {
-        return false !== strpos($this->header('Upload-Concat'), 'final;');
+        return false !== strpos($this->header('Upload-Concat'), Server::UPLOAD_TYPE_FINAL . ';');
     }
 
     /**

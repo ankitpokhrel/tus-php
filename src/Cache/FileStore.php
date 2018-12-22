@@ -90,7 +90,7 @@ class FileStore extends AbstractCache
     }
 
     /**
-     * Create cache file and add required meta.
+     * Create a cache file.
      *
      * @return void
      */
