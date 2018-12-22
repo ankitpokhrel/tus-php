@@ -325,6 +325,72 @@ class ClientTest extends TestCase
     /**
      * @test
      *
+     * @covers ::isExpired
+     */
+    public function it_returns_false_if_upload_is_not_expired()
+    {
+        $key = uniqid();
+        $url = 'https://server.tus.local';
+
+        $cacheMock = m::mock(FileStore::class);
+        $cacheMock
+            ->shouldReceive('get')
+            ->once()
+            ->with($key)
+            ->andReturn([
+                'location' => $url,
+                'expires_at' => 'Sat, 09 Dec 2017 00:00:00 GMT',
+            ]);
+
+        $this->tusClientMock
+            ->shouldReceive('getKey')
+            ->once()
+            ->andReturn($key);
+
+        $this->tusClientMock
+            ->shouldReceive('getCache')
+            ->once()
+            ->andReturn($cacheMock);
+
+        $this->assertFalse($this->tusClientMock->isExpired());
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::isExpired
+     */
+    public function it_returns_true_if_upload_is_expired()
+    {
+        $key = uniqid();
+        $url = 'https://server.tus.local';
+
+        $cacheMock = m::mock(FileStore::class);
+        $cacheMock
+            ->shouldReceive('get')
+            ->once()
+            ->with($key)
+            ->andReturn([
+                'location' => $url,
+                'expires_at' => 'Thu, 7 Dec 2017 00:00:00 GMT',
+            ]);
+
+        $this->tusClientMock
+            ->shouldReceive('getKey')
+            ->once()
+            ->andReturn($key);
+
+        $this->tusClientMock
+            ->shouldReceive('getCache')
+            ->once()
+            ->andReturn($cacheMock);
+
+        $this->assertTrue($this->tusClientMock->isExpired());
+    }
+
+    /**
+     * @test
+     *
      * @covers ::upload
      */
     public function it_uploads_a_file()
@@ -336,6 +402,11 @@ class ClientTest extends TestCase
             ->shouldReceive('sendHeadRequest')
             ->once()
             ->andReturn(0);
+
+        $this->tusClientMock
+            ->shouldReceive('isExpired')
+            ->once()
+            ->andReturn(false);
 
         $this->tusClientMock
             ->shouldReceive('sendPatchRequest')
@@ -367,12 +438,43 @@ class ClientTest extends TestCase
             ->andReturn(0);
 
         $this->tusClientMock
+            ->shouldReceive('isExpired')
+            ->once()
+            ->andReturn(false);
+
+        $this->tusClientMock
             ->shouldReceive('sendPatchRequest')
             ->once()
             ->with($bytes, $offset)
             ->andReturn($bytes);
 
         $this->assertEquals($bytes, $this->tusClientMock->upload());
+    }
+
+    /**
+     * @test
+     *
+     * @expectedException \TusPhp\Exception\TusException
+     * @expectedExceptionMessage Upload expired.
+     */
+    public function it_should_not_resume_upload_if_upload_is_expired()
+    {
+        $this->tusClientMock
+            ->shouldReceive('getFileSize')
+            ->once()
+            ->andReturn(100);
+
+        $this->tusClientMock
+            ->shouldReceive('sendHeadRequest')
+            ->once()
+            ->andReturn(0);
+
+        $this->tusClientMock
+            ->shouldReceive('isExpired')
+            ->once()
+            ->andReturn(true);
+
+        $this->tusClientMock->upload();
     }
 
     /**
@@ -400,6 +502,11 @@ class ClientTest extends TestCase
             ->shouldReceive('create')
             ->once()
             ->andReturn($key);
+
+        $this->tusClientMock
+            ->shouldReceive('isExpired')
+            ->once()
+            ->andReturn(false);
 
         $this->tusClientMock
             ->shouldReceive('sendPatchRequest')
@@ -435,6 +542,11 @@ class ClientTest extends TestCase
             ->shouldReceive('create')
             ->once()
             ->andReturn($key);
+
+        $this->tusClientMock
+            ->shouldReceive('isExpired')
+            ->once()
+            ->andReturn(false);
 
         $this->tusClientMock
             ->shouldReceive('sendPatchRequest')
