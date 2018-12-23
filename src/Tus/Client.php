@@ -223,6 +223,18 @@ class Client extends AbstractTus
     }
 
     /**
+     * Check if current upload is expired.
+     *
+     * @return bool
+     */
+    public function isExpired() : bool
+    {
+        $expiresAt = $this->getCache()->get($this->getKey())['expires_at'] ?? null;
+
+        return empty($expiresAt) || Carbon::parse($expiresAt)->lt(Carbon::now());
+    }
+
+    /**
      * Check if this is a partial upload request.
      *
      * @return bool
@@ -281,6 +293,11 @@ class Client extends AbstractTus
             $this->url = $this->create($this->getKey());
         } catch (ConnectException $e) {
             throw new ConnectionException("Couldn't connect to server.");
+        }
+
+        // Verify that upload is not yet expired.
+        if ($this->isExpired()) {
+            throw new TusException('Upload expired.');
         }
 
         // Now, resume upload with PATCH request.
