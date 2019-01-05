@@ -145,6 +145,20 @@ class Client extends AbstractTus
     }
 
     /**
+     * Set checksum.
+     *
+     * @param string $checksum
+     *
+     * @return Client
+     */
+    public function setChecksum(string $checksum) : self
+    {
+        $this->checksum = $checksum;
+
+        return $this;
+    }
+
+    /**
      * Get checksum.
      *
      * @return string
@@ -152,7 +166,7 @@ class Client extends AbstractTus
     public function getChecksum() : string
     {
         if (empty($this->checksum)) {
-            $this->checksum = hash_file($this->getChecksumAlgorithm(), $this->getFilePath());
+            $this->setChecksum(hash_file($this->getChecksumAlgorithm(), $this->getFilePath()));
         }
 
         return $this->checksum;
