@@ -147,7 +147,7 @@ class Client extends AbstractTus
     /**
      * Set checksum.
      *
-     * @param string $key
+     * @param string $checksum
      *
      * @return Client
      */
