@@ -425,7 +425,7 @@ class Server extends AbstractTus
         if ($checksum !== $this->getClientChecksum()) {
             return $this->response->send(null, self::HTTP_CHECKSUM_MISMATCH);
         }
-        
+
         $this->cache->set($uploadKey, $file->details() + ['upload_type' => self::UPLOAD_TYPE_FINAL]);
 
         // Cleanup.
