@@ -1224,6 +1224,17 @@ class ServerTest extends TestCase
             ], true)
             ->andReturn(true);
 
+        $fileMock
+            ->shouldReceive('setChecksum')
+            ->once()
+            ->with($checksum)
+            ->andReturnSelf();
+
+        $fileMock
+            ->shouldReceive('setKey')
+            ->once()
+            ->andReturnSelf();
+
         $response = $this->tusServerMock->handleConcatenation($fileName, $filePath . $fileName);
 
         $this->assertEquals(201, $response->getStatusCode());
@@ -1332,6 +1343,11 @@ class ServerTest extends TestCase
             ->once()
             ->with($files)
             ->andReturn(30);
+
+        $fileMock
+            ->shouldReceive('setKey')
+            ->once()
+            ->andReturnSelf();
 
         $response = $this->tusServerMock->handleConcatenation($fileName, $filePath . $fileName);
 
