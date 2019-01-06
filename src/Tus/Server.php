@@ -373,7 +373,7 @@ class Server extends AbstractTus
             'size' => $this->getRequest()->header('Upload-Length'),
             'file_path' => $filePath,
             'location' => $location,
-        ])->setChecksum($checksum);
+        ])->setKey($uploadKey)->setChecksum($checksum);
 
         $this->cache->set($uploadKey, $file->details() + ['upload_type' => $uploadType]);
 
@@ -414,12 +414,13 @@ class Server extends AbstractTus
             'size' => 0,
             'file_path' => $filePath,
             'location' => $location,
-        ])->setFilePath($filePath);
+        ])->setFilePath($filePath)->setKey($uploadKey);
 
         $file->setOffset($file->merge($files));
 
         // Verify checksum.
         $checksum = $this->getServerChecksum($filePath);
+        $file->setChecksum($checksum);
 
         if ($checksum !== $this->getClientChecksum()) {
             return $this->response->send(null, self::HTTP_CHECKSUM_MISMATCH);
