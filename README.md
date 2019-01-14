@@ -34,8 +34,7 @@
 re-uploading whole data again in case of any interruptions. An interruption may happen willingly if the user wants
 to pause, or by accident in case of a network issue or server outage.
 
-Table of Contents
-=================
+### Table of Contents
 
 * [Installation](#installation)
 * [Usage](#usage)
