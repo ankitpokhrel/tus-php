@@ -59,7 +59,6 @@ to pause, or by accident in case of a network issue or server outage.
 * [Questions about this project?](#questions-about-this-project)
 * [Supporters](#supporters)
 
-
 ### Installation
 
 Pull the package via composer.
