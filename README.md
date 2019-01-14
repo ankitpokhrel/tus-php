@@ -34,6 +34,38 @@
 re-uploading whole data again in case of any interruptions. An interruption may happen willingly if the user wants
 to pause, or by accident in case of a network issue or server outage.
 
+Table of Contents
+=================
+
+<!--ts-->
+   * [TusPHP](#tusphp)
+         * [Installation](#installation)
+      * [Usage](#usage)
+            * [Server](#server)
+                  * [Nginx](#nginx)
+                  * [Apache](#apache)
+            * [Client](#client)
+         * [Extension support](#extension-support)
+         * [Expiration](#expiration)
+         * [Concatenation](#concatenation)
+         * [Events](#events)
+            * [Responding to an Event](#responding-to-an-event)
+         * [Middleware](#middleware)
+            * [Creating a Middleware](#creating-a-middleware)
+            * [Adding a Middleware](#adding-a-middleware)
+            * [Skipping a Middleware](#skipping-a-middleware)
+         * [Compatible with <a href="https://uppy.io/" rel="nofollow">Uppy</a>](#compatible-with-uppy)
+         * [Setting up a dev environment and/or running examples locally](#setting-up-a-dev-environment-andor-running-examples-locally)
+            * [Docker](#docker)
+            * [Kubernetes with minikube](#kubernetes-with-minikube)
+         * [Contributing](#contributing)
+         * [Questions about this project?](#questions-about-this-project)
+         * [Supporters](#supporters)
+
+<!-- Added by: user, at: 2019-01-14 -->
+
+<!-- Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc) -->
+
 ### Installation
 
 Pull the package via composer.
