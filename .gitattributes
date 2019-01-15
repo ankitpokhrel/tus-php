@@ -1,9 +1,10 @@
 /.github export-ignore
-/bin export-ignore
 /docker export-ignore
 /example export-ignore
 /k8s export-ignore
 /tests export-ignore
+
+/bin/*.sh export-ignore
 
 .dockerignore export-ignore
 .gitattributes export-ignore
