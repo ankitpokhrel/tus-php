@@ -55,7 +55,7 @@ class ExpirationCommand extends Command
             Config::set($config);
         }
 
-        $this->server = new TusServer(CacheFactory::make($input->getArgument('cache-adapter')));
+        $this->server = new TusServer(CacheFactory::make($input->getArgument('cache-adapter') ?? 'file'));
 
         $deleted = $this->server->handleExpiration();
 

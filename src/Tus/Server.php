@@ -420,12 +420,12 @@ class Server extends AbstractTus
 
         // Verify checksum.
         $checksum = $this->getServerChecksum($filePath);
-        $file->setChecksum($checksum);
 
         if ($checksum !== $this->getClientChecksum()) {
             return $this->response->send(null, self::HTTP_CHECKSUM_MISMATCH);
         }
 
+        $file->setChecksum($checksum);
         $this->cache->set($uploadKey, $file->details() + ['upload_type' => self::UPLOAD_TYPE_FINAL]);
 
         // Cleanup.
