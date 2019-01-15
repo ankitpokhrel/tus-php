@@ -70,8 +70,8 @@ class Request
     /**
      * Retrieve a header from the request.
      *
-     * @param  string            $key
-     * @param  string|array|null $default
+     * @param  string               $key
+     * @param  string|string[]|null $default
      *
      * @return string|null
      */

@@ -1350,12 +1350,6 @@ class ServerTest extends TestCase
             ->once()
             ->with($key)
             ->andReturnSelf();
-        
-        $fileMock
-            ->shouldReceive('setChecksum')
-            ->once()
-            ->with($checksum)
-            ->andReturnSelf();
 
         $response = $this->tusServerMock->handleConcatenation($fileName, $filePath . $fileName);
 
