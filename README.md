@@ -14,7 +14,7 @@
         <img alt="Scrutinizer Code Quality" src="https://img.shields.io/scrutinizer/g/ankitpokhrel/tus-php.svg?style=flat-square" />
     </a>
     <a href="https://packagist.org/packages/ankitpokhrel/tus-php">
-        <img alt="Download" src="https://img.shields.io/packagist/dt/ankitpokhrel/tus-php.svg?style=flat-square" />
+        <img alt="Downloads" src="https://img.shields.io/packagist/dm/ankitpokhrel/tus-php.svg?style=flat-square" />
     </a>
     <a href="https://github.com/ankitpokhrel/tus-php/blob/master/LICENSE">
         <img alt="Software License" src="https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square" />
@@ -43,8 +43,8 @@ to pause, or by accident in case of a network issue or server outage.
         * [Apache](#apache)
     * [Client](#client)
 * [Extension support](#extension-support)
-* [Expiration](#expiration)
-* [Concatenation](#concatenation)
+    * [Expiration](#expiration)
+    * [Concatenation](#concatenation)
 * [Events](#events)
     * [Responding to an Event](#responding-to-an-event)
 * [Middleware](#middleware)
@@ -66,7 +66,7 @@ Pull the package via composer.
 $ composer require ankitpokhrel/tus-php
 ```
 
-## Usage
+### Usage
 | ![Basic Tus Architecture](https://cdn-images-1.medium.com/max/2000/1*N4JhqeXJgWA1Z7pc6_5T_A.png "Basic Tus Architecture") |
 |:--:|
 | Basic Tus Architecture |
@@ -174,7 +174,7 @@ $client->setChecksumAlgorithm('crc32');
 - [x] The Expiration extension is implemented, details below.
 - [x] This Concatenation extension is implemented except that the server is not capable of handling unfinished concatenation.
 
-### Expiration
+#### Expiration
 The Server is capable of removing expired but unfinished uploads. You can use the following command manually or in a cron job to remove them.
 
 ```shell
@@ -205,7 +205,7 @@ You can use`--config` option to override default redis or file configuration.
  $ ./vendor/bin/tus tus:expired redis --config=<path to your config file>
  ```
 
-### Concatenation
+#### Concatenation
 The Server is capable of concatenating multiple uploads into a single one enabling Clients to perform parallel uploads and to upload non-contiguous chunks.
 
 ```php
