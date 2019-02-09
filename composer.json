@@ -25,7 +25,7 @@
     "friendsofphp/php-cs-fixer": "^2.9",
     "mockery/mockery": "^1.2.0",
     "php-mock/php-mock": "^2.0",
-    "phpunit/phpunit": "^6.5.13"
+    "phpunit/phpunit": "6.5.14"
   },
   "autoload": {
     "psr-4": {
