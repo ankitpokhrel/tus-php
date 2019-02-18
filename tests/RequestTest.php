@@ -247,4 +247,18 @@ class RequestTest extends TestCase
     {
         $this->assertInstanceOf(HttpRequest::class, $this->request->getRequest());
     }
+
+    /**
+     * @test
+     *
+     * @covers ::__construct
+     */
+    public function it_allows_construction_without_global_request_scope()
+    {
+        $httpFoundationRequest = new HttpRequest();
+        $httpFoundationRequest->setMethod('POST');
+
+        $this->request = new Request($httpFoundationRequest);
+        $this->assertSame('POST', $this->request->method());
+    }
 }

@@ -2,6 +2,7 @@
 
 namespace TusPhp\Test;
 
+use Symfony\Component\HttpFoundation\Request as HttpRequest;
 use TusPhp\File;
 use Mockery as m;
 use TusPhp\Request;
@@ -183,6 +184,21 @@ class ServerTest extends TestCase
      *
      * @covers ::serve
      */
+    public function it_allows_serving_a_specific_request()
+    {
+        $httpFoundationRequest = new HttpRequest();
+        $httpFoundationRequest->setMethod('INVALID');
+
+        $response = $this->tusServerMock->serve(new Request($httpFoundationRequest));
+
+        $this->assertEquals(405, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::serve
+     */
     public function it_sends_405_for_invalid_http_verbs()
     {
         $this->tusServerMock
@@ -227,7 +243,7 @@ class ServerTest extends TestCase
             ->server
             ->set('REQUEST_METHOD', 'HEAD');
 
-        $requestMock = m::mock(Request::class, ['file'])->makePartial();
+        $requestMock = m::mock(Request::class, [])->makePartial();
         $requestMock
             ->getRequest()
             ->headers
@@ -275,7 +291,7 @@ class ServerTest extends TestCase
             ->server
             ->set('REQUEST_METHOD', 'HEAD');
 
-        $requestMock = m::mock(Request::class, ['file'])->makePartial();
+        $requestMock = m::mock(Request::class, [])->makePartial();
         $requestMock
             ->getRequest()
             ->headers
@@ -353,7 +369,7 @@ class ServerTest extends TestCase
 
         $tusServerMock->__construct('file');
 
-        $requestMock = m::mock(Request::class, ['file'])->makePartial();
+        $requestMock = m::mock(Request::class, [])->makePartial();
         $requestMock
             ->getRequest()
             ->headers
@@ -754,7 +770,7 @@ class ServerTest extends TestCase
                 'REQUEST_URI' => '/files',
             ]);
 
-        $requestMock = m::mock(Request::class, ['file'])->makePartial();
+        $requestMock = m::mock(Request::class, [])->makePartial();
         $requestMock
             ->getRequest()
             ->headers
@@ -804,7 +820,7 @@ class ServerTest extends TestCase
                 'REQUEST_URI' => '/files',
             ]);
 
-        $requestMock = m::mock(Request::class, ['file'])->makePartial();
+        $requestMock = m::mock(Request::class, [])->makePartial();
         $requestMock
             ->getRequest()
             ->headers
@@ -866,7 +882,7 @@ class ServerTest extends TestCase
                 'REQUEST_URI' => '/files',
             ]);
 
-        $requestMock = m::mock(Request::class, ['file'])->makePartial();
+        $requestMock = m::mock(Request::class, [])->makePartial();
         $requestMock
             ->getRequest()
             ->headers
@@ -986,7 +1002,7 @@ class ServerTest extends TestCase
                 'REQUEST_URI' => '/files',
             ]);
 
-        $requestMock = m::mock(Request::class, ['file'])->makePartial();
+        $requestMock = m::mock(Request::class, [])->makePartial();
         $requestMock
             ->getRequest()
             ->headers
@@ -1105,7 +1121,7 @@ class ServerTest extends TestCase
             'location' => $location,
         ];
 
-        $requestMock = m::mock(Request::class, ['file'])->makePartial();
+        $requestMock = m::mock(Request::class, [])->makePartial();
         $requestMock
             ->getRequest()
             ->headers
@@ -1261,7 +1277,7 @@ class ServerTest extends TestCase
             ['file_path' => $filePath . 'file_b', 'offset' => 20],
         ];
 
-        $requestMock = m::mock(Request::class, ['file'])->makePartial();
+        $requestMock = m::mock(Request::class, [])->makePartial();
         $requestMock
             ->getRequest()
             ->headers
@@ -2995,7 +3011,7 @@ class ServerTest extends TestCase
     {
         $this->assertTrue($this->tusServerMock->verifyUploadSize());
 
-        $requestMock = m::mock(Request::class, ['file'])->makePartial();
+        $requestMock = m::mock(Request::class, [])->makePartial();
         $requestMock
             ->getRequest()
             ->headers

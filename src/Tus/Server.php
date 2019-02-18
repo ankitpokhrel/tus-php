@@ -252,8 +252,12 @@ class Server extends AbstractTus
      *
      * @return HttpResponse|BinaryFileResponse
      */
-    public function serve()
+    public function serve(Request $request = null)
     {
+        if ($request !== null) {
+            $this->request = $request;
+        }
+
         $this->applyMiddleware();
 
         $requestMethod = $this->getRequest()->method();

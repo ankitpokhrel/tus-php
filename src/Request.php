@@ -13,11 +13,13 @@ class Request
     /**
      * Request constructor.
      */
-    public function __construct()
+    public function __construct(HttpRequest $request = null)
     {
-        if (null === $this->request) {
-            $this->request = HttpRequest::createFromGlobals();
+        if (null === $request) {
+            $request = HttpRequest::createFromGlobals();
         }
+
+        $this->request = $request;
     }
 
     /**
