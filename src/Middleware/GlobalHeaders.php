@@ -5,7 +5,6 @@ namespace TusPhp\Middleware;
 use TusPhp\Request;
 use TusPhp\Response;
 use TusPhp\Tus\Server;
-use Symfony\Component\HttpFoundation\Request as HttpRequest;
 
 class GlobalHeaders implements TusMiddleware
 {
@@ -16,11 +15,8 @@ class GlobalHeaders implements TusMiddleware
     {
         $headers = [
             'X-Content-Type-Options' => 'nosniff',
+            'Tus-Resumable' => Server::TUS_PROTOCOL_VERSION,
         ];
-
-        if (HttpRequest::METHOD_OPTIONS !== $request->method()) {
-            $headers += ['Tus-Resumable' => Server::TUS_PROTOCOL_VERSION];
-        }
 
         $response->setHeaders($headers);
     }
