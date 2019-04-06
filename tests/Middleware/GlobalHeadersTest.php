@@ -38,11 +38,6 @@ class GlobalHeadersTest extends TestCase
         $requestMock  = m::mock(Request::class, [])->makePartial();
         $responseMock = m::mock(Response::class);
 
-        $requestMock
-            ->shouldReceive('method')
-            ->once()
-            ->andReturn('PATCH');
-
         $responseMock
             ->shouldReceive('setHeaders')
             ->once()
@@ -50,30 +45,6 @@ class GlobalHeadersTest extends TestCase
                 'X-Content-Type-Options' => 'nosniff',
                 'Tus-Resumable' => '1.0.0',
             ])
-            ->andReturnSelf();
-
-        $this->assertNull($this->globalHeaders->handle($requestMock, $responseMock));
-    }
-
-    /**
-     * @test
-     *
-     * @covers ::handle
-     */
-    public function it_doesnt_add_resumable_header_for_options_method()
-    {
-        $requestMock  = m::mock(Request::class, [])->makePartial();
-        $responseMock = m::mock(Response::class);
-
-        $requestMock
-            ->shouldReceive('method')
-            ->once()
-            ->andReturn('OPTIONS');
-
-        $responseMock
-            ->shouldReceive('setHeaders')
-            ->once()
-            ->with(['X-Content-Type-Options' => 'nosniff'])
             ->andReturnSelf();
 
         $this->assertNull($this->globalHeaders->handle($requestMock, $responseMock));
