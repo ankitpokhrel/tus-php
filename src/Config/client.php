@@ -8,7 +8,7 @@ return [
     'redis' => [
         'host' => getenv('REDIS_HOST') !== false ? getenv('REDIS_HOST') : '127.0.0.1',
         'port' => getenv('REDIS_PORT') !== false ? getenv('REDIS_PORT') : '6379',
-        'database' => 1,
+        'database' => getenv('REDIS_DB') !== false ? getenv('REDIS_DB') : 0,
     ],
 
     /**

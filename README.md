@@ -111,14 +111,16 @@ Default max upload size is 0 which means there is no restriction. You can set ma
 $server->setMaxUploadSize(100000000); // 100 MB in bytes
 ```
 
-Default redis and file configuration can be found inside `config/default.php` file. To override default config you can simply copy the file
-to your preferred location and update the parameters. You then need to set the config before doing anything else.
+Default redis and file configuration for server and client can be found inside `config/server.php` and `config/client.php` respectively. 
+To override default config you can simply copy the file to your preferred location and update the parameters. You then need to set the config before doing anything else.
 
 ```
 \TusPhp\Config::set(<path to your config>);
 
 $server = new \TusPhp\Tus\Server('redis');
 ```
+
+Alternately, you can set `REDIS_HOST`, `REDIS_PORT` and `REDIS_DB` env in your server to override redis settings for both server and client.
 
 #### Client
 The client can be used for creating, resuming and/or deleting uploads.
