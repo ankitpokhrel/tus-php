@@ -45,6 +45,9 @@ class Client extends AbstractTus
     /** @var string */
     protected $checksumAlgorithm = 'sha256';
 
+    /** @var array */
+    protected $metadata = [];
+
     /**
      * Client constructor.
      *
@@ -170,6 +173,73 @@ class Client extends AbstractTus
         }
 
         return $this->checksum;
+    }
+
+    /**
+     * Add metadata.
+     *
+     * @param string $key
+     * @param string $value
+     *
+     * @return Client
+     */
+    public function addMetadata(string $key, string $value) : self
+    {
+        $this->metadata[$key] = base64_encode($value);
+
+        return $this;
+    }
+
+    /**
+     * Remove metadata.
+     *
+     * @param string $key
+     *
+     * @return Client
+     */
+    public function removeMetadata(string $key) : self
+    {
+        unset($this->metadata[$key]);
+
+        return $this;
+    }
+
+    /**
+     * Set metadata.
+     *
+     * @param array $items
+     *
+     * @return Client
+     */
+    public function setMetadata(array $items) : self
+    {
+        $items = array_map('base64_encode', $items);
+
+        $this->metadata = $items;
+
+        return $this;
+    }
+
+    /**
+     * Get metadata.
+     *
+     * @return array
+     */
+    public function getMetadata() : array
+    {
+        $this->addMetadata('filename ', $this->fileName);
+
+        return $this->metadata;
+    }
+
+    /**
+     * Get metadata for Upload-Metadata header.
+     *
+     * @return string
+     */
+    protected function getUploadMetadata() : string
+    {
+        return implode(',', $this->getMetadata());
     }
 
     /**
@@ -349,7 +419,7 @@ class Client extends AbstractTus
             'Upload-Length' => $this->fileSize,
             'Upload-Key' => $key,
             'Upload-Checksum' => $this->getUploadChecksumHeader(),
-            'Upload-Metadata' => 'filename ' . base64_encode($this->fileName),
+            'Upload-Metadata' => $this->getUploadMetadata(),
         ];
 
         if ($this->isPartial()) {
@@ -391,7 +461,7 @@ class Client extends AbstractTus
                 'Upload-Length' => $this->fileSize,
                 'Upload-Key' => $key,
                 'Upload-Checksum' => $this->getUploadChecksumHeader(),
-                'Upload-Metadata' => 'filename ' . base64_encode($this->fileName),
+                'Upload-Metadata' => $this->getUploadMetadata(),
                 'Upload-Concat' => self::UPLOAD_TYPE_FINAL . ';' . implode(' ', $partials),
             ],
         ]);
