@@ -17,7 +17,7 @@
     "predis/predis": "^1.1",
     "ramsey/uuid": "^3.7",
     "symfony/console": "^3.4.11 || ^4.0",
-    "symfony/event-dispatcher": "^3.4.11 || ^4.2",
+    "symfony/event-dispatcher": "^3.4.11 || ^4.0",
     "symfony/http-foundation": "^3.4.11 || ^4.0"
   },
   "require-dev": {
