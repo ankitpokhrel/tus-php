@@ -242,7 +242,6 @@
     $.ajax({
       type: 'POST',
       url: 'verify.php',
-      data: formData,
       dataType: 'json',
       processData: false,
       contentType: false,
@@ -257,11 +256,7 @@
 
         renderProgressBar(response.bytes_uploaded, fileMeta.size);
 
-        if ('uploaded' === response.status) {
-          cleanUp();
-
-          listUploadedFiles(fileMeta, response.upload_key)
-        } else if ('error' !== response.status) {
+        if ('error' !== response.status) {
           cb();
         }
       },
