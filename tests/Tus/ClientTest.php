@@ -120,6 +120,49 @@ class ClientTest extends TestCase
     /**
      * @test
      *
+     * @covers ::addMetadata
+     * @covers ::removeMetadata
+     * @covers ::setMetadata
+     * @covers ::getMetadata
+     */
+    public function it_sets_and_gets_metadata()
+    {
+        $filePath = __DIR__ . '/../Fixtures/empty.txt';
+
+        $this->tusClient->file($filePath);
+        $this->assertEquals([
+            'filename' => base64_encode('empty.txt')
+        ], $this->tusClient->getMetadata());
+
+        $this->tusClient->addMetadata('filename', 'file.mp4');
+        $this->assertEquals([
+            'filename' => base64_encode('file.mp4')
+        ], $this->tusClient->getMetadata());
+
+        $this->tusClient->addMetadata('filetype', 'video/mp4');
+        $this->assertEquals([
+            'filename' => base64_encode('file.mp4'),
+            'filetype' => base64_encode('video/mp4')
+        ], $this->tusClient->getMetadata());
+
+        $this->tusClient->setMetadata([
+            'filename' => 'file.mp4',
+            'filetype' => 'video/mp4'
+        ]);
+        $this->assertEquals([
+            'filename' => base64_encode('file.mp4'),
+            'filetype' => base64_encode('video/mp4')
+        ], $this->tusClient->getMetadata());
+
+        $this->tusClient->removeMetadata('filetype');
+        $this->assertEquals([
+            'filename' => base64_encode('file.mp4'),
+        ], $this->tusClient->getMetadata());
+    }
+
+    /**
+     * @test
+     *
      * @covers ::__construct
      * @covers ::getClient
      */
@@ -1737,6 +1780,32 @@ class ClientTest extends TestCase
             ->andReturn('crc32');
 
         $this->assertEquals('crc32 ' . base64_encode($checksum), $this->tusClientMock->getUploadChecksumHeader());
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::getUploadMetadataHeader
+     */
+    public function it_gets_upload_metadata_header()
+    {
+        $filePath = __DIR__ . '/../Fixtures/empty.txt';
+
+        $this->tusClientMock->file($filePath);
+        $metadata = 'filename ' . base64_encode('empty.txt');
+
+        $this->assertEquals($metadata, $this->tusClientMock->getUploadMetadataHeader());
+
+        $this->tusClientMock->addMetadata('filename', 'test.txt');
+        $metadata = 'filename ' . base64_encode('test.txt');
+
+        $this->assertEquals($metadata, $this->tusClientMock->getUploadMetadataHeader());
+
+
+        $this->tusClientMock->addMetadata('filetype', 'plain/text');
+        $metadata .= ',filetype ' . base64_encode('plain/text');
+
+        $this->assertEquals($metadata, $this->tusClientMock->getUploadMetadataHeader());
     }
 
     /**
