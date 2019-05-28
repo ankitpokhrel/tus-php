@@ -187,12 +187,12 @@ uppy.use(Tus, {
 Tus-php server is compatible with the official [tus-js-client](https://github.com/tus/tus-js-client) Javascript library.
 ```js
 var upload = new tus.Upload(file, {
-            endpoint: "/tus",
-            retryDelays: [0, 3000, 5000, 10000, 20000],
-            metadata: {
-            	name: file.name,
-        		type: file.type
-            }
+  endpoint: "/tus",
+  retryDelays: [0, 3000, 5000, 10000, 20000],
+  metadata: {
+    name: file.name,
+    type: file.type
+  }
 })
 upload.start()
 ```
