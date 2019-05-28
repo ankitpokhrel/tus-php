@@ -42,6 +42,7 @@ to pause, or by accident in case of a network issue or server outage.
         * [Nginx](#nginx)
         * [Apache](#apache)
     * [Client](#client)
+    * [Third Party Client Libraries](#third-party-client-libraries)
 * [Extension support](#extension-support)
     * [Expiration](#expiration)
     * [Concatenation](#concatenation)
@@ -51,7 +52,6 @@ to pause, or by accident in case of a network issue or server outage.
     * [Creating a Middleware](#creating-a-middleware)
     * [Adding a Middleware](#adding-a-middleware)
     * [Skipping a Middleware](#skipping-a-middleware)
-* [Compatible with Uppy](#compatible-with-uppy)
 * [Setting up a dev environment and/or running examples locally](#setting-up-a-dev-environment-andor-running-examples-locally)
     * [Docker](#docker)
     * [Kubernetes with minikube](#kubernetes-with-minikube)
@@ -169,7 +169,35 @@ using `setChecksumAlgorithm` method. To get the list of supported hash algorithm
 $client->setChecksumAlgorithm('crc32');
 ```
 
-### Extension support
+#### Third Party Client Libraries
+##### [Uppy](https://uppy.io/)
+Uppy is a sleek, modular file uploader plugin developed by same folks behind tus protocol.
+You can use uppy to seamlessly integrate official [tus-js-client](https://github.com/tus/tus-js-client) with tus-php server.
+Check out more details in [uppy docs](https://uppy.io/docs/tus/).
+```js
+uppy.use(Tus, {
+  endpoint: 'https://tus-server.yoursite.com/files/', // use your tus endpoint here
+  resume: true,
+  autoRetry: true,
+  retryDelays: [0, 1000, 3000, 5000]
+})
+```
+
+##### [Tus-JS-Client](https://github.com/tus/tus-js-client)
+Tus-php server is compatible with the official [tus-js-client](https://github.com/tus/tus-js-client) Javascript library.
+```js
+var upload = new tus.Upload(file, {
+            endpoint: "/tus",
+            retryDelays: [0, 3000, 5000, 10000, 20000],
+            metadata: {
+            	name: file.name,
+        		type: file.type
+            }
+})
+upload.start()
+```
+
+### Extension Support
 - [x] The Creation extension is mostly implemented and is used for creating the upload. Deferring the upload's length is not possible at the moment.
 - [x] The Termination extension is implemented which is used to terminate completed and unfinished uploads allowing the Server to free up used resources.
 - [x] The Checksum extension is implemented, the server will use `sha256` algorithm by default to verify the upload.
@@ -334,19 +362,6 @@ If you wish to skip or ignore any middleware, you can do so by using the `skip` 
 ```php
 $server->middleware()->skip(Cors::class, AnotherMiddleware::class);
  ```
-
-### Compatible with [Uppy](https://uppy.io/)
-Uppy is a sleek, modular file uploader plugin developed by same folks behind tus protocol.
-You can use uppy to seamlessly integrate official [tus-js-client](https://github.com/tus/tus-js-client) with tus-php server.
-Check out more details in [uppy docs](https://uppy.io/docs/tus/).
-```js
-uppy.use(Tus, {
-  endpoint: 'https://tus-server.yoursite.com/files/', // use your tus endpoint here
-  resume: true,
-  autoRetry: true,
-  retryDelays: [0, 1000, 3000, 5000]
-})
-```
 
 ### Setting up a dev environment and/or running examples locally
 An ajax based example for this implementation can be found in `examples/` folder. You can either build and run it using docker or use kubernetes locally with minikube.
