@@ -103,7 +103,7 @@ location /files {
 RewriteEngine on
 
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^files/?(.*)?$ /server.php/$1 [QSA,L]
+RewriteRule ^files/?(.*)?$ /server.php?$1 [QSA,L]
 ```
 
 Default max upload size is 0 which means there is no restriction. You can set max upload size as described below.
