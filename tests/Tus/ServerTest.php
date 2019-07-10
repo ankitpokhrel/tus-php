@@ -719,28 +719,6 @@ class ServerTest extends TestCase
      *
      * @covers ::handlePost
      */
-    public function it_returns_400_for_invalid_upload()
-    {
-        $this->tusServerMock
-            ->getRequest()
-            ->getRequest()
-            ->server
-            ->add([
-                'REQUEST_METHOD' => 'POST',
-                'REQUEST_URI' => '/files',
-            ]);
-
-        $response = $this->tusServerMock->handlePost();
-
-        $this->assertEquals(400, $response->getStatusCode());
-        $this->assertEmpty($response->getContent());
-    }
-
-    /**
-     * @test
-     *
-     * @covers ::handlePost
-     */
     public function it_returns_413_for_uploads_larger_than_max_size()
     {
         $fileName = 'file.txt';
@@ -1049,6 +1027,231 @@ class ServerTest extends TestCase
                 'checksum' => $checksum,
                 'location' => $location,
                 'file_path' => dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . $fileName,
+                'created_at' => 'Fri, 08 Dec 2017 00:00:00 GMT',
+                'expires_at' => $expiresAt,
+                'upload_type' => 'normal',
+            ])
+            ->andReturn(null);
+
+        $eventDispatcherMock = m::mock(EventDispatcher::class);
+        $eventDispatcherMock
+            ->shouldReceive('dispatch')
+            ->once()
+            ->with('tus-server.upload.created', m::type(UploadCreated::class));
+
+        $this->tusServerMock
+            ->shouldReceive('event')
+            ->once()
+            ->andReturn($eventDispatcherMock);
+
+        $this->tusServerMock->setCache($cacheMock);
+
+        $response = $this->tusServerMock->handlePost();
+
+        $this->assertEmpty($response->getContent());
+        $this->assertEquals(201, $response->getStatusCode());
+        $this->assertEquals($location, $response->headers->get('location'));
+        $this->assertEquals($expiresAt, $response->headers->get('upload-expires'));
+        $this->assertEquals('1.0.0', $response->headers->get('tus-resumable'));
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::handlePost
+     * @covers \TusPhp\Events\UploadCreated::__construct
+     */
+    public function it_handles_post_request_uses_uploadkey_when_metadata_is_not_present()
+    {
+        $key       = uniqid();
+        $checksum  = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
+        $location  = "http://tus.local/files/{$key}";
+        $expiresAt = 'Sat, 09 Dec 2017 00:00:00 GMT';
+
+        $this->tusServerMock
+            ->getRequest()
+            ->getRequest()
+            ->server
+            ->add([
+                'REQUEST_METHOD' => 'POST',
+                'REQUEST_URI' => '/files',
+            ]);
+
+        $requestMock = m::mock(Request::class, ['file'])->makePartial();
+        $requestMock
+            ->getRequest()
+            ->headers
+            ->add([
+                'Upload-Checksum' => $checksum,
+                'Upload-Length' => 10,
+            ]);
+
+        $requestMock
+            ->getRequest()
+            ->server
+            ->add([
+                'SERVER_NAME' => 'tus.local',
+                'SERVER_PORT' => 80,
+            ]);
+
+        $this->tusServerMock
+            ->shouldReceive('getRequest')
+            ->times(6)
+            ->andReturn($requestMock);
+
+        $this->tusServerMock
+            ->shouldReceive('getUploadKey')
+            ->once()
+            ->andReturn($key);
+
+        $this->tusServerMock
+            ->shouldReceive('getClientChecksum')
+            ->once()
+            ->andReturn($checksum);
+
+        $cacheMock = m::mock(FileStore::class);
+        $cacheMock
+            ->shouldReceive('get')
+            ->once()
+            ->with($key)
+            ->andReturn([
+                'expires_at' => $expiresAt,
+            ]);
+
+        $cacheMock
+            ->shouldReceive('setPrefix')
+            ->once()
+            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->andReturnSelf();
+
+        $cacheMock
+            ->shouldReceive('getTtl')
+            ->once()
+            ->andReturn(86400);
+
+        $cacheMock
+            ->shouldReceive('set')
+            ->once()
+            ->with($key, [
+                'name' => $key,
+                'size' => 10,
+                'offset' => 0,
+                'checksum' => $checksum,
+                'location' => $location,
+                'file_path' => dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . $key,
+                'created_at' => 'Fri, 08 Dec 2017 00:00:00 GMT',
+                'expires_at' => $expiresAt,
+                'upload_type' => 'normal',
+            ])
+            ->andReturn(null);
+
+        $eventDispatcherMock = m::mock(EventDispatcher::class);
+        $eventDispatcherMock
+            ->shouldReceive('dispatch')
+            ->once()
+            ->with('tus-server.upload.created', m::type(UploadCreated::class));
+
+        $this->tusServerMock
+            ->shouldReceive('event')
+            ->once()
+            ->andReturn($eventDispatcherMock);
+
+        $this->tusServerMock->setCache($cacheMock);
+
+        $response = $this->tusServerMock->handlePost();
+
+        $this->assertEmpty($response->getContent());
+        $this->assertEquals(201, $response->getStatusCode());
+        $this->assertEquals($location, $response->headers->get('location'));
+        $this->assertEquals($expiresAt, $response->headers->get('upload-expires'));
+        $this->assertEquals('1.0.0', $response->headers->get('tus-resumable'));
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::handlePost
+     * @covers \TusPhp\Events\UploadCreated::__construct
+     */
+    public function it_handles_post_request_uses_uploadkey_when_metadata_name_is_empty_string()
+    {
+        $key       = uniqid();
+        $checksum  = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
+        $location  = "http://tus.local/files/{$key}";
+        $expiresAt = 'Sat, 09 Dec 2017 00:00:00 GMT';
+
+        $this->tusServerMock
+            ->getRequest()
+            ->getRequest()
+            ->server
+            ->add([
+                'REQUEST_METHOD' => 'POST',
+                'REQUEST_URI' => '/files',
+            ]);
+
+        $requestMock = m::mock(Request::class, ['file'])->makePartial();
+        $requestMock
+            ->getRequest()
+            ->headers
+            ->add([
+                'Upload-Metadata' => 'filename ' . base64_encode(''),
+                'Upload-Checksum' => $checksum,
+                'Upload-Length' => 10,
+            ]);
+
+        $requestMock
+            ->getRequest()
+            ->server
+            ->add([
+                'SERVER_NAME' => 'tus.local',
+                'SERVER_PORT' => 80,
+            ]);
+
+        $this->tusServerMock
+            ->shouldReceive('getRequest')
+            ->times(6)
+            ->andReturn($requestMock);
+
+        $this->tusServerMock
+            ->shouldReceive('getUploadKey')
+            ->once()
+            ->andReturn($key);
+
+        $this->tusServerMock
+            ->shouldReceive('getClientChecksum')
+            ->once()
+            ->andReturn($checksum);
+
+        $cacheMock = m::mock(FileStore::class);
+        $cacheMock
+            ->shouldReceive('get')
+            ->once()
+            ->with($key)
+            ->andReturn([
+                'expires_at' => $expiresAt,
+            ]);
+
+        $cacheMock
+            ->shouldReceive('setPrefix')
+            ->once()
+            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->andReturnSelf();
+
+        $cacheMock
+            ->shouldReceive('getTtl')
+            ->once()
+            ->andReturn(86400);
+
+        $cacheMock
+            ->shouldReceive('set')
+            ->once()
+            ->with($key, [
+                'name' => $key,
+                'size' => 10,
+                'offset' => 0,
+                'checksum' => $checksum,
+                'location' => $location,
+                'file_path' => dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . $key,
                 'created_at' => 'Fri, 08 Dec 2017 00:00:00 GMT',
                 'expires_at' => $expiresAt,
                 'upload_type' => 'normal',

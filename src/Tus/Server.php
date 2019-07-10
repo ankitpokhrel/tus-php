@@ -344,15 +344,16 @@ class Server extends AbstractTus
         $fileName   = $this->getRequest()->extractFileName();
         $uploadType = self::UPLOAD_TYPE_NORMAL;
 
-        if (empty($fileName)) {
-            return $this->response->send(null, HttpResponse::HTTP_BAD_REQUEST);
-        }
-
         if ( ! $this->verifyUploadSize()) {
             return $this->response->send(null, HttpResponse::HTTP_REQUEST_ENTITY_TOO_LARGE);
         }
 
         $uploadKey = $this->getUploadKey();
+
+        if (empty($fileName)) {
+            $fileName = $uploadKey;
+        }
+
         $filePath  = $this->uploadDir . DIRECTORY_SEPARATOR . $fileName;
 
         if ($this->getRequest()->isFinal()) {

@@ -141,7 +141,7 @@ class RequestTest extends TestCase
      * @covers ::extractMeta
      * @covers ::extractFileName
      */
-    public function it_extracts_file_name()
+    public function it_extracts_file_name_from_name_metadata()
     {
         $filename = 'file.txt';
 
@@ -178,6 +178,16 @@ class RequestTest extends TestCase
         $this->assertEquals($filename, $this->request->extractFileName());
         $this->assertEquals($fileType, $this->request->extractMeta('type'));
         $this->assertEquals($accept, $this->request->extractMeta('accept'));
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::extractFileName
+     */
+    public function it_extracts_file_name_returns_empty_string_when_metadata_is_not_present()
+    {
+        $this->assertEquals('', $this->request->extractFileName());
     }
 
     /**

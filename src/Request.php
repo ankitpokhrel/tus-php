@@ -112,7 +112,8 @@ class Request
     }
 
     /**
-     * Extract base64 encoded filename from header.
+     * Extract base64 encoded filename from the header.
+     * If name and filename are not provided, fallback is created using uploadKey @see Server::handlePost()
      *
      * @return string
      */
