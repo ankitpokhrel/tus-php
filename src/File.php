@@ -46,6 +46,9 @@ class File
     /** @var int */
     protected $fileSize;
 
+    /** @var string[] */
+    protected $metaInfo = [];
+
     /**
      * File constructor.
      *
@@ -247,6 +250,24 @@ class File
     }
 
     /**
+     * @param string[] $metaInfo
+     * @return File
+     */
+    public function setMetaInfo(array $metaInfo): self
+    {
+        $this->metaInfo = $metaInfo;
+        return $this;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getMetaInfo(): array
+    {
+        return $this->metaInfo;
+    }
+
+    /**
      * Get input stream.
      *
      * @return string
@@ -265,7 +286,7 @@ class File
     {
         $now = Carbon::now();
 
-        return [
+        return array_merge($this->metaInfo, [
             'name' => $this->name,
             'size' => $this->fileSize,
             'offset' => $this->offset,
@@ -274,7 +295,7 @@ class File
             'file_path' => $this->filePath,
             'created_at' => $now->format($this->cache::RFC_7231),
             'expires_at' => $now->addSeconds($this->cache->getTtl())->format($this->cache::RFC_7231),
-        ];
+        ]);
     }
 
     /**

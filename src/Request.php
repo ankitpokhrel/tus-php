@@ -156,6 +156,31 @@ class Request
     }
 
     /**
+     * Extracts all meta data from the request header.
+     *
+     * @return string[]
+     */
+    public function extractAllMeta() : array
+    {
+        $uploadMetaData = $this->request->headers->get('Upload-Metadata');
+
+        if (empty($uploadMetaData)) {
+            return [];
+        }
+
+        $uploadMetaDataChunks = explode(',', $uploadMetaData);
+
+        $result = [];
+        foreach ($uploadMetaDataChunks as $chunk) {
+            list($key, $value) = explode(' ', $chunk);
+
+            $result[$key] = base64_decode($value);
+        }
+
+        return $result;
+    }
+
+    /**
      * Extract partials from header.
      *
      * @return array

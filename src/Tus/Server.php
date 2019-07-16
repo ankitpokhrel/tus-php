@@ -366,14 +366,16 @@ class Server extends AbstractTus
 
         $checksum = $this->getClientChecksum();
         $location = $this->getRequest()->url() . $this->getApiPath() . '/' . $uploadKey;
+        $metaInfo = $this->getRequest()->extractAllMeta();
 
-        $file = $this->buildFile([
+        $meta = array_merge($metaInfo, [
             'name' => $fileName,
             'offset' => 0,
             'size' => $this->getRequest()->header('Upload-Length'),
             'file_path' => $filePath,
             'location' => $location,
-        ])->setKey($uploadKey)->setChecksum($checksum);
+        ]);
+        $file = $this->buildFile($meta)->setKey($uploadKey)->setChecksum($checksum);
 
         $this->cache->set($uploadKey, $file->details() + ['upload_type' => $uploadType]);
 
@@ -408,13 +410,15 @@ class Server extends AbstractTus
         $filePaths = array_column($files, 'file_path');
         $location  = $this->getRequest()->url() . $this->getApiPath() . '/' . $uploadKey;
 
-        $file = $this->buildFile([
+        $metaInfo = $this->getRequest()->extractAllMeta();
+        $meta = array_merge($metaInfo, [
             'name' => $fileName,
             'offset' => 0,
             'size' => 0,
             'file_path' => $filePath,
             'location' => $location,
-        ])->setFilePath($filePath)->setKey($uploadKey);
+        ]);
+        $file = $this->buildFile($meta)->setFilePath($filePath)->setKey($uploadKey);
 
         $file->setOffset($file->merge($files));
 
@@ -643,6 +647,11 @@ class Server extends AbstractTus
         if (array_key_exists('offset', $meta)) {
             $file->setMeta($meta['offset'], $meta['size'], $meta['file_path'], $meta['location']);
         }
+
+        $metaInfo = array_filter($meta, function ($key) {
+            return false === in_array($key, ['offset', 'size', 'file_path', 'location', 'name'], true);
+        }, ARRAY_FILTER_USE_KEY);
+        $file->setMetaInfo($metaInfo);
 
         return $file;
     }
