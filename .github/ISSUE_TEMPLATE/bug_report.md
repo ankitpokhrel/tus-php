@@ -3,7 +3,8 @@ name: Bug report
 about: Create a report to help us improve
 
 ---
-
+> **Note:** Please report any security issues directly to hello [at] ankit.pl
+ 
 **Describe the bug**
 A clear and concise description of what the bug is.
 
