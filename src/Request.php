@@ -70,8 +70,8 @@ class Request
     /**
      * Retrieve a header from the request.
      *
-     * @param  string               $key
-     * @param  string|string[]|null $default
+     * @param string               $key
+     * @param string|string[]|null $default
      *
      * @return string|null
      */
@@ -119,7 +119,13 @@ class Request
      */
     public function extractFileName() : string
     {
-        return $this->extractMeta('name') ?: $this->extractMeta('filename');
+        $name = $this->extractMeta('name') ?: $this->extractMeta('filename');
+
+        if ( ! $this->isValidFilename($name)) {
+            return '';
+        }
+
+        return $name;
     }
 
     /**
@@ -188,5 +194,25 @@ class Request
     public function getRequest() : HttpRequest
     {
         return $this->request;
+    }
+
+    /**
+     * Validate file name.
+     *
+     * @param string $filename
+     *
+     * @return bool
+     */
+    protected function isValidFilename(string $filename) : bool
+    {
+        $forbidden = ['../', '"', "'", '&', '/', '\\', '?', '#', ':'];
+
+        foreach ($forbidden as $char) {
+            if (false !== strpos($filename, $char)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

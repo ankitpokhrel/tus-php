@@ -114,7 +114,7 @@ class RequestTest extends TestCase
 
         $this->request->getRequest()->server->add([
             'REQUEST_URI' => '/tus/files/',
-            'QUERY_STRING' => 'token=random&path=root'
+            'QUERY_STRING' => 'token=random&path=root',
         ]);
 
         $this->assertEquals('http://tus.local', $this->request->url());
@@ -140,14 +140,54 @@ class RequestTest extends TestCase
      *
      * @covers ::extractMeta
      * @covers ::extractFileName
+     * @covers ::isValidFilename
      */
     public function it_extracts_file_name_from_name_metadata()
     {
-        $filename = 'file.txt';
+        $validFileNames = [
+            'file.txt',
+            'file-1.png',
+            'some-long-file-name.txt',
+            'file_with_underscore-and-dash.jpg',
+            'file@with-special-chars-€.pdf',
+            'äöü.txt',
+            'ファイル.pdf',
+            '文件-파일.mp4',
+            'ชื่อไฟล์.zip',
+            'फाइल.pdf',
+            ' spaces are valid filenames.woah'
+        ];
 
-        $this->request->getRequest()->headers->set('Upload-Metadata', 'name ' . base64_encode($filename));
+        foreach ($validFileNames as $filename) {
+            $this->request->getRequest()->headers->set('Upload-Metadata', 'name ' . base64_encode($filename));
+            $this->assertEquals($filename, $this->request->extractFileName());
+        }
+    }
 
-        $this->assertEquals($filename, $this->request->extractFileName());
+    /**
+     * @test
+     *
+     * @covers ::extractMeta
+     * @covers ::extractFileName
+     * @covers ::isValidFilename
+     */
+    public function it_replaces_bad_file_names()
+    {
+        $badFileNames = [
+            '../file.txt',
+            '../',
+            'file/../a.png',
+            'a:b.png',
+            ':',
+            '../../path/to/file.txt',
+            '~/file.txt',
+            '../some/path/../file.txt',
+        ];
+
+        foreach ($badFileNames as $filename) {
+            $this->request->getRequest()->headers->set('Upload-Metadata', 'name ' . base64_encode($filename));
+            $this->assertEquals('', $this->request->extractFileName());
+        }
     }
 
     /**
