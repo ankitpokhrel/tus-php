@@ -133,8 +133,7 @@ class Response
         if ( ! is_null($name)) {
             $response = $response->setContentDisposition(
                 $disposition,
-                $name,
-                iconv('UTF-8', 'ASCII//TRANSLIT', $name)
+                $name
             );
         }
 
