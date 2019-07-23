@@ -204,7 +204,7 @@ class Request
      */
     protected function isValidFilename(string $filename) : bool
     {
-        $forbidden = ['../', ' ', '"', "'", '&', '/', '\\', '?', '#', ':'];
+        $forbidden = ['../', '"', "'", '&', '/', '\\', '?', '#', ':'];
 
         foreach ($forbidden as $char) {
             if (false !== strpos($filename, $char)) {

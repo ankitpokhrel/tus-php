@@ -155,6 +155,7 @@ class RequestTest extends TestCase
             '文件-파일.mp4',
             'ชื่อไฟล์.zip',
             'फाइल.pdf',
+            ' spaces are valid filenames.woah'
         ];
 
         foreach ($validFileNames as $filename) {
