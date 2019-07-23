@@ -892,7 +892,6 @@ class ServerTest extends TestCase
 
         $this->tusServerMock
             ->shouldReceive('getRequest')
-            ->times(6)
             ->andReturn($requestMock);
 
         $this->tusServerMock
@@ -1006,7 +1005,6 @@ class ServerTest extends TestCase
 
         $this->tusServerMock
             ->shouldReceive('getRequest')
-            ->times(6)
             ->andReturn($requestMock);
 
         $this->tusServerMock
