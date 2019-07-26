@@ -375,12 +375,12 @@ class Server extends AbstractTus
             'location' => $location,
         ])->setKey($uploadKey)->setChecksum($checksum);
 
-        $this->cache->set($uploadKey, $file->details() + ['upload_type' => $uploadType]);
-
         $this->event()->dispatch(
             UploadCreated::NAME,
             new UploadCreated($file, $this->getRequest(), $this->getResponse())
         );
+
+        $this->cache->set($uploadKey, $file->details() + ['upload_type' => $uploadType]);
 
         return $this->response->send(
             null,
