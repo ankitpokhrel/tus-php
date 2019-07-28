@@ -114,7 +114,7 @@ class Client extends AbstractTus
      */
     public function setFileName(string $name) : self
     {
-        $this->fileName = $name;
+        $this->addMetadata('filename', $this->fileName = $name);
 
         return $this;
     }
