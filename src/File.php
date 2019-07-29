@@ -47,7 +47,7 @@ class File
     protected $fileSize;
 
     /** @var string[] */
-    protected $metaInfo = [];
+    private $metaInfo = [];
 
     /**
      * File constructor.
@@ -257,14 +257,6 @@ class File
     {
         $this->metaInfo = $metaInfo;
         return $this;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getMetaInfo(): array
-    {
-        return $this->metaInfo;
     }
 
     /**
