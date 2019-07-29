@@ -1283,7 +1283,6 @@ class ServerTest extends TestCase
 
         $this->tusServerMock
             ->shouldReceive('getRequest')
-            ->times(4)
             ->andReturn($requestMock);
 
         $cacheMock = m::mock(FileStore::class);
@@ -1313,6 +1312,7 @@ class ServerTest extends TestCase
             ->shouldReceive('buildFile')
             ->once()
             ->with([
+                'filename' => $fileName,
                 'name' => $fileName,
                 'offset' => 0,
                 'size' => 0,
