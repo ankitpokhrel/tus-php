@@ -1098,6 +1098,7 @@ class ServerTest extends TestCase
         ];
 
         $concatenatedFile = [
+            'filename' => $fileName,
             'name' => $fileName,
             'offset' => 0,
             'size' => 0,
@@ -1126,7 +1127,6 @@ class ServerTest extends TestCase
 
         $this->tusServerMock
             ->shouldReceive('getRequest')
-            ->times(4)
             ->andReturn($requestMock);
 
         $cacheMock = m::mock(FileStore::class);
