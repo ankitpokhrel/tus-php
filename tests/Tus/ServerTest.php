@@ -928,6 +928,7 @@ class ServerTest extends TestCase
             ->shouldReceive('set')
             ->once()
             ->with($partialKey, [
+                'filename' => $fileName,
                 'name' => $fileName,
                 'size' => 10,
                 'offset' => 0,
@@ -1041,6 +1042,7 @@ class ServerTest extends TestCase
             ->shouldReceive('set')
             ->once()
             ->with($key, [
+                'filename' => $fileName,
                 'name' => $fileName,
                 'size' => 10,
                 'offset' => 0,
