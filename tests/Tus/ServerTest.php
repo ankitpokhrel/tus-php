@@ -892,6 +892,8 @@ class ServerTest extends TestCase
 
         $this->tusServerMock
             ->shouldReceive('getRequest')
+            ->atLeast()
+            ->once()
             ->andReturn($requestMock);
 
         $this->tusServerMock
@@ -1006,6 +1008,8 @@ class ServerTest extends TestCase
 
         $this->tusServerMock
             ->shouldReceive('getRequest')
+            ->atLeast()
+            ->once()
             ->andReturn($requestMock);
 
         $this->tusServerMock
@@ -1127,6 +1131,8 @@ class ServerTest extends TestCase
 
         $this->tusServerMock
             ->shouldReceive('getRequest')
+            ->atLeast()
+            ->once()
             ->andReturn($requestMock);
 
         $cacheMock = m::mock(FileStore::class);
@@ -1283,6 +1289,8 @@ class ServerTest extends TestCase
 
         $this->tusServerMock
             ->shouldReceive('getRequest')
+            ->atLeast()
+            ->once()
             ->andReturn($requestMock);
 
         $cacheMock = m::mock(FileStore::class);
