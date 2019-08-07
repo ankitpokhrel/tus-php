@@ -366,16 +366,14 @@ class Server extends AbstractTus
 
         $checksum = $this->getClientChecksum();
         $location = $this->getRequest()->url() . $this->getApiPath() . '/' . $uploadKey;
-        $metaInfo = $this->getRequest()->extractAllMeta();
 
-        $meta = array_merge($metaInfo, [
+        $file = $this->buildFile([
             'name' => $fileName,
             'offset' => 0,
             'size' => $this->getRequest()->header('Upload-Length'),
             'file_path' => $filePath,
             'location' => $location,
-        ]);
-        $file = $this->buildFile($meta)->setKey($uploadKey)->setChecksum($checksum);
+        ])->setKey($uploadKey)->setChecksum($checksum)->setUploadMetadata($this->getRequest()->extractAllMeta());
 
         $this->cache->set($uploadKey, $file->details() + ['upload_type' => $uploadType]);
 
@@ -410,15 +408,13 @@ class Server extends AbstractTus
         $filePaths = array_column($files, 'file_path');
         $location  = $this->getRequest()->url() . $this->getApiPath() . '/' . $uploadKey;
 
-        $metaInfo = $this->getRequest()->extractAllMeta();
-        $meta = array_merge($metaInfo, [
+        $file = $this->buildFile([
             'name' => $fileName,
             'offset' => 0,
             'size' => 0,
             'file_path' => $filePath,
             'location' => $location,
-        ]);
-        $file = $this->buildFile($meta)->setFilePath($filePath)->setKey($uploadKey);
+        ])->setFilePath($filePath)->setKey($uploadKey)->setUploadMetadata($this->getRequest()->extractAllMeta());
 
         $file->setOffset($file->merge($files));
 
@@ -470,7 +466,7 @@ class Server extends AbstractTus
             return $this->response->send(null, $status);
         }
 
-        $file     = $this->buildFile($meta);
+        $file     = $this->buildFile($meta)->setUploadMetadata($meta['metadata'] ?? []);
         $checksum = $meta['checksum'];
 
         try {

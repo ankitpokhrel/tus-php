@@ -47,7 +47,7 @@ class File
     protected $fileSize;
 
     /** @var string[] */
-    private $metaInfo = [];
+    private $uploadMetadata = [];
 
     /**
      * File constructor.
@@ -250,12 +250,14 @@ class File
     }
 
     /**
-     * @param string[] $metaInfo
+     * @param string[] $metadata
+     *
      * @return File
      */
-    public function setMetaInfo(array $metaInfo): self
+    public function setUploadMetadata(array $metadata) : self
     {
-        $this->metaInfo = $metaInfo;
+        $this->uploadMetadata = $metadata;
+
         return $this;
     }
 
@@ -278,16 +280,17 @@ class File
     {
         $now = Carbon::now();
 
-        return array_merge($this->metaInfo, [
+        return [
             'name' => $this->name,
             'size' => $this->fileSize,
             'offset' => $this->offset,
             'checksum' => $this->checksum,
             'location' => $this->location,
             'file_path' => $this->filePath,
+            'metadata' => $this->uploadMetadata,
             'created_at' => $now->format($this->cache::RFC_7231),
             'expires_at' => $now->addSeconds($this->cache->getTtl())->format($this->cache::RFC_7231),
-        ]);
+        ];
     }
 
     /**
