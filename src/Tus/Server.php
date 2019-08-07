@@ -644,11 +644,6 @@ class Server extends AbstractTus
             $file->setMeta($meta['offset'], $meta['size'], $meta['file_path'], $meta['location']);
         }
 
-        $metaInfo = array_filter($meta, function ($key) {
-            return false === in_array($key, ['offset', 'size', 'file_path', 'location', 'name'], true);
-        }, ARRAY_FILTER_USE_KEY);
-        $file->setMetaInfo($metaInfo);
-
         return $file;
     }
 
