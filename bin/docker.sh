@@ -8,9 +8,11 @@ NETWORK_NAME="tus-php-network"
 
 # Build base image
 BASE_PATH="docker/base/"
+DOCKERFILENAME="${BASE_PATH}Dockerfile"
 
-docker build -t tus-php-base \
-    -f ${BASE_PATH}Dockerfile ${BASE_PATH}
+docker build \
+  -t tus-php-base \
+  -f ${DOCKERFILENAME} ${BASE_PATH}
 
 # Build client and server
 COMPOSE_FILE="docker/docker-compose.yml"

@@ -1,10 +1,11 @@
 FROM tus-php-base
 
-ADD ./configs/nginx.conf /etc/nginx/nginx.conf
+# ADD ./configs/nginx.conf /etc/nginx/nginx.conf
+# php7.1-pcntl
+RUN apk add --no-cache php7.1-pcntl
+COPY ./entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+RUN mkdir -p /var/www/html
+VOLUME /var/www/html
 
-COPY ./entrypoint.sh /usr/bin/entrypoint.sh
-RUN chmod +x /usr/bin/entrypoint.sh
-
-WORKDIR /var/www
-
-EXPOSE 80
+WORKDIR /var/www/html

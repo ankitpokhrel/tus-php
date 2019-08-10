@@ -17,7 +17,8 @@ services:
     ports:
       - "8081:80"
     volumes:
-        - ../:/var/www
+        - ../:/var/www/
+        - ../example:/var/www/html
         - ./.data/server/logs:/var/log/nginx
     entrypoint: entrypoint.sh
     labels:
