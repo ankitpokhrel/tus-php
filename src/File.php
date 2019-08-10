@@ -46,6 +46,9 @@ class File
     /** @var int */
     protected $fileSize;
 
+    /** @var string[] */
+    private $uploadMetadata = [];
+
     /**
      * File constructor.
      *
@@ -247,6 +250,18 @@ class File
     }
 
     /**
+     * @param string[] $metadata
+     *
+     * @return File
+     */
+    public function setUploadMetadata(array $metadata) : self
+    {
+        $this->uploadMetadata = $metadata;
+
+        return $this;
+    }
+
+    /**
      * Get input stream.
      *
      * @return string
@@ -272,6 +287,7 @@ class File
             'checksum' => $this->checksum,
             'location' => $this->location,
             'file_path' => $this->filePath,
+            'metadata' => $this->uploadMetadata,
             'created_at' => $now->format($this->cache::RFC_7231),
             'expires_at' => $now->addSeconds($this->cache->getTtl())->format($this->cache::RFC_7231),
         ];
@@ -486,7 +502,7 @@ class File
         $status = @copy($source, $destination);
 
         if (false === $status) {
-            throw new FileException('Cannot copy source to destination.');
+            throw new FileException(sprintf('Cannot copy source (%s) to destination (%s).', $source, $destination));
         }
 
         return $status;

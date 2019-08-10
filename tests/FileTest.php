@@ -491,7 +491,7 @@ class FileTest extends TestCase
      * @covers ::merge
      *
      * @expectedException \TusPhp\Exception\FileException
-     * @expectedExceptionMessage Cannot copy source to destination.
+     * @expectedExceptionMessageRegExp /Cannot copy source \(.+\) to destination \(.+\)\./
      */
     public function it_throws_file_exception_if_it_cannot_copy_file()
     {

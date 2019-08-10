@@ -373,7 +373,7 @@ class Server extends AbstractTus
             'size' => $this->getRequest()->header('Upload-Length'),
             'file_path' => $filePath,
             'location' => $location,
-        ])->setKey($uploadKey)->setChecksum($checksum);
+        ])->setKey($uploadKey)->setChecksum($checksum)->setUploadMetadata($this->getRequest()->extractAllMeta());
 
         $this->cache->set($uploadKey, $file->details() + ['upload_type' => $uploadType]);
 
@@ -414,7 +414,7 @@ class Server extends AbstractTus
             'size' => 0,
             'file_path' => $filePath,
             'location' => $location,
-        ])->setFilePath($filePath)->setKey($uploadKey);
+        ])->setFilePath($filePath)->setKey($uploadKey)->setUploadMetadata($this->getRequest()->extractAllMeta());
 
         $file->setOffset($file->merge($files));
 
@@ -466,7 +466,7 @@ class Server extends AbstractTus
             return $this->response->send(null, $status);
         }
 
-        $file     = $this->buildFile($meta);
+        $file     = $this->buildFile($meta)->setUploadMetadata($meta['metadata'] ?? []);
         $checksum = $meta['checksum'];
 
         try {

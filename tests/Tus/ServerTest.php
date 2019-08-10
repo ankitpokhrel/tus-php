@@ -892,7 +892,8 @@ class ServerTest extends TestCase
 
         $this->tusServerMock
             ->shouldReceive('getRequest')
-            ->times(6)
+            ->atLeast()
+            ->once()
             ->andReturn($requestMock);
 
         $this->tusServerMock
@@ -935,6 +936,9 @@ class ServerTest extends TestCase
                 'checksum' => $checksum,
                 'location' => $location,
                 'file_path' => "$baseDir/$folder/$fileName",
+                'metadata' => [
+                    'filename' => $fileName,
+                ],
                 'created_at' => 'Fri, 08 Dec 2017 00:00:00 GMT',
                 'expires_at' => $expiresAt,
                 'upload_type' => 'partial',
@@ -1006,7 +1010,8 @@ class ServerTest extends TestCase
 
         $this->tusServerMock
             ->shouldReceive('getRequest')
-            ->times(6)
+            ->atLeast()
+            ->once()
             ->andReturn($requestMock);
 
         $this->tusServerMock
@@ -1049,6 +1054,9 @@ class ServerTest extends TestCase
                 'checksum' => $checksum,
                 'location' => $location,
                 'file_path' => dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . $fileName,
+                'metadata' => [
+                    'filename' => $fileName,
+                ],
                 'created_at' => 'Fri, 08 Dec 2017 00:00:00 GMT',
                 'expires_at' => $expiresAt,
                 'upload_type' => 'normal',
@@ -1126,7 +1134,8 @@ class ServerTest extends TestCase
 
         $this->tusServerMock
             ->shouldReceive('getRequest')
-            ->times(4)
+            ->atLeast()
+            ->once()
             ->andReturn($requestMock);
 
         $cacheMock = m::mock(FileStore::class);
@@ -1202,6 +1211,14 @@ class ServerTest extends TestCase
             ->shouldReceive('setOffset')
             ->once()
             ->with(30)
+            ->andReturnSelf();
+
+        $fileMock
+            ->shouldReceive('setUploadMetadata')
+            ->once()
+            ->with([
+                'filename' => $fileName,
+            ])
             ->andReturnSelf();
 
         $fileMock
@@ -1283,7 +1300,8 @@ class ServerTest extends TestCase
 
         $this->tusServerMock
             ->shouldReceive('getRequest')
-            ->times(4)
+            ->atLeast()
+            ->once()
             ->andReturn($requestMock);
 
         $cacheMock = m::mock(FileStore::class);
@@ -1337,6 +1355,14 @@ class ServerTest extends TestCase
             ->shouldReceive('setOffset')
             ->once()
             ->with(30)
+            ->andReturnSelf();
+
+        $fileMock
+            ->shouldReceive('setUploadMetadata')
+            ->once()
+            ->with([
+                'filename' => $fileName,
+            ])
             ->andReturnSelf();
 
         $fileMock
@@ -1417,6 +1443,9 @@ class ServerTest extends TestCase
             'offset' => 0,
             'checksum' => $checksum,
             'file_path' => dirname(__DIR__) . DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR . $fileName,
+            'metadata' => [
+                'filename' => $fileName,
+            ],
             'location' => $location,
             'created_at' => 'Fri, 08 Dec 2017 00:00:00 GMT',
             'expires_at' => $expiresAt,
@@ -1479,6 +1508,9 @@ class ServerTest extends TestCase
             'offset' => 0,
             'checksum' => $checksum,
             'file_path' => dirname(__DIR__) . DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR . $fileName,
+            'metadata' => [
+                'filename' => $fileName,
+            ],
             'location' => $location,
             'created_at' => 'Fri, 08 Dec 2017 00:00:00 GMT',
             'expires_at' => $expiresAt,
@@ -1511,6 +1543,14 @@ class ServerTest extends TestCase
             ->shouldReceive('setChecksum')
             ->once()
             ->with($checksum)
+            ->andReturnSelf();
+
+        $fileMock
+            ->shouldReceive('setUploadMetadata')
+            ->once()
+            ->with([
+                'filename' => $fileName,
+            ])
             ->andReturnSelf();
 
         $fileMock
@@ -1571,6 +1611,9 @@ class ServerTest extends TestCase
             'offset' => 0,
             'checksum' => $checksum,
             'file_path' => dirname(__DIR__) . DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR . $fileName,
+            'metadata' => [
+                'filename' => $fileName,
+            ],
             'location' => $location,
             'created_at' => 'Fri, 08 Dec 2017 00:00:00 GMT',
             'expires_at' => $expiresAt,
@@ -1603,6 +1646,14 @@ class ServerTest extends TestCase
             ->shouldReceive('setChecksum')
             ->once()
             ->with($checksum)
+            ->andReturnSelf();
+
+        $fileMock
+            ->shouldReceive('setUploadMetadata')
+            ->once()
+            ->with([
+                'filename' => $fileName,
+            ])
             ->andReturnSelf();
 
         $fileMock
@@ -1663,6 +1714,9 @@ class ServerTest extends TestCase
             'offset' => 0,
             'checksum' => $checksum,
             'file_path' => dirname(__DIR__) . DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR . $fileName,
+            'metadata' => [
+                'filename' => $fileName,
+            ],
             'location' => $location,
             'created_at' => 'Fri, 08 Dec 2017 00:00:00 GMT',
             'expires_at' => $expiresAt,
@@ -1689,6 +1743,14 @@ class ServerTest extends TestCase
             ->shouldReceive('setChecksum')
             ->once()
             ->with($checksum)
+            ->andReturnSelf();
+
+        $fileMock
+            ->shouldReceive('setUploadMetadata')
+            ->once()
+            ->with([
+                'filename' => $fileName,
+            ])
             ->andReturnSelf();
 
         $fileMock
@@ -1753,6 +1815,9 @@ class ServerTest extends TestCase
             'size' => $fileSize,
             'offset' => 0,
             'file_path' => dirname(__DIR__) . DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR . $fileName,
+            'metadata' => [
+                'filename' => $fileName,
+            ],
             'location' => $location,
             'created_at' => 'Fri, 08 Dec 2017 00:00:00 GMT',
             'expires_at' => $expiresAt,
@@ -1809,6 +1874,9 @@ class ServerTest extends TestCase
             'offset' => 0,
             'checksum' => $checksum,
             'file_path' => __DIR__ . '/../Fixtures/empty.txt',
+            'metadata' => [
+                'filename' => $fileName,
+            ],
             'location' => $location,
             'created_at' => 'Fri, 08 Dec 2017 00:00:00 GMT',
             'expires_at' => $expiresAt,
@@ -1841,6 +1909,14 @@ class ServerTest extends TestCase
             ->shouldReceive('setChecksum')
             ->once()
             ->with($checksum)
+            ->andReturnSelf();
+
+        $fileMock
+            ->shouldReceive('setUploadMetadata')
+            ->once()
+            ->with([
+                'filename' => $fileName,
+            ])
             ->andReturnSelf();
 
         $fileMock
@@ -1902,6 +1978,9 @@ class ServerTest extends TestCase
             'offset' => 0,
             'checksum' => $checksum,
             'file_path' => __DIR__ . '/../Fixtures/empty.txt',
+            'metadata' => [
+                'filename' => $fileName,
+            ],
             'location' => $location,
             'created_at' => 'Fri, 08 Dec 2017 00:00:00 GMT',
             'expires_at' => $expiresAt,
@@ -1934,6 +2013,14 @@ class ServerTest extends TestCase
             ->shouldReceive('setChecksum')
             ->once()
             ->with($checksum)
+            ->andReturnSelf();
+
+        $fileMock
+            ->shouldReceive('setUploadMetadata')
+            ->once()
+            ->with([
+                'filename' => $fileName,
+            ])
             ->andReturnSelf();
 
         $fileMock
@@ -2015,6 +2102,9 @@ class ServerTest extends TestCase
             'offset' => 0,
             'checksum' => $checksum,
             'file_path' => dirname(__DIR__) . DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR . $fileName,
+            'metadata' => [
+                'filename' => $fileName,
+            ],
             'location' => $location,
             'created_at' => 'Fri, 08 Dec 2017 00:00:00 GMT',
             'expires_at' => $expiresAt,
@@ -2047,6 +2137,14 @@ class ServerTest extends TestCase
             ->shouldReceive('setChecksum')
             ->once()
             ->with($checksum)
+            ->andReturnSelf();
+
+        $fileMock
+            ->shouldReceive('setUploadMetadata')
+            ->once()
+            ->with([
+                'filename' => $fileName,
+            ])
             ->andReturnSelf();
 
         $fileMock
@@ -2314,6 +2412,9 @@ class ServerTest extends TestCase
             'size' => $fileSize,
             'offset' => 0,
             'file_path' => __DIR__ . '/../Fixtures/empty.txt',
+            'metadata' => [
+                'filename' => $fileName,
+            ],
             'location' => $location,
             'created_at' => 'Fri, 08 Dec 2017 00:00:00 GMT',
             'expires_at' => $expiresAt,
@@ -3056,6 +3157,9 @@ class ServerTest extends TestCase
             'offset' => 0,
             'checksum' => $checksum,
             'file_path' => dirname(__DIR__) . DIRECTORY_SEPARATOR . $fileName,
+            'metadata' => [
+                'filename' => $fileName,
+            ],
             'location' => $location,
             'created_at' => 'Fri, 08 Dec 2017 00:00:00 GMT',
             'expires_at' => $expiresAt,
