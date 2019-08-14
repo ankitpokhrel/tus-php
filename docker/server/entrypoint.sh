@@ -1,3 +1,3 @@
 #!/bin/sh
-cd ..
 composer install
+/sbin/runit-wrapper

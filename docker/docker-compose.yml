@@ -3,6 +3,7 @@ version: '3'
 
 services:
   tus-base:
+    # build: ./base
     image: tus-php-base
     container_name: tus-php-base
     volumes:
@@ -19,6 +20,7 @@ services:
     volumes:
         - ../:/var/www/
         - ../example:/var/www/html
+        # - ../uploads:/var/www/uploads
         - ./.data/server/logs:/var/log/nginx
     entrypoint: entrypoint.sh
     labels:
