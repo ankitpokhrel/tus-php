@@ -84,7 +84,7 @@ class Server extends AbstractTus
         $this->request    = new Request;
         $this->response   = new Response;
         $this->middleware = new Middleware;
-        $this->uploadDir  = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'uploads';
+        $this->uploadDir  = dirname(__DIR__, 2) . '/' . 'uploads';
 
         $this->setCache($cacheAdapter);
     }
@@ -353,7 +353,7 @@ class Server extends AbstractTus
         }
 
         $uploadKey = $this->getUploadKey();
-        $filePath  = $this->uploadDir . DIRECTORY_SEPARATOR . $fileName;
+        $filePath  = $this->uploadDir . '/' . $fileName;
 
         if ($this->getRequest()->isFinal()) {
             return $this->handleConcatenation($fileName, $filePath);
@@ -721,7 +721,7 @@ class Server extends AbstractTus
     {
         list($actualKey, /* $partialUploadKey */) = explode(self::PARTIAL_UPLOAD_NAME_SEPARATOR, $key);
 
-        $path = $this->uploadDir . DIRECTORY_SEPARATOR . $actualKey . DIRECTORY_SEPARATOR;
+        $path = $this->uploadDir . '/' . $actualKey . '/';
 
         if ( ! file_exists($path)) {
             mkdir($path);
