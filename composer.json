@@ -21,6 +21,7 @@
     "symfony/http-foundation": "^3.4.11 || ^4.0"
   },
   "require-dev": {
+    "ext-pcntl": "*",
     "friendsofphp/php-cs-fixer": "^2.9",
     "mockery/mockery": "^1.2.0",
     "php-mock/php-mock": "^2.0",

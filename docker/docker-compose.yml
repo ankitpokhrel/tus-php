@@ -3,7 +3,6 @@ version: '3'
 
 services:
   tus-base:
-    # build: ./base
     image: tus-php-base
     container_name: tus-php-base
     volumes:
@@ -33,6 +32,7 @@ services:
       - "8080:80"
     volumes:
         - ../:/var/www
+        - ../example:/var/www/html
         - ./.data/client/logs:/var/log/nginx
     labels:
       tag: tus-php-client
