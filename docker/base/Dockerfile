@@ -17,3 +17,5 @@ RUN apk add --no-cache \
   php7.2-ldap \
   php7.2-soap \
   php7.2-curl
+
+COPY ./configs/nginx.conf /etc/nginx/nginx.conf

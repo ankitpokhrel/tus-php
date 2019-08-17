@@ -16,7 +16,6 @@ ENV PHP_INI_DIR /etc/php/7.2
 COPY ./configs/php.ini $PHP_INI_DIR/php.ini
 COPY ./configs/www.conf $PHP_INI_DIR/php-fpm.d/www.conf
 COPY ./configs/default.conf /etc/nginx/conf.d/default.conf
-COPY ./configs/nginx.conf /etc/nginx/nginx.conf
 
 ENV DOC_ROOT /var/www
 ENV SOURCE_CODE ${DOC_ROOT}/html
