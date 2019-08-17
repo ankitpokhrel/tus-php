@@ -21,4 +21,4 @@ docker-compose -p tus-php -f ${COMPOSE_FILE} down
 docker-compose -p tus-php -f ${COMPOSE_FILE} up --build --remove-orphans -d
 
 mkdir -p uploads
-chmod 777 uploads
+chown -R www-data:www-data uploads
