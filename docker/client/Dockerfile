@@ -6,3 +6,5 @@ EXPOSE 80
 ENV SERVER_URL http://0.0.0.0:8081
 
 WORKDIR /var/www/example
+
+CMD ["/sbin/runit-wrapper"]
