@@ -17,7 +17,7 @@ VOLUME ${SOURCE_CODE}
 
 WORKDIR ${DOC_ROOT}
 RUN mkdir -p ${DOC_ROOT}/uploads
-RUN chmod 777 ${DOC_ROOT}/uploads
+RUN chown -R www-data:root ${DOC_ROOT}/uploads
 
 COPY ./entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
