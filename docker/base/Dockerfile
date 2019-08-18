@@ -1,55 +1,31 @@
-FROM ubuntu:16.04
-MAINTAINER Ankit Pokhrel <hello@ankit.pl>
+FROM phpearth/php:7.2-nginx
+
+LABEL maintainer="hello@ankit.pl,samundra@msn.com" \
+  description="This builds tus-php-base image"
 
 ENV LANG C.UTF-8
-ENV DEBIAN_FRONTEND noninteractive
+ENV LC_ALL C.UTF-8
 
 RUN ln -sf /usr/share/zoneinfo/Asia/Kathmandu /etc/localtime
-RUN rm -rf /var/lib/apt/lists/* && apt-get clean
 
-RUN apt-get update --fix-missing && apt-get -y upgrade
-RUN apt-get install -y software-properties-common python-software-properties
-RUN add-apt-repository -y ppa:ondrej/php
-RUN apt-get update --fix-missing
+RUN apk add --no-cache \
+  php7.2-gd \
+  php7.2-imap \
+  php7.2-intl \
+  php7.2-mcrypt \
+  php7.2-mbstring \
+  php7.2-ldap \
+  php7.2-soap \
+  php7.2-curl
 
-# Install php, nginx and other dependencies
-RUN apt-get -y install rsyslog \
-                       rsyslog-gnutls \
-                       supervisor \
-                       nginx \
-                       curl \
-                       git \
-                       vim \
-                       redis-tools \
-                       php7.1-fpm \
-                       php7.1-cli \
-                       php7.1-gd \
-                       php7.1-imap \
-                       php7.1-intl \
-                       php7.1-json \
-                       php7.1-mcrypt \
-                       php7.1-mbstring \
-                       php7.1-ldap \
-                       php7.1-zip \
-                       php7.1-xml \
-                       php-xdebug \
-                       php7.1-mysql \
-                       php7.1-soap \
-                       php7.1-curl && \
-                       apt-get clean && \
-                       rm -rf /var/lib/apt/lists/*
+## Composer installation
+RUN apk add --no-cache php7.2-pcntl composer
 
-# Install composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer && chmod +x /usr/local/bin/composer
+COPY ./configs/nginx.conf /etc/nginx/nginx.conf
 
-# Add configs
-ADD ./configs/www.conf /etc/php/7.1/fpm/pool.d/www.conf
-ADD ./configs/php.ini /etc/php/7.1/fpm/conf.d/99-custom.ini
-ADD ./configs/supervisord.conf /etc/supervisord.conf
+ENV PHP_INI_DIR /etc/php/7.2
 
-ENV REDIS_HOST tus-php-redis
-ENV REDIS_PORT 6379
+COPY ./configs/php.ini $PHP_INI_DIR/php.ini
+COPY ./configs/www.conf $PHP_INI_DIR/php-fpm.d/www.conf
 
-RUN mkdir /var/run/php/
-
-EXPOSE 80
+ENTRYPOINT [ "sh" ]

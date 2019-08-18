@@ -111,7 +111,7 @@ Default max upload size is 0 which means there is no restriction. You can set ma
 $server->setMaxUploadSize(100000000); // 100 MB in bytes
 ```
 
-Default redis and file configuration for server and client can be found inside `config/server.php` and `config/client.php` respectively. 
+Default redis and file configuration for server and client can be found inside `config/server.php` and `config/client.php` respectively.
 To override default config you can simply copy the file to your preferred location and update the parameters. You then need to set the config before doing anything else.
 
 ```
@@ -375,6 +375,18 @@ $ bin/docker.sh
 
 Now, the client can be accessed at http://0.0.0.0:8080 and server can be accessed at http://0.0.0.0:8081. Default API endpoint is set to`/files`
 and uploaded files can be found inside `uploads` folder. All docker configs can be found in `docker/` folder.
+
+We also have some utility scripts to re-create docker images.
+
+Please note that `bin/rebuild.sh` will delete tus-php related docker containers and images.
+It will also delete `uploads` folder and re-create it. So that when you use `bin/docker.sh`
+it will be like a fresh start. This command is useful when you start to make changes
+to docker configurations, server configrations.
+
+```shell
+$ bin/rebuild.sh
+$ bin/docker.sh
+```
 
 #### Kubernetes with minikube
 Make sure you have [minikube](https://github.com/kubernetes/minikube) and [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)

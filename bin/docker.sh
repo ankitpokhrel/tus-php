@@ -8,9 +8,11 @@ NETWORK_NAME="tus-php-network"
 
 # Build base image
 BASE_PATH="docker/base/"
+DOCKERFILENAME="${BASE_PATH}Dockerfile"
 
-docker build -t tus-php-base \
-    -f ${BASE_PATH}Dockerfile ${BASE_PATH}
+docker build \
+  -t tus-php-base \
+  -f ${DOCKERFILENAME} ${BASE_PATH}
 
 # Build client and server
 COMPOSE_FILE="docker/docker-compose.yml"
@@ -18,5 +20,5 @@ COMPOSE_FILE="docker/docker-compose.yml"
 docker-compose -p tus-php -f ${COMPOSE_FILE} down
 docker-compose -p tus-php -f ${COMPOSE_FILE} up --build --remove-orphans -d
 
-# Create uploads dir
-mkdir -p uploads
+docker exec tus-php-server mkdir -p uploads
+docker exec tus-php-server chown www-data:root -R uploads

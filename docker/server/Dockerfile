@@ -1,10 +1,23 @@
 FROM tus-php-base
 
-ADD ./configs/nginx.conf /etc/nginx/nginx.conf
+## Redis Installation
+RUN apk add --no-cache redis
 
-COPY ./entrypoint.sh /usr/bin/entrypoint.sh
-RUN chmod +x /usr/bin/entrypoint.sh
+## Expose environment variables
+ENV REDIS_HOST tus-php-redis
+ENV REDIS_PORT 6379
 
-WORKDIR /var/www
+## Configurations
+COPY ./configs/default.conf /etc/nginx/conf.d/default.conf
 
-EXPOSE 80
+ENV DOC_ROOT /var/www
+ENV SOURCE_CODE ${DOC_ROOT}/html
+RUN mkdir -p ${SOURCE_CODE}
+VOLUME ${SOURCE_CODE}
+
+WORKDIR ${DOC_ROOT}
+RUN mkdir -p ${DOC_ROOT}/uploads
+RUN chown -R www-data:root ${DOC_ROOT}/uploads
+
+COPY ./entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh

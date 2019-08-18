@@ -1,9 +1,10 @@
 FROM tus-php-base
 
-ADD ./configs/nginx.conf /etc/nginx/nginx.conf
+COPY ./configs/default.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
+ENV SERVER_URL http://0.0.0.0:8081
 
 WORKDIR /var/www/example
 
-EXPOSE 80
-
-ENTRYPOINT ["/usr/bin/supervisord", "-n", "-c",  "/etc/supervisord.conf"]
+CMD ["/sbin/runit-wrapper"]
