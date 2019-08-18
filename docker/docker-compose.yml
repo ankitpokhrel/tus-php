@@ -37,8 +37,6 @@ services:
     restart: always
     ports:
       - "6379:6379"
-    volumes:
-      - ./.data/redis:/data
     labels:
       tag: tus-php-redis
       group: tus-php
