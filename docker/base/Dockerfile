@@ -18,4 +18,12 @@ RUN apk add --no-cache \
   php7.2-soap \
   php7.2-curl
 
+## Composer installation
+RUN apk add --no-cache php7.2-pcntl composer
+
 COPY ./configs/nginx.conf /etc/nginx/nginx.conf
+
+ENV PHP_INI_DIR /etc/php/7.2
+
+COPY ./configs/php.ini $PHP_INI_DIR/php.ini
+COPY ./configs/www.conf $PHP_INI_DIR/php-fpm.d/www.conf

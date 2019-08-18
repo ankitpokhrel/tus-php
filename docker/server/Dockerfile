@@ -3,18 +3,11 @@ FROM tus-php-base
 ## Redis Installation
 RUN apk add --no-cache redis
 
-## Composer installation
-RUN apk add --no-cache php7.2-pcntl composer
-
 ## Expose environment variables
 ENV REDIS_HOST tus-php-redis
 ENV REDIS_PORT 6379
 
 ## Configurations
-ENV PHP_INI_DIR /etc/php/7.2
-
-COPY ./configs/php.ini $PHP_INI_DIR/php.ini
-COPY ./configs/www.conf $PHP_INI_DIR/php-fpm.d/www.conf
 COPY ./configs/default.conf /etc/nginx/conf.d/default.conf
 
 ENV DOC_ROOT /var/www
