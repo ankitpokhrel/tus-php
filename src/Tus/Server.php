@@ -683,8 +683,6 @@ class Server extends AbstractTus
 
         list($checksumAlgorithm, $checksum) = explode(' ', $checksumHeader);
 
-        $checksum = base64_decode($checksum);
-
         if ( ! in_array($checksumAlgorithm, hash_algos()) || false === $checksum) {
             return $this->response->send(null, HttpResponse::HTTP_BAD_REQUEST);
         }
