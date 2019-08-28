@@ -437,6 +437,14 @@ Since the server supports tus expiration extension, a cron job is set to run onc
     $ ./vendor/bin/php-cs-fixer fix <changes> --rules=@PSR2,not_operator_with_space,single_quote
     ```
 
+_Note:_ There is an extra command `composer test-coverage` that will generate coverage
+at project root. You can open `coverage/index.html` to checkout coverage report.
+
+```shell
+# Command to Generate Coverage
+$ docker exec tus-php-server composer test-coverage
+```
+
 ### Questions about this project?
 Please feel free to report any bug found. Pull requests, issues, and project recommendations are more than welcome!
 
