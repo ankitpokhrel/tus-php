@@ -43,7 +43,8 @@
   },
   "scripts": {
     "test": "phpunit",
-    "cs-fixer": "php-cs-fixer fix src/ --rules=@PSR2,not_operator_with_space,single_quote"
+    "test-coverage": "vendor/bin/phpunit --coverage-html ./coverage",
+    "cs-fixer": "vendor/bin/php-cs-fixer fix src/ --rules=@PSR2,not_operator_with_space,single_quote"
   },
   "bin": [
     "bin/tus"
