@@ -13,4 +13,6 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: CS Fixer
-      run: composer cs-fixer
+      run: |
+        composer install 
+        composer cs-fixer
