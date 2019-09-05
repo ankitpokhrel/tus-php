@@ -21,6 +21,19 @@ class Request
     }
 
     /**
+     * Set the request
+     *
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     * @return \TusPhp\Request
+     */
+    public function setRequest(HttpRequest $request): self
+    {
+        $this->request = $request;
+
+        return $this;
+    }
+
+    /**
      * Get http method from current request.
      *
      * @return string

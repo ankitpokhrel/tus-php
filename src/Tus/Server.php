@@ -17,6 +17,7 @@ use TusPhp\Exception\FileException;
 use TusPhp\Exception\ConnectionException;
 use TusPhp\Exception\OutOfRangeException;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\Request as HttpRequest;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 class Server extends AbstractTus
@@ -87,6 +88,19 @@ class Server extends AbstractTus
         $this->uploadDir  = dirname(__DIR__, 2) . '/' . 'uploads';
 
         $this->setCache($cacheAdapter);
+    }
+
+    /**
+     * Set the request
+     *
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     * @return \TusPhp\Tus\Server
+     */
+    public function setRequest(HttpRequest $request): self
+    {
+        $this->request->setRequest($request);
+
+        return $this;
     }
 
     /**
