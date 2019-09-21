@@ -43,6 +43,7 @@ to pause, or by accident in case of a network issue or server outage.
         * [Apache](#apache)
     * [Client](#client)
     * [Third Party Client Libraries](#third-party-client-libraries)
+    * [Cloud Providers](#cloud-providers)
 * [Extension support](#extension-support)
     * [Expiration](#expiration)
     * [Concatenation](#concatenation)
@@ -195,6 +196,37 @@ var upload = new tus.Upload(file, {
   }
 })
 upload.start()
+```
+
+#### Cloud Providers
+Many cloud providers implement PHP [streamWrapper](https://www.php.net/manual/en/class.streamwrapper.php) interface that enables us to store and retrieve data from these providers using built-in PHP functions. Since tus-php relies on PHP's built-in filesystem functions, we can easily use it to upload files to the providers like [Amazon S3](https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/s3-stream-wrapper.html) if their API supports writing in append binary mode. An example implementation to upload files directly to S3 bucket is as follows:
+```php
+// server.php
+// composer require aws/aws-sdk-php
+
+use Aws\S3\S3Client;
+use Aws\Credentials\Credentials;
+use TusPhp\Tus\Server;
+
+$awsAccessKey = 'AWS_ACCESS_KEY'; // YOUR AWS ACCESS KEY
+$awsSecretKey = 'AWS_SECRET_KEY'; // YOUR AWS SECRET KEY
+$awsRegion = 'eu-west-1'; // YOUR AWS BUCKET REGION
+$basePath = 's3://your-bucket-name';
+
+$s3Client = new S3Client([
+    'version' => 'latest',
+    'region' => $awsRegion,
+    'credentials' => new Credentials($awsAccessKey, $awsSecretKey)
+]);
+$s3Client->registerStreamWrapper();
+
+$server = new Server('file');
+$server->setUploadDir($basePath);
+
+$response = $server->serve();
+$response->send();
+
+exit(0);
 ```
 
 ### Extension Support
