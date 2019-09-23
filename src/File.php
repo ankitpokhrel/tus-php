@@ -11,7 +11,7 @@ use TusPhp\Exception\OutOfRangeException;
 class File
 {
     /** @const Max chunk size */
-    const CHUNK_SIZE = 8192; // 8 bytes.
+    const CHUNK_SIZE = 8192; // 8 kilobytes.
 
     /** @const Input stream */
     const INPUT_STREAM = 'php://input';
