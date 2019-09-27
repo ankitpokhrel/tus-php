@@ -110,13 +110,44 @@
 
 <script src="https://transloadit.edgly.net/releases/uppy/v0.23.2/dist/uppy.min.js"></script>
 <script>
-  const uppy = Uppy.Core({debug: true, autoProceed: false})
+  const uppy = Uppy.Core({debug: true, autoProceed: false })
     .use(Uppy.Dashboard, {target: '#uppyUploader', inline: true})
     .use(Uppy.Tus, {endpoint: 'http://0.0.0.0:8081/files/'})
     .run()
 
-  uppy.on('upload-success', (file, response) => {
-    uppy.setFileState(file.id, { uploadURL: `${response.url}/get` })
+  uppy.on('complete', (response) => {
+    const { failed, successful, uploadID } = response;
+
+    if (failed.length > 1) {
+      console.error("Upload was not successful. Something is wrong.");
+    }
+
+    if (successful.length) {
+      const updatedFiles = Object.assign({}, uppy.getState().files);
+      const fileIds = Object.keys(updatedFiles);
+
+      let pathOverriddenFiles = {};
+      const files = fileIds.forEach((fileId) => {
+        const file = updatedFiles[fileId];
+
+        pathOverriddenFiles = {
+          // If there are more than one uploaded file then this will preserve
+          // those existing files.
+          ...pathOverriddenFiles,
+
+          // Overwrite properties of this object only
+          [fileId]: {
+            // We will preserve all existing properties and overwrite url only
+            ...file,
+
+            // We will overwrite only uploadPath here
+            uploadURL:  `${file.uploadURL}/get`
+          }
+        };
+      })
+
+      uppy.setState({files: pathOverriddenFiles});
+    }
   })
 </script>
 </body>
