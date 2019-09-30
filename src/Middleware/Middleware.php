@@ -39,8 +39,8 @@ class Middleware
     {
         foreach ($middleware as $m) {
             if ($m instanceof TusMiddleware) {
-                $this->globalMiddleware[get_class($m)] = $m;
-            } elseif (is_string($m)) {
+                $this->globalMiddleware[\get_class($m)] = $m;
+            } elseif (\is_string($m)) {
                 $this->globalMiddleware[$m] = new $m;
             }
         }

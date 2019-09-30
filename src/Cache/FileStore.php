@@ -84,8 +84,8 @@ class FileStore extends AbstractCache
      */
     protected function createCacheDir()
     {
-        if ( ! file_exists($this->cacheDir)) {
-            mkdir($this->cacheDir);
+        if ( ! \file_exists($this->cacheDir)) {
+            \mkdir($this->cacheDir);
         }
     }
 
@@ -100,8 +100,8 @@ class FileStore extends AbstractCache
 
         $cacheFilePath = $this->getCacheFile();
 
-        if ( ! file_exists($cacheFilePath)) {
-            touch($cacheFilePath);
+        if ( ! \file_exists($cacheFilePath)) {
+            \touch($cacheFilePath);
         }
     }
 
@@ -134,22 +134,22 @@ class FileStore extends AbstractCache
     public function sharedGet(string $path) : string
     {
         $contents = '';
-        $handle   = @fopen($path, File::READ_BINARY);
+        $handle   = @\fopen($path, File::READ_BINARY);
 
         if (false === $handle) {
             return $contents;
         }
 
         try {
-            if (flock($handle, LOCK_SH)) {
-                clearstatcache(true, $path);
+            if (\flock($handle, LOCK_SH)) {
+                \clearstatcache(true, $path);
 
-                $contents = fread($handle, filesize($path) ?: 1);
+                $contents = \fread($handle, \filesize($path) ?: 1);
 
-                flock($handle, LOCK_UN);
+                \flock($handle, LOCK_UN);
             }
         } finally {
-            fclose($handle);
+            \fclose($handle);
         }
 
         return $contents;
@@ -165,7 +165,7 @@ class FileStore extends AbstractCache
      */
     public function put(string $path, string $contents) : int
     {
-        return file_put_contents($path, $contents, LOCK_EX);
+        return \file_put_contents($path, $contents, LOCK_EX);
     }
 
     /**
@@ -176,19 +176,19 @@ class FileStore extends AbstractCache
         $cacheKey  = $this->getActualCacheKey($key);
         $cacheFile = $this->getCacheFile();
 
-        if ( ! file_exists($cacheFile) || ! $this->isValid($cacheKey)) {
+        if ( ! \file_exists($cacheFile) || ! $this->isValid($cacheKey)) {
             $this->createCacheFile();
         }
 
-        $contents = json_decode($this->sharedGet($cacheFile), true) ?? [];
+        $contents = \json_decode($this->sharedGet($cacheFile), true) ?? [];
 
-        if ( ! empty($contents[$cacheKey]) && is_array($value)) {
+        if ( ! empty($contents[$cacheKey]) && \is_array($value)) {
             $contents[$cacheKey] = $value + $contents[$cacheKey];
         } else {
             $contents[$cacheKey] = $value;
         }
 
-        return $this->put($cacheFile, json_encode($contents));
+        return $this->put($cacheFile, \json_encode($contents));
     }
 
     /**
@@ -202,7 +202,7 @@ class FileStore extends AbstractCache
         if (isset($contents[$cacheKey])) {
             unset($contents[$cacheKey]);
 
-            return false !== $this->put($this->getCacheFile(), json_encode($contents));
+            return false !== $this->put($this->getCacheFile(), \json_encode($contents));
         }
 
         return false;
@@ -215,8 +215,8 @@ class FileStore extends AbstractCache
     {
         $contents = $this->getCacheContents();
 
-        if (is_array($contents)) {
-            return array_keys($contents);
+        if (\is_array($contents)) {
+            return \array_keys($contents);
         }
 
         return [];
@@ -250,11 +250,11 @@ class FileStore extends AbstractCache
     {
         $cacheFile = $this->getCacheFile();
 
-        if ( ! file_exists($cacheFile)) {
+        if ( ! \file_exists($cacheFile)) {
             return false;
         }
 
-        return json_decode($this->sharedGet($cacheFile), true) ?? [];
+        return \json_decode($this->sharedGet($cacheFile), true) ?? [];
     }
 
     /**
@@ -268,7 +268,7 @@ class FileStore extends AbstractCache
     {
         $prefix = $this->getPrefix();
 
-        if (false === strpos($key, $prefix)) {
+        if (false === \strpos($key, $prefix)) {
             $key = $prefix . $key;
         }
 

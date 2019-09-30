@@ -47,7 +47,7 @@ class Request
      */
     public function key() : string
     {
-        return basename($this->path());
+        return \basename($this->path());
     }
 
     /**
@@ -87,7 +87,7 @@ class Request
      */
     public function url() : string
     {
-        return rtrim($this->request->getUriForPath('/'), '/');
+        return \rtrim($this->request->getUriForPath('/'), '/');
     }
 
     /**
@@ -102,10 +102,10 @@ class Request
     {
         $meta = $this->header($key);
 
-        if (false !== strpos($meta, $value)) {
-            $meta = trim(str_replace($value, '', $meta));
+        if (false !== \strpos($meta, $value)) {
+            $meta = \trim(\str_replace($value, '', $meta));
 
-            return explode(' ', $meta) ?? [];
+            return \explode(' ', $meta) ?? [];
         }
 
         return [];
@@ -142,13 +142,13 @@ class Request
             return '';
         }
 
-        $uploadMetaDataChunks = explode(',', $uploadMetaData);
+        $uploadMetaDataChunks = \explode(',', $uploadMetaData);
 
         foreach ($uploadMetaDataChunks as $chunk) {
-            list($key, $value) = explode(' ', $chunk);
+            list($key, $value) = \explode(' ', $chunk);
 
             if ($key === $requestedKey) {
-                return base64_decode($value);
+                return \base64_decode($value);
             }
         }
 
@@ -168,13 +168,13 @@ class Request
             return [];
         }
 
-        $uploadMetaDataChunks = explode(',', $uploadMetaData);
+        $uploadMetaDataChunks = \explode(',', $uploadMetaData);
 
         $result = [];
         foreach ($uploadMetaDataChunks as $chunk) {
-            list($key, $value) = explode(' ', $chunk);
+            list($key, $value) = \explode(' ', $chunk);
 
-            $result[$key] = base64_decode($value);
+            $result[$key] = \base64_decode($value);
         }
 
         return $result;
@@ -207,7 +207,7 @@ class Request
      */
     public function isFinal() : bool
     {
-        return false !== strpos($this->header('Upload-Concat'), Server::UPLOAD_TYPE_FINAL . ';');
+        return false !== \strpos($this->header('Upload-Concat'), Server::UPLOAD_TYPE_FINAL . ';');
     }
 
     /**
@@ -232,7 +232,7 @@ class Request
         $forbidden = ['../', '"', "'", '&', '/', '\\', '?', '#', ':'];
 
         foreach ($forbidden as $char) {
-            if (false !== strpos($filename, $char)) {
+            if (false !== \strpos($filename, $char)) {
                 return false;
             }
         }
