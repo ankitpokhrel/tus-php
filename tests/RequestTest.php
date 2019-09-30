@@ -195,6 +195,7 @@ class RequestTest extends TestCase
      *
      * @covers ::extractMeta
      * @covers ::extractFileName
+     * @covers ::extractAllMeta
      */
     public function it_extracts_metadata_from_multiple_concatenated_headers()
     {
@@ -218,12 +219,14 @@ class RequestTest extends TestCase
         $this->assertEquals($filename, $this->request->extractFileName());
         $this->assertEquals($fileType, $this->request->extractMeta('type'));
         $this->assertEquals($accept, $this->request->extractMeta('accept'));
+        $this->assertEquals(['filename'=> $filename, 'type' => $fileType, 'accept' => $accept], $this->request->extractAllMeta());
     }
 
     /**
      * @test
      *
      * @covers ::extractMeta
+     * @covers ::extractAllMeta
      */
     public function it_returns_empty_if_upload_metadata_header_not_present()
     {
@@ -235,6 +238,7 @@ class RequestTest extends TestCase
             ->set('Upload-Metadata', '');
 
         $this->assertEmpty($this->request->extractMeta('invalid-key'));
+        $this->assertEmpty($this->request->extractAllMeta());
     }
 
     /**
