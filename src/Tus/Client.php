@@ -2,6 +2,7 @@
 
 namespace TusPhp\Tus;
 
+use Ramsey\Uuid\Uuid;
 use TusPhp\File;
 use Carbon\Carbon;
 use TusPhp\Config;
@@ -524,7 +525,7 @@ class Client extends AbstractTus
             list($key, /* $partialKey */) = explode(self::PARTIAL_UPLOAD_NAME_SEPARATOR, $key);
         }
 
-        $this->key = $key . uniqid(self::PARTIAL_UPLOAD_NAME_SEPARATOR);
+        $this->key = $key . self::PARTIAL_UPLOAD_NAME_SEPARATOR . Uuid::uuid4()->toString();
     }
 
     /**
