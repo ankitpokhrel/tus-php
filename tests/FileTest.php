@@ -172,6 +172,22 @@ class FileTest extends TestCase
     /**
      * @test
      *
+     * @covers ::setUploadMetadata
+     */
+    public function it_sets_upload_metadata()
+    {
+        $metadata = array(
+            'offset' => 200,
+            'fileSize' => 2056,
+            'filePath' => '/path/to/file.pdf'
+        );
+
+        $this->assertInstanceOf(File::class, $this->file->setUploadMetadata($metadata));
+    }
+
+    /**
+     * @test
+     *
      * @covers ::open
      * @covers ::exists
      *

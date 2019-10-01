@@ -291,4 +291,37 @@ class RequestTest extends TestCase
     {
         $this->assertInstanceOf(HttpRequest::class, $this->request->getRequest());
     }
+
+    /**
+     * @test
+     *
+     * @covers ::extractAllMeta
+     */
+    public function it_extracts_all_metadata()
+    {
+        $this->request->getRequest()->headers->set('Upload-Metadata', '');
+        $this->assertEmpty($this->request->extractAllMeta());
+
+        $uploadMetadata = array(
+            'filename' => 'file.txt',
+            'type' => 'image',
+            'accept'   => 'image/jpeg'
+        );
+
+        $this->request
+            ->getRequest()
+            ->headers
+            ->set(
+                'Upload-Metadata',
+                sprintf(
+                    'filename %s,type %s,accept %s',
+                    base64_encode($uploadMetadata['filename']),
+                    base64_encode($uploadMetadata['type']),
+                    base64_encode($uploadMetadata['accept'])
+                ),
+                true
+            );
+
+        $this->assertEquals($uploadMetadata, $this->request->extractAllMeta());
+    }
 }
