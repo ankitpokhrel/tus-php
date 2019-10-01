@@ -295,7 +295,7 @@ class RequestTest extends TestCase
      */
     public function it_extracts_all_metadata()
     {
-        $this->request->getRequest()->headers->set('Upload-Metada', '');
+        $this->request->getRequest()->headers->set('Upload-Metadata', '');
         $this->assertEmpty($this->request->extractAllMeta());
 
         $uploadMetadata = array(
