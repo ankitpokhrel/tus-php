@@ -200,6 +200,7 @@ class ClientTest extends TestCase
      * @test
      *
      * @covers ::getChecksum
+     * @covers ::setChecksum
      */
     public function it_sets_and_gets_checksum()
     {
@@ -212,6 +213,9 @@ class ClientTest extends TestCase
             ->andReturn($file);
 
         $this->assertEquals($checksum, $this->tusClientMock->getChecksum());
+
+        $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
+        $this->assertInstanceOf(\TusPhp\Tus\Client::class, $this->tusClientMock->setChecksum($checksum));
     }
 
     /**
