@@ -40,12 +40,12 @@ class RedisStore extends AbstractCache
     {
         $prefix = $this->getPrefix();
 
-        if (false === strpos($key, $prefix)) {
+        if (false === \strpos($key, $prefix)) {
             $key = $prefix . $key;
         }
 
         $contents = $this->redis->get($key);
-        $contents = json_decode($contents, true);
+        $contents = \json_decode($contents, true);
 
         if ($withExpired) {
             return $contents;
@@ -63,13 +63,13 @@ class RedisStore extends AbstractCache
     {
         $contents = $this->get($key) ?? [];
 
-        if (is_array($value)) {
+        if (\is_array($value)) {
             $contents = $value + $contents;
         } else {
-            array_push($contents, $value);
+            \array_push($contents, $value);
         }
 
-        $status = $this->redis->set($this->getPrefix() . $key, json_encode($contents));
+        $status = $this->redis->set($this->getPrefix() . $key, \json_encode($contents));
 
         return 'OK' === $status->getPayload();
     }
@@ -81,7 +81,7 @@ class RedisStore extends AbstractCache
     {
         $prefix = $this->getPrefix();
 
-        if (false === strpos($key, $prefix)) {
+        if (false === \strpos($key, $prefix)) {
             $key = $prefix . $key;
         }
 

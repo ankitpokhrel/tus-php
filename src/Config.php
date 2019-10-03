@@ -24,7 +24,7 @@ class Config
             return;
         }
 
-        if (is_array($config)) {
+        if (\is_array($config)) {
             self::$config = $config;
         } else {
             self::$config = require $config ?? self::DEFAULT_CONFIG_PATH;
@@ -46,7 +46,7 @@ class Config
             return self::$config;
         }
 
-        $keys  = explode('.', $key);
+        $keys  = \explode('.', $key);
         $value = self::$config;
 
         foreach ($keys as $key) {

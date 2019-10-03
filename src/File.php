@@ -315,7 +315,7 @@ class File
         try {
             $this->seek($output, $this->offset);
 
-            while ( ! feof($input)) {
+            while ( ! \feof($input)) {
                 if (CONNECTION_NORMAL !== connection_status()) {
                     throw new ConnectionException('Connection aborted by user.');
                 }
@@ -357,7 +357,7 @@ class File
     {
         $this->exists($filePath, $mode);
 
-        $ptr = @fopen($filePath, $mode);
+        $ptr = @\fopen($filePath, $mode);
 
         if (false === $ptr) {
             throw new FileException("Unable to open $filePath.");
@@ -382,7 +382,7 @@ class File
             return true;
         }
 
-        if (self::READ_BINARY === $mode && ! file_exists($filePath)) {
+        if (self::READ_BINARY === $mode && ! \file_exists($filePath)) {
             throw new FileException('File not found.');
         }
 
@@ -445,7 +445,7 @@ class File
      */
     public function write($handle, string $data, $length = null) : int
     {
-        $bytesWritten = is_int($length) ? fwrite($handle, $data, $length) : fwrite($handle, $data);
+        $bytesWritten = \is_int($length) ? fwrite($handle, $data, $length) : fwrite($handle, $data);
 
         if (false === $bytesWritten) {
             throw new FileException('Cannot write to a file.');
@@ -464,22 +464,22 @@ class File
     public function merge(array $files) : int
     {
         $destination = $this->getFilePath();
-        $firstFile   = array_shift($files);
+        $firstFile   = \array_shift($files);
 
         // First partial file can directly be copied.
         $this->copy($firstFile['file_path'], $destination);
 
         $this->offset   = $firstFile['offset'];
-        $this->fileSize = filesize($firstFile['file_path']);
+        $this->fileSize = \filesize($firstFile['file_path']);
 
         $handle = $this->open($destination, self::APPEND_BINARY);
 
         foreach ($files as $file) {
-            if ( ! file_exists($file['file_path'])) {
+            if ( ! \file_exists($file['file_path'])) {
                 throw new FileException('File to be merged not found.');
             }
 
-            $this->fileSize += $this->write($handle, file_get_contents($file['file_path']));
+            $this->fileSize += $this->write($handle, \file_get_contents($file['file_path']));
 
             $this->offset += $file['offset'];
         }
@@ -499,10 +499,10 @@ class File
      */
     public function copy(string $source, string $destination) : bool
     {
-        $status = @copy($source, $destination);
+        $status = @\copy($source, $destination);
 
         if (false === $status) {
-            throw new FileException(sprintf('Cannot copy source (%s) to destination (%s).', $source, $destination));
+            throw new FileException(\sprintf('Cannot copy source (%s) to destination (%s).', $source, $destination));
         }
 
         return $status;
@@ -521,7 +521,7 @@ class File
         $status = $this->deleteFiles($files);
 
         if ($status && $folder) {
-            return rmdir(dirname(current($files)));
+            return \rmdir(\dirname(\current($files)));
         }
 
         return $status;
@@ -543,7 +543,7 @@ class File
         $status = true;
 
         foreach ($files as $file) {
-            if (file_exists($file)) {
+            if (\file_exists($file)) {
                 $status = $status && unlink($file);
             }
         }
@@ -560,6 +560,6 @@ class File
      */
     public function close($handle) : bool
     {
-        return fclose($handle);
+        return \fclose($handle);
     }
 }

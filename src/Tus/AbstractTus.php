@@ -46,13 +46,13 @@ abstract class AbstractTus
      */
     public function setCache($cache) : self
     {
-        if (is_string($cache)) {
+        if (\is_string($cache)) {
             $this->cache = CacheFactory::make($cache);
         } elseif ($cache instanceof Cacheable) {
             $this->cache = $cache;
         }
 
-        $prefix = 'tus:' . strtolower((new \ReflectionClass(static::class))->getShortName()) . ':';
+        $prefix = 'tus:' . \strtolower((new \ReflectionClass(static::class))->getShortName()) . ':';
 
         $this->cache->setPrefix($prefix);
 
