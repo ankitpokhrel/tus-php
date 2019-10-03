@@ -83,7 +83,7 @@ class Client extends AbstractTus
     {
         $this->filePath = $file;
 
-        if ( ! \file_exists($file) || ! \is_readable($file)) {
+        if ( ! \file_exists($file) || ! is_readable($file)) {
             throw new FileException('Cannot read file: ' . $file);
         }
 
@@ -187,7 +187,7 @@ class Client extends AbstractTus
      */
     public function addMetadata(string $key, string $value) : self
     {
-        $this->metadata[$key] = \base64_encode($value);
+        $this->metadata[$key] = base64_encode($value);
 
         return $this;
     }
@@ -642,6 +642,6 @@ class Client extends AbstractTus
      */
     protected function getUploadChecksumHeader() : string
     {
-        return $this->getChecksumAlgorithm() . ' ' . \base64_encode($this->getChecksum());
+        return $this->getChecksumAlgorithm() . ' ' . base64_encode($this->getChecksum());
     }
 }

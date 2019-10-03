@@ -596,7 +596,7 @@ class Server extends AbstractTus
             return $this->response->send(null, HttpResponse::HTTP_GONE);
         }
 
-        \unlink($resource);
+        unlink($resource);
 
         return $this->response->send(null, HttpResponse::HTTP_NO_CONTENT, [
             'Tus-Extension' => self::TUS_EXTENSION_TERMINATION,
@@ -654,7 +654,7 @@ class Server extends AbstractTus
      */
     protected function getSupportedHashAlgorithms() : string
     {
-        $supportedAlgorithms = \hash_algos();
+        $supportedAlgorithms = hash_algos();
 
         $algorithms = [];
         foreach ($supportedAlgorithms as $hashAlgo) {
@@ -683,9 +683,9 @@ class Server extends AbstractTus
 
         list($checksumAlgorithm, $checksum) = \explode(' ', $checksumHeader);
 
-        $checksum = \base64_decode($checksum);
+        $checksum = base64_decode($checksum);
 
-        if ( ! \in_array($checksumAlgorithm, \hash_algos()) || false === $checksum) {
+        if ( ! \in_array($checksumAlgorithm, hash_algos()) || false === $checksum) {
             return $this->response->send(null, HttpResponse::HTTP_BAD_REQUEST);
         }
 
@@ -772,7 +772,7 @@ class Server extends AbstractTus
             }
 
             if (\is_writable($fileMeta['file_path'])) {
-                \unlink($fileMeta['file_path']);
+                unlink($fileMeta['file_path']);
             }
 
             $deleted[] = $fileMeta;

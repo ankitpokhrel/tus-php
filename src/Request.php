@@ -148,7 +148,7 @@ class Request
             list($key, $value) = \explode(' ', $chunk);
 
             if ($key === $requestedKey) {
-                return \base64_decode($value);
+                return base64_decode($value);
             }
         }
 
@@ -174,7 +174,7 @@ class Request
         foreach ($uploadMetaDataChunks as $chunk) {
             list($key, $value) = \explode(' ', $chunk);
 
-            $result[$key] = \base64_decode($value);
+            $result[$key] = base64_decode($value);
         }
 
         return $result;

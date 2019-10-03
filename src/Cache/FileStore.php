@@ -144,7 +144,7 @@ class FileStore extends AbstractCache
             if (\flock($handle, LOCK_SH)) {
                 \clearstatcache(true, $path);
 
-                $contents = \fread($handle, \filesize($path) ?: 1);
+                $contents = fread($handle, \filesize($path) ?: 1);
 
                 \flock($handle, LOCK_UN);
             }

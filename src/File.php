@@ -316,7 +316,7 @@ class File
             $this->seek($output, $this->offset);
 
             while ( ! \feof($input)) {
-                if (CONNECTION_NORMAL !== \connection_status()) {
+                if (CONNECTION_NORMAL !== connection_status()) {
                     throw new ConnectionException('Connection aborted by user.');
                 }
 
@@ -402,7 +402,7 @@ class File
      */
     public function seek($handle, int $offset, int $whence = SEEK_SET) : int
     {
-        $position = \fseek($handle, $offset, $whence);
+        $position = fseek($handle, $offset, $whence);
 
         if (-1 === $position) {
             throw new FileException('Cannot move pointer to desired position.');
@@ -423,7 +423,7 @@ class File
      */
     public function read($handle, int $chunkSize) : string
     {
-        $data = \fread($handle, $chunkSize);
+        $data = fread($handle, $chunkSize);
 
         if (false === $data) {
             throw new FileException('Cannot read file.');
@@ -445,7 +445,7 @@ class File
      */
     public function write($handle, string $data, $length = null) : int
     {
-        $bytesWritten = \is_int($length) ? \fwrite($handle, $data, $length) : \fwrite($handle, $data);
+        $bytesWritten = \is_int($length) ? fwrite($handle, $data, $length) : fwrite($handle, $data);
 
         if (false === $bytesWritten) {
             throw new FileException('Cannot write to a file.');
@@ -544,7 +544,7 @@ class File
 
         foreach ($files as $file) {
             if (\file_exists($file)) {
-                $status = $status && \unlink($file);
+                $status = $status && unlink($file);
             }
         }
 
