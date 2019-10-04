@@ -466,7 +466,7 @@ Since the server supports tus expiration extension, a cron job is set to run onc
 
     # or
 
-    $ ./vendor/bin/php-cs-fixer fix <changes> --rules=@PSR2,not_operator_with_space,single_quote
+    $ ./vendor/bin/php-cs-fixer fix <changes>
     ```
 
 _Note:_ There is an extra command `composer test-coverage` that will generate coverage

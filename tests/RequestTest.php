@@ -219,7 +219,7 @@ class RequestTest extends TestCase
         $this->assertEquals($filename, $this->request->extractFileName());
         $this->assertEquals($fileType, $this->request->extractMeta('type'));
         $this->assertEquals($accept, $this->request->extractMeta('accept'));
-        $this->assertEquals(['filename'=> $filename, 'type' => $fileType, 'accept' => $accept], $this->request->extractAllMeta());
+        $this->assertEquals(['filename' => $filename, 'type' => $fileType, 'accept' => $accept], $this->request->extractAllMeta());
     }
 
     /**
@@ -305,7 +305,7 @@ class RequestTest extends TestCase
         $uploadMetadata = array(
             'filename' => 'file.txt',
             'type' => 'image',
-            'accept'   => 'image/jpeg'
+            'accept' => 'image/jpeg'
         );
 
         $this->request

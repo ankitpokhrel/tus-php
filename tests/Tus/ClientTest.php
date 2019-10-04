@@ -800,7 +800,7 @@ class ClientTest extends TestCase
                 'body' => $data,
                 'headers' => [
                     'Content-Type' => 'application/offset+octet-stream',
-                    'Content-Length' => strlen($data),
+                    'Content-Length' => \strlen($data),
                     'Upload-Checksum' => $checksum,
                     'Upload-Offset' => $offset,
                 ],
@@ -869,7 +869,7 @@ class ClientTest extends TestCase
                 'body' => $data,
                 'headers' => [
                     'Content-Type' => 'application/offset+octet-stream',
-                    'Content-Length' => strlen($data),
+                    'Content-Length' => \strlen($data),
                     'Upload-Checksum' => $checksum,
                     'Upload-Offset' => $offset,
                 ],
@@ -938,7 +938,7 @@ class ClientTest extends TestCase
                 'body' => $data,
                 'headers' => [
                     'Content-Type' => 'application/offset+octet-stream',
-                    'Content-Length' => strlen($data),
+                    'Content-Length' => \strlen($data),
                     'Upload-Checksum' => $checksum,
                     'Upload-Offset' => $offset,
                 ],
@@ -1013,7 +1013,7 @@ class ClientTest extends TestCase
                 'body' => $data,
                 'headers' => [
                     'Content-Type' => 'application/offset+octet-stream',
-                    'Content-Length' => strlen($data),
+                    'Content-Length' => \strlen($data),
                     'Upload-Checksum' => $checksum,
                     'Upload-Offset' => $offset,
                 ],
@@ -1069,7 +1069,7 @@ class ClientTest extends TestCase
                 'body' => $data,
                 'headers' => [
                     'Content-Type' => 'application/offset+octet-stream',
-                    'Content-Length' => strlen($data),
+                    'Content-Length' => \strlen($data),
                     'Upload-Checksum' => $checksum,
                     'Upload-Offset' => $offset,
                 ],
@@ -1123,7 +1123,7 @@ class ClientTest extends TestCase
                 'body' => $data,
                 'headers' => [
                     'Content-Type' => 'application/offset+octet-stream',
-                    'Content-Length' => strlen($data),
+                    'Content-Length' => \strlen($data),
                     'Upload-Checksum' => $checksum,
                     'Upload-Offset' => $offset,
                 ],
@@ -1729,7 +1729,7 @@ class ClientTest extends TestCase
 
         $data = $this->tusClientMock->getData($offset, $dataLength);
 
-        $this->assertEquals($dataLength, strlen($data));
+        $this->assertEquals($dataLength, \strlen($data));
         $this->assertEquals(
             'The Project Gutenberg EBook of The Adventures of Sherlock Holmes by Sir Arthur Conan Doyle.',
             trim($data)
@@ -1754,7 +1754,7 @@ class ClientTest extends TestCase
 
         $data = $this->tusClientMock->getData($offset, $dataLength);
 
-        $this->assertEquals($dataLength, strlen($data));
+        $this->assertEquals($dataLength, \strlen($data));
         $this->assertEquals('Sherlock Holmes', $data);
     }
 

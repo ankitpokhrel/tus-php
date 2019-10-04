@@ -84,12 +84,12 @@ class Client extends AbstractTus
     {
         $this->filePath = $file;
 
-        if ( ! \file_exists($file) || ! is_readable($file)) {
+        if ( ! file_exists($file) || ! is_readable($file)) {
             throw new FileException('Cannot read file: ' . $file);
         }
 
-        $this->fileName = $name ?? \basename($this->filePath);
-        $this->fileSize = \filesize($file);
+        $this->fileName = $name ?? basename($this->filePath);
+        $this->fileSize = filesize($file);
 
         $this->addMetadata('filename', $this->fileName);
 
@@ -172,7 +172,7 @@ class Client extends AbstractTus
     public function getChecksum() : string
     {
         if (empty($this->checksum)) {
-            $this->setChecksum(\hash_file($this->getChecksumAlgorithm(), $this->getFilePath()));
+            $this->setChecksum(hash_file($this->getChecksumAlgorithm(), $this->getFilePath()));
         }
 
         return $this->checksum;
@@ -216,7 +216,7 @@ class Client extends AbstractTus
      */
     public function setMetadata(array $items) : self
     {
-        $items = \array_map('base64_encode', $items);
+        $items = array_map('base64_encode', $items);
 
         $this->metadata = $items;
 
@@ -246,7 +246,7 @@ class Client extends AbstractTus
             $metadata[] = "{$key} {$value}";
         }
 
-        return \implode(',', $metadata);
+        return implode(',', $metadata);
     }
 
     /**
@@ -443,7 +443,7 @@ class Client extends AbstractTus
             throw new FileException('Unable to create resource.');
         }
 
-        $uploadLocation = \current($response->getHeader('location'));
+        $uploadLocation = current($response->getHeader('location'));
 
         $this->getCache()->set($this->getKey(), [
             'location' => $uploadLocation,
@@ -469,11 +469,11 @@ class Client extends AbstractTus
                 'Upload-Key' => $key,
                 'Upload-Checksum' => $this->getUploadChecksumHeader(),
                 'Upload-Metadata' => $this->getUploadMetadataHeader(),
-                'Upload-Concat' => self::UPLOAD_TYPE_FINAL . ';' . \implode(' ', $partials),
+                'Upload-Concat' => self::UPLOAD_TYPE_FINAL . ';' . implode(' ', $partials),
             ],
         ]);
 
-        $data       = \json_decode($response->getBody(), true);
+        $data       = json_decode($response->getBody(), true);
         $checksum   = $data['data']['checksum'] ?? null;
         $statusCode = $response->getStatusCode();
 
@@ -521,8 +521,8 @@ class Client extends AbstractTus
 
         $key = $this->getKey();
 
-        if (false !== \strpos($key, self::PARTIAL_UPLOAD_NAME_SEPARATOR)) {
-            list($key, /* $partialKey */) = \explode(self::PARTIAL_UPLOAD_NAME_SEPARATOR, $key);
+        if (false !== strpos($key, self::PARTIAL_UPLOAD_NAME_SEPARATOR)) {
+            list($key, /* $partialKey */) = explode(self::PARTIAL_UPLOAD_NAME_SEPARATOR, $key);
         }
 
         $this->key = $key . self::PARTIAL_UPLOAD_NAME_SEPARATOR . Uuid::uuid4()->toString();
@@ -544,7 +544,7 @@ class Client extends AbstractTus
             throw new FileException('File not found.');
         }
 
-        return (int) \current($response->getHeader('upload-offset'));
+        return (int) current($response->getHeader('upload-offset'));
     }
 
     /**
@@ -580,7 +580,7 @@ class Client extends AbstractTus
                 'headers' => $headers,
             ]);
 
-            return (int) \current($response->getHeader('upload-offset'));
+            return (int) current($response->getHeader('upload-offset'));
         } catch (ClientException $e) {
             throw $this->handleClientException($e);
         } catch (ConnectException $e) {
