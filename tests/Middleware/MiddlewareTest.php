@@ -52,7 +52,7 @@ class MiddlewareTest extends TestCase
     public function it_adds_valid_middleware()
     {
         $corsMock  = m::mock(Cors::class);
-        $mockClass = get_class($corsMock);
+        $mockClass = \get_class($corsMock);
 
         $this->assertInstanceOf(Middleware::class, $this->middleware->add($corsMock, TestMiddleware::class));
 

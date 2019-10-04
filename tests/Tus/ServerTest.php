@@ -91,11 +91,11 @@ class ServerTest extends TestCase
      */
     public function it_sets_and_gets_upload_dir()
     {
-        $this->assertEquals(dirname(__DIR__, 2) . '/uploads', $this->tusServer->getUploadDir());
+        $this->assertEquals(\dirname(__DIR__, 2) . '/uploads', $this->tusServer->getUploadDir());
 
-        $this->tusServer->setUploadDir(dirname(__DIR__) . '/storage');
+        $this->tusServer->setUploadDir(\dirname(__DIR__) . '/storage');
 
-        $this->assertEquals(dirname(__DIR__) . '/storage', $this->tusServer->getUploadDir());
+        $this->assertEquals(\dirname(__DIR__) . '/storage', $this->tusServer->getUploadDir());
     }
 
     /**
@@ -517,7 +517,7 @@ class ServerTest extends TestCase
         $cacheMock
             ->shouldReceive('setPrefix')
             ->once()
-            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->with('tus:' . strtolower(\get_class($this->tusServerMock)) . ':')
             ->andReturnSelf();
 
         $this->tusServerMock->setCache($cacheMock);
@@ -559,7 +559,7 @@ class ServerTest extends TestCase
         $cacheMock
             ->shouldReceive('setPrefix')
             ->once()
-            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->with('tus:' . strtolower(\get_class($this->tusServerMock)) . ':')
             ->andReturnSelf();
 
         $this->tusServerMock->setCache($cacheMock);
@@ -603,7 +603,7 @@ class ServerTest extends TestCase
         $cacheMock
             ->shouldReceive('setPrefix')
             ->once()
-            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->with('tus:' . strtolower(\get_class($this->tusServerMock)) . ':')
             ->andReturnSelf();
 
         $this->tusServerMock->setCache($cacheMock);
@@ -651,7 +651,7 @@ class ServerTest extends TestCase
         $cacheMock
             ->shouldReceive('setPrefix')
             ->once()
-            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->with('tus:' . strtolower(\get_class($this->tusServerMock)) . ':')
             ->andReturnSelf();
 
         $this->tusServerMock->setCache($cacheMock);
@@ -699,7 +699,7 @@ class ServerTest extends TestCase
         $cacheMock
             ->shouldReceive('setPrefix')
             ->once()
-            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->with('tus:' . strtolower(\get_class($this->tusServerMock)) . ':')
             ->andReturnSelf();
 
         $this->tusServerMock->setCache($cacheMock);
@@ -918,7 +918,7 @@ class ServerTest extends TestCase
         $cacheMock
             ->shouldReceive('setPrefix')
             ->once()
-            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->with('tus:' . strtolower(\get_class($this->tusServerMock)) . ':')
             ->andReturnSelf();
 
         $cacheMock
@@ -1036,7 +1036,7 @@ class ServerTest extends TestCase
         $cacheMock
             ->shouldReceive('setPrefix')
             ->once()
-            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->with('tus:' . strtolower(\get_class($this->tusServerMock)) . ':')
             ->andReturnSelf();
 
         $cacheMock
@@ -1053,7 +1053,7 @@ class ServerTest extends TestCase
                 'offset' => 0,
                 'checksum' => $checksum,
                 'location' => $location,
-                'file_path' => dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . $fileName,
+                'file_path' => \dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . $fileName,
                 'metadata' => [
                     'filename' => $fileName,
                 ],
@@ -1148,7 +1148,7 @@ class ServerTest extends TestCase
         $cacheMock
             ->shouldReceive('setPrefix')
             ->once()
-            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->with('tus:' . strtolower(\get_class($this->tusServerMock)) . ':')
             ->andReturnSelf();
 
         $cacheMock
@@ -1314,7 +1314,7 @@ class ServerTest extends TestCase
         $cacheMock
             ->shouldReceive('setPrefix')
             ->once()
-            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->with('tus:' . strtolower(\get_class($this->tusServerMock)) . ':')
             ->andReturnSelf();
 
         $cacheMock
@@ -1412,7 +1412,7 @@ class ServerTest extends TestCase
         $cacheMock
             ->shouldReceive('setPrefix')
             ->once()
-            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->with('tus:' . strtolower(\get_class($this->tusServerMock)) . ':')
             ->andReturnSelf();
 
         $this->tusServerMock->setCache($cacheMock);
@@ -1442,7 +1442,7 @@ class ServerTest extends TestCase
             'size' => $fileSize,
             'offset' => 0,
             'checksum' => $checksum,
-            'file_path' => dirname(__DIR__) . DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR . $fileName,
+            'file_path' => \dirname(__DIR__) . DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR . $fileName,
             'metadata' => [
                 'filename' => $fileName,
             ],
@@ -1477,7 +1477,7 @@ class ServerTest extends TestCase
         $cacheMock
             ->shouldReceive('setPrefix')
             ->once()
-            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->with('tus:' . strtolower(\get_class($this->tusServerMock)) . ':')
             ->andReturnSelf();
 
         $this->tusServerMock->setCache($cacheMock);
@@ -1507,7 +1507,7 @@ class ServerTest extends TestCase
             'size' => $fileSize,
             'offset' => 0,
             'checksum' => $checksum,
-            'file_path' => dirname(__DIR__) . DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR . $fileName,
+            'file_path' => \dirname(__DIR__) . DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR . $fileName,
             'metadata' => [
                 'filename' => $fileName,
             ],
@@ -1580,7 +1580,7 @@ class ServerTest extends TestCase
         $cacheMock
             ->shouldReceive('setPrefix')
             ->once()
-            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->with('tus:' . strtolower(\get_class($this->tusServerMock)) . ':')
             ->andReturnSelf();
 
         $this->tusServerMock->setCache($cacheMock);
@@ -1610,7 +1610,7 @@ class ServerTest extends TestCase
             'size' => $fileSize,
             'offset' => 0,
             'checksum' => $checksum,
-            'file_path' => dirname(__DIR__) . DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR . $fileName,
+            'file_path' => \dirname(__DIR__) . DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR . $fileName,
             'metadata' => [
                 'filename' => $fileName,
             ],
@@ -1683,7 +1683,7 @@ class ServerTest extends TestCase
         $cacheMock
             ->shouldReceive('setPrefix')
             ->once()
-            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->with('tus:' . strtolower(\get_class($this->tusServerMock)) . ':')
             ->andReturnSelf();
 
         $this->tusServerMock->setCache($cacheMock);
@@ -1713,7 +1713,7 @@ class ServerTest extends TestCase
             'size' => $fileSize,
             'offset' => 0,
             'checksum' => $checksum,
-            'file_path' => dirname(__DIR__) . DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR . $fileName,
+            'file_path' => \dirname(__DIR__) . DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR . $fileName,
             'metadata' => [
                 'filename' => $fileName,
             ],
@@ -1786,7 +1786,7 @@ class ServerTest extends TestCase
         $cacheMock
             ->shouldReceive('setPrefix')
             ->once()
-            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->with('tus:' . strtolower(\get_class($this->tusServerMock)) . ':')
             ->andReturnSelf();
 
         $this->tusServerMock->setCache($cacheMock);
@@ -1814,7 +1814,7 @@ class ServerTest extends TestCase
             'name' => $fileName,
             'size' => $fileSize,
             'offset' => 0,
-            'file_path' => dirname(__DIR__) . DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR . $fileName,
+            'file_path' => \dirname(__DIR__) . DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR . $fileName,
             'metadata' => [
                 'filename' => $fileName,
             ],
@@ -1843,7 +1843,7 @@ class ServerTest extends TestCase
         $cacheMock
             ->shouldReceive('setPrefix')
             ->once()
-            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->with('tus:' . strtolower(\get_class($this->tusServerMock)) . ':')
             ->andReturnSelf();
 
         $this->tusServerMock->setCache($cacheMock);
@@ -1946,7 +1946,7 @@ class ServerTest extends TestCase
         $cacheMock
             ->shouldReceive('setPrefix')
             ->once()
-            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->with('tus:' . strtolower(\get_class($this->tusServerMock)) . ':')
             ->andReturnSelf();
 
         $this->tusServerMock->setCache($cacheMock);
@@ -2066,7 +2066,7 @@ class ServerTest extends TestCase
         $cacheMock
             ->shouldReceive('setPrefix')
             ->once()
-            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->with('tus:' . strtolower(\get_class($this->tusServerMock)) . ':')
             ->andReturnSelf();
 
         $this->tusServerMock->setCache($cacheMock);
@@ -2101,7 +2101,7 @@ class ServerTest extends TestCase
             'size' => $fileSize,
             'offset' => 0,
             'checksum' => $checksum,
-            'file_path' => dirname(__DIR__) . DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR . $fileName,
+            'file_path' => \dirname(__DIR__) . DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR . $fileName,
             'metadata' => [
                 'filename' => $fileName,
             ],
@@ -2185,7 +2185,7 @@ class ServerTest extends TestCase
         $cacheMock
             ->shouldReceive('setPrefix')
             ->once()
-            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->with('tus:' . strtolower(\get_class($this->tusServerMock)) . ':')
             ->andReturnSelf();
 
         $this->tusServerMock->setCache($cacheMock);
@@ -2301,7 +2301,7 @@ class ServerTest extends TestCase
         $cacheMock
             ->shouldReceive('setPrefix')
             ->once()
-            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->with('tus:' . strtolower(\get_class($this->tusServerMock)) . ':')
             ->andReturnSelf();
 
         $this->tusServerMock->setCache($cacheMock);
@@ -2341,7 +2341,7 @@ class ServerTest extends TestCase
         $cacheMock
             ->shouldReceive('setPrefix')
             ->once()
-            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->with('tus:' . strtolower(\get_class($this->tusServerMock)) . ':')
             ->andReturnSelf();
 
         $this->tusServerMock->setCache($cacheMock);
@@ -2383,7 +2383,7 @@ class ServerTest extends TestCase
         $cacheMock
             ->shouldReceive('setPrefix')
             ->once()
-            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->with('tus:' . strtolower(\get_class($this->tusServerMock)) . ':')
             ->andReturnSelf();
 
         $this->tusServerMock->setCache($cacheMock);
@@ -2439,7 +2439,7 @@ class ServerTest extends TestCase
         $cacheMock
             ->shouldReceive('setPrefix')
             ->once()
-            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->with('tus:' . strtolower(\get_class($this->tusServerMock)) . ':')
             ->andReturnSelf();
 
         $this->tusServerMock->setCache($cacheMock);
@@ -2481,7 +2481,7 @@ class ServerTest extends TestCase
         $cacheMock
             ->shouldReceive('setPrefix')
             ->once()
-            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->with('tus:' . strtolower(\get_class($this->tusServerMock)) . ':')
             ->andReturnSelf();
 
         $this->tusServerMock->setCache($cacheMock);
@@ -2522,7 +2522,7 @@ class ServerTest extends TestCase
         $cacheMock
             ->shouldReceive('setPrefix')
             ->once()
-            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->with('tus:' . strtolower(\get_class($this->tusServerMock)) . ':')
             ->andReturnSelf();
 
         $cacheMock
@@ -2569,7 +2569,7 @@ class ServerTest extends TestCase
         $cacheMock
             ->shouldReceive('setPrefix')
             ->once()
-            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->with('tus:' . strtolower(\get_class($this->tusServerMock)) . ':')
             ->andReturnSelf();
 
         $cacheMock
@@ -2646,7 +2646,7 @@ class ServerTest extends TestCase
     {
         $fileName  = 'file.txt';
         $fileSize  = 1024;
-        $filePath  = dirname(__DIR__) . DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR . $fileName;
+        $filePath  = \dirname(__DIR__) . DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR . $fileName;
         $location  = 'http://tus.local/uploads/file.txt';
         $createdAt = 'Fri, 08 Dec 2017 00:00:00 GMT';
         $expiresAt = 'Sat, 09 Dec 2017 00:00:00 GMT';
@@ -2931,7 +2931,7 @@ class ServerTest extends TestCase
         $cacheMock
             ->shouldReceive('setPrefix')
             ->once()
-            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->with('tus:' . strtolower(\get_class($this->tusServerMock)) . ':')
             ->andReturnSelf();
 
         $cacheMock
@@ -2987,7 +2987,7 @@ class ServerTest extends TestCase
      */
     public function it_doesnt_unlink_if_unable_to_delete_from_cache()
     {
-        $filePath  = dirname(__DIR__) . DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR . 'empty.txt';
+        $filePath  = \dirname(__DIR__) . DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR . 'empty.txt';
         $cacheMock = m::mock(FileStore::class);
 
         $cacheMock
@@ -3009,7 +3009,7 @@ class ServerTest extends TestCase
         $cacheMock
             ->shouldReceive('setPrefix')
             ->once()
-            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->with('tus:' . strtolower(\get_class($this->tusServerMock)) . ':')
             ->andReturnSelf();
 
         $cacheMock
@@ -3078,7 +3078,7 @@ class ServerTest extends TestCase
         $cacheMock
             ->shouldReceive('setPrefix')
             ->once()
-            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->with('tus:' . strtolower(\get_class($this->tusServerMock)) . ':')
             ->andReturnSelf();
 
         $this->tusServerMock->setCache($cacheMock);
@@ -3156,7 +3156,7 @@ class ServerTest extends TestCase
             'size' => $fileSize,
             'offset' => 0,
             'checksum' => $checksum,
-            'file_path' => dirname(__DIR__) . DIRECTORY_SEPARATOR . $fileName,
+            'file_path' => \dirname(__DIR__) . DIRECTORY_SEPARATOR . $fileName,
             'metadata' => [
                 'filename' => $fileName,
             ],
@@ -3185,7 +3185,7 @@ class ServerTest extends TestCase
         $cacheMock
             ->shouldReceive('setPrefix')
             ->once()
-            ->with('tus:' . strtolower(get_class($this->tusServerMock)) . ':')
+            ->with('tus:' . strtolower(\get_class($this->tusServerMock)) . ':')
             ->andReturnSelf();
 
         $this->tusServerMock->setCache($cacheMock);
