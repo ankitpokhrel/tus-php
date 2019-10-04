@@ -44,7 +44,7 @@
   "scripts": {
     "test": "phpunit",
     "test-coverage": "vendor/bin/phpunit --coverage-html ./coverage",
-    "cs-fixer": "vendor/bin/php-cs-fixer fix src/ --rules=@PSR2,not_operator_with_space,single_quote"
+    "cs-fixer": "vendor/bin/php-cs-fixer fix"
   },
   "bin": [
     "bin/tus"
