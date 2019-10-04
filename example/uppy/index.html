@@ -115,8 +115,8 @@
     .use(Uppy.Tus, {endpoint: 'http://0.0.0.0:8081/files/'})
     .run()
 
-  uppy.on('success', (fileCount) => {
-    console.log(`${fileCount} files uploaded`)
+  uppy.on('upload-success', (file, response) => {
+    uppy.setFileState(file.id, { uploadURL: `${response.url}/get` })
   })
 </script>
 </body>

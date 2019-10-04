@@ -195,6 +195,7 @@ class RequestTest extends TestCase
      *
      * @covers ::extractMeta
      * @covers ::extractFileName
+     * @covers ::extractAllMeta
      */
     public function it_extracts_metadata_from_multiple_concatenated_headers()
     {
@@ -218,12 +219,14 @@ class RequestTest extends TestCase
         $this->assertEquals($filename, $this->request->extractFileName());
         $this->assertEquals($fileType, $this->request->extractMeta('type'));
         $this->assertEquals($accept, $this->request->extractMeta('accept'));
+        $this->assertEquals(['filename'=> $filename, 'type' => $fileType, 'accept' => $accept], $this->request->extractAllMeta());
     }
 
     /**
      * @test
      *
      * @covers ::extractMeta
+     * @covers ::extractAllMeta
      */
     public function it_returns_empty_if_upload_metadata_header_not_present()
     {
@@ -235,6 +238,7 @@ class RequestTest extends TestCase
             ->set('Upload-Metadata', '');
 
         $this->assertEmpty($this->request->extractMeta('invalid-key'));
+        $this->assertEmpty($this->request->extractAllMeta());
     }
 
     /**
@@ -286,5 +290,38 @@ class RequestTest extends TestCase
     public function it_gets_request()
     {
         $this->assertInstanceOf(HttpRequest::class, $this->request->getRequest());
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::extractAllMeta
+     */
+    public function it_extracts_all_metadata()
+    {
+        $this->request->getRequest()->headers->set('Upload-Metadata', '');
+        $this->assertEmpty($this->request->extractAllMeta());
+
+        $uploadMetadata = array(
+            'filename' => 'file.txt',
+            'type' => 'image',
+            'accept'   => 'image/jpeg'
+        );
+
+        $this->request
+            ->getRequest()
+            ->headers
+            ->set(
+                'Upload-Metadata',
+                sprintf(
+                    'filename %s,type %s,accept %s',
+                    base64_encode($uploadMetadata['filename']),
+                    base64_encode($uploadMetadata['type']),
+                    base64_encode($uploadMetadata['accept'])
+                ),
+                true
+            );
+
+        $this->assertEquals($uploadMetadata, $this->request->extractAllMeta());
     }
 }

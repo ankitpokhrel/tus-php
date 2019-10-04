@@ -84,7 +84,7 @@ class Server extends AbstractTus
         $this->request    = new Request;
         $this->response   = new Response;
         $this->middleware = new Middleware;
-        $this->uploadDir  = dirname(__DIR__, 2) . '/' . 'uploads';
+        $this->uploadDir  = \dirname(__DIR__, 2) . '/' . 'uploads';
 
         $this->setCache($cacheAdapter);
     }
@@ -142,7 +142,7 @@ class Server extends AbstractTus
      */
     public function getServerChecksum(string $filePath) : string
     {
-        return hash_file($this->getChecksumAlgorithm(), $filePath);
+        return \hash_file($this->getChecksumAlgorithm(), $filePath);
     }
 
     /**
@@ -158,7 +158,7 @@ class Server extends AbstractTus
             return self::DEFAULT_CHECKSUM_ALGORITHM;
         }
 
-        list($checksumAlgorithm, /* $checksum */) = explode(' ', $checksumHeader);
+        list($checksumAlgorithm, /* $checksum */) = \explode(' ', $checksumHeader);
 
         return $checksumAlgorithm;
     }
@@ -258,7 +258,7 @@ class Server extends AbstractTus
 
         $requestMethod = $this->getRequest()->method();
 
-        if ( ! in_array($requestMethod, $this->getRequest()->allowedHttpVerbs())) {
+        if ( ! \in_array($requestMethod, $this->getRequest()->allowedHttpVerbs())) {
             return $this->response->send(null, HttpResponse::HTTP_METHOD_NOT_ALLOWED);
         }
 
@@ -270,7 +270,7 @@ class Server extends AbstractTus
             ]);
         }
 
-        $method = 'handle' . ucfirst(strtolower($requestMethod));
+        $method = 'handle' . \ucfirst(\strtolower($requestMethod));
 
         return $this->{$method}();
     }
@@ -297,9 +297,9 @@ class Server extends AbstractTus
     protected function handleOptions() : HttpResponse
     {
         $headers = [
-            'Allow' => implode(',', $this->request->allowedHttpVerbs()),
+            'Allow' => \implode(',', $this->request->allowedHttpVerbs()),
             'Tus-Version' => self::TUS_PROTOCOL_VERSION,
-            'Tus-Extension' => implode(',', self::TUS_EXTENSIONS),
+            'Tus-Extension' => \implode(',', self::TUS_EXTENSIONS),
             'Tus-Checksum-Algorithm' => $this->getSupportedHashAlgorithms(),
         ];
 
@@ -400,7 +400,7 @@ class Server extends AbstractTus
         $partials  = $this->getRequest()->extractPartials();
         $uploadKey = $this->getUploadKey();
         $files     = $this->getPartialsMeta($partials);
-        $filePaths = array_column($files, 'file_path');
+        $filePaths = \array_column($files, 'file_path');
         $location  = $this->getRequest()->url() . $this->getApiPath() . '/' . $uploadKey;
 
         $file = $this->buildFile([
@@ -553,8 +553,8 @@ class Server extends AbstractTus
      */
     protected function handleDownload()
     {
-        $path = explode('/', str_replace('/get', '', $this->request->path()));
-        $key  = end($path);
+        $path = \explode('/', \str_replace('/get', '', $this->request->path()));
+        $key  = \end($path);
 
         if ( ! $fileMeta = $this->cache->get($key)) {
             return $this->response->send('404 upload not found.', HttpResponse::HTTP_NOT_FOUND);
@@ -563,7 +563,7 @@ class Server extends AbstractTus
         $resource = $fileMeta['file_path'] ?? null;
         $fileName = $fileMeta['name'] ?? null;
 
-        if ( ! $resource || ! file_exists($resource)) {
+        if ( ! $resource || ! \file_exists($resource)) {
             return $this->response->send('404 upload not found.', HttpResponse::HTTP_NOT_FOUND);
         }
 
@@ -587,7 +587,7 @@ class Server extends AbstractTus
 
         $isDeleted = $this->cache->delete($key);
 
-        if ( ! $isDeleted || ! file_exists($resource)) {
+        if ( ! $isDeleted || ! \file_exists($resource)) {
             return $this->response->send(null, HttpResponse::HTTP_GONE);
         }
 
@@ -635,7 +635,7 @@ class Server extends AbstractTus
     {
         $file = new File($meta['name'], $this->cache);
 
-        if (array_key_exists('offset', $meta)) {
+        if (\array_key_exists('offset', $meta)) {
             $file->setMeta($meta['offset'], $meta['size'], $meta['file_path'], $meta['location']);
         }
 
@@ -653,14 +653,14 @@ class Server extends AbstractTus
 
         $algorithms = [];
         foreach ($supportedAlgorithms as $hashAlgo) {
-            if (false !== strpos($hashAlgo, ',')) {
+            if (false !== \strpos($hashAlgo, ',')) {
                 $algorithms[] = "'{$hashAlgo}'";
             } else {
                 $algorithms[] = $hashAlgo;
             }
         }
 
-        return implode(',', $algorithms);
+        return \implode(',', $algorithms);
     }
 
     /**
@@ -676,11 +676,11 @@ class Server extends AbstractTus
             return '';
         }
 
-        list($checksumAlgorithm, $checksum) = explode(' ', $checksumHeader);
+        list($checksumAlgorithm, $checksum) = \explode(' ', $checksumHeader);
 
         $checksum = base64_decode($checksum);
 
-        if ( ! in_array($checksumAlgorithm, hash_algos()) || false === $checksum) {
+        if ( ! \in_array($checksumAlgorithm, hash_algos()) || false === $checksum) {
             return $this->response->send(null, HttpResponse::HTTP_BAD_REQUEST);
         }
 
@@ -714,12 +714,12 @@ class Server extends AbstractTus
      */
     protected function getPathForPartialUpload(string $key) : string
     {
-        list($actualKey, /* $partialUploadKey */) = explode(self::PARTIAL_UPLOAD_NAME_SEPARATOR, $key);
+        list($actualKey, /* $partialUploadKey */) = \explode(self::PARTIAL_UPLOAD_NAME_SEPARATOR, $key);
 
         $path = $this->uploadDir . '/' . $actualKey . '/';
 
-        if ( ! file_exists($path)) {
-            mkdir($path);
+        if ( ! \file_exists($path)) {
+            \mkdir($path);
         }
 
         return $path;
@@ -766,7 +766,7 @@ class Server extends AbstractTus
                 continue;
             }
 
-            if (is_writable($fileMeta['file_path'])) {
+            if (\is_writable($fileMeta['file_path'])) {
                 unlink($fileMeta['file_path']);
             }
 
