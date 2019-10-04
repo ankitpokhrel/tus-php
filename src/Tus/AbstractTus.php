@@ -52,7 +52,7 @@ abstract class AbstractTus
             $this->cache = $cache;
         }
 
-        $prefix = 'tus:' . \strtolower((new \ReflectionClass(static::class))->getShortName()) . ':';
+        $prefix = 'tus:' . strtolower((new \ReflectionClass(static::class))->getShortName()) . ':';
 
         $this->cache->setPrefix($prefix);
 

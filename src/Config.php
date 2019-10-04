@@ -46,7 +46,7 @@ class Config
             return self::$config;
         }
 
-        $keys  = \explode('.', $key);
+        $keys  = explode('.', $key);
         $value = self::$config;
 
         foreach ($keys as $key) {

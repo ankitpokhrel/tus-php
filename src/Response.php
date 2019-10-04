@@ -99,10 +99,10 @@ class Response
      */
     public function send($content, int $status = HttpResponse::HTTP_OK, array $headers = []) : HttpResponse
     {
-        $headers = \array_merge($this->headers, $headers);
+        $headers = array_merge($this->headers, $headers);
 
         if (\is_array($content)) {
-            $content = \json_encode($content);
+            $content = json_encode($content);
         }
 
         $response = $this->response->create($content, $status, $headers);
