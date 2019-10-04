@@ -377,19 +377,14 @@ class Server extends AbstractTus
 
         $this->cache->set($uploadKey, $file->details() + ['upload_type' => $uploadType]);
 
-        $this->event()->dispatch(
-            UploadCreated::NAME,
-            new UploadCreated($file, $this->getRequest(), $this->getResponse())
-        );
+        $headers = [
+            'Location' => $location,
+            'Upload-Expires' => $this->cache->get($uploadKey)['expires_at'],
+        ];
 
-        return $this->response->send(
-            null,
-            HttpResponse::HTTP_CREATED,
-            [
-                'Location' => $location,
-                'Upload-Expires' => $this->cache->get($uploadKey)['expires_at'],
-            ]
-        );
+        $this->event()->dispatch(UploadCreated::NAME, new UploadCreated($file, $this->getRequest(), $this->getResponse()->setHeaders($headers)));
+
+        return $this->response->send(null, HttpResponse::HTTP_CREATED, $headers);
     }
 
     /**
