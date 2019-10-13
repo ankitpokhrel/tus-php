@@ -115,8 +115,8 @@ $server->setMaxUploadSize(100000000); // 100 MB in bytes
 Default redis and file configuration for server and client can be found inside `config/server.php` and `config/client.php` respectively.
 To override default config you can simply copy the file to your preferred location and update the parameters. You then need to set the config before doing anything else.
 
-```
-\TusPhp\Config::set(<path to your config>);
+```php
+\TusPhp\Config::set('<path to your config>');
 
 $server = new \TusPhp\Tus\Server('redis');
 ```
