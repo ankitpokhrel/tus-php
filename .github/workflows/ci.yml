@@ -12,7 +12,7 @@ jobs:
     
     steps:
     - uses: actions/checkout@v1
-    - name: CS Fixer
+    - name: Code Style
       run: |
         composer install 
-        composer cs-fixer
+        composer lint
