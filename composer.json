@@ -44,7 +44,8 @@
   "scripts": {
     "test": "phpunit",
     "test-coverage": "vendor/bin/phpunit --coverage-html ./coverage",
-    "cs-fixer": "vendor/bin/php-cs-fixer fix"
+    "cs-fixer": "vendor/bin/php-cs-fixer fix",
+    "lint": "vendor/bin/php-cs-fixer fix --diff --dry-run"
   },
   "bin": [
     "bin/tus"
