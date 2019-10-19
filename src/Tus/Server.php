@@ -22,22 +22,22 @@ use Symfony\Component\HttpFoundation\Response as HttpResponse;
 class Server extends AbstractTus
 {
     /** @const string Tus Creation Extension */
-    const TUS_EXTENSION_CREATION = 'creation';
+    public const TUS_EXTENSION_CREATION = 'creation';
 
     /** @const string Tus Termination Extension */
-    const TUS_EXTENSION_TERMINATION = 'termination';
+    public const TUS_EXTENSION_TERMINATION = 'termination';
 
     /** @const string Tus Checksum Extension */
-    const TUS_EXTENSION_CHECKSUM = 'checksum';
+    public const TUS_EXTENSION_CHECKSUM = 'checksum';
 
     /** @const string Tus Expiration Extension */
-    const TUS_EXTENSION_EXPIRATION = 'expiration';
+    public const TUS_EXTENSION_EXPIRATION = 'expiration';
 
     /** @const string Tus Concatenation Extension */
-    const TUS_EXTENSION_CONCATENATION = 'concatenation';
+    public const TUS_EXTENSION_CONCATENATION = 'concatenation';
 
     /** @const array All supported tus extensions */
-    const TUS_EXTENSIONS = [
+    public const TUS_EXTENSIONS = [
         self::TUS_EXTENSION_CREATION,
         self::TUS_EXTENSION_TERMINATION,
         self::TUS_EXTENSION_CHECKSUM,
@@ -46,10 +46,10 @@ class Server extends AbstractTus
     ];
 
     /** @const int 460 Checksum Mismatch */
-    const HTTP_CHECKSUM_MISMATCH = 460;
+    private const HTTP_CHECKSUM_MISMATCH = 460;
 
     /** @const string Default checksum algorithm */
-    const DEFAULT_CHECKSUM_ALGORITHM = 'sha256';
+    private const DEFAULT_CHECKSUM_ALGORITHM = 'sha256';
 
     /** @var Request */
     protected $request;
@@ -158,7 +158,7 @@ class Server extends AbstractTus
             return self::DEFAULT_CHECKSUM_ALGORITHM;
         }
 
-        list($checksumAlgorithm, /* $checksum */) = explode(' ', $checksumHeader);
+        [$checksumAlgorithm, /* $checksum */] = explode(' ', $checksumHeader);
 
         return $checksumAlgorithm;
     }
@@ -676,11 +676,11 @@ class Server extends AbstractTus
             return '';
         }
 
-        list($checksumAlgorithm, $checksum) = explode(' ', $checksumHeader);
+        [$checksumAlgorithm, $checksum] = explode(' ', $checksumHeader);
 
         $checksum = base64_decode($checksum);
 
-        if ( ! \in_array($checksumAlgorithm, hash_algos()) || false === $checksum) {
+        if (false === $checksum || ! \in_array($checksumAlgorithm, hash_algos(), true)) {
             return $this->response->send(null, HttpResponse::HTTP_BAD_REQUEST);
         }
 
@@ -714,7 +714,7 @@ class Server extends AbstractTus
      */
     protected function getPathForPartialUpload(string $key) : string
     {
-        list($actualKey, /* $partialUploadKey */) = explode(self::PARTIAL_UPLOAD_NAME_SEPARATOR, $key);
+        [$actualKey, /* $partialUploadKey */] = explode(self::PARTIAL_UPLOAD_NAME_SEPARATOR, $key);
 
         $path = $this->uploadDir . '/' . $actualKey . '/';
 

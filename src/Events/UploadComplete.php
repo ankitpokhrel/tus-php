@@ -9,7 +9,7 @@ use TusPhp\Response;
 class UploadComplete extends TusEvent
 {
     /** @var string */
-    const NAME = 'tus-server.upload.complete';
+    public const NAME = 'tus-server.upload.complete';
 
     /**
      * UploadCompleteEvent constructor.

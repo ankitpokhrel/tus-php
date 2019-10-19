@@ -30,7 +30,7 @@ use Symfony\Component\HttpFoundation\Response as HttpResponse;
 class ServerTest extends TestCase
 {
     /** @const array */
-    const ALLOWED_HTTP_VERBS = ['GET', 'POST', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'];
+    private const ALLOWED_HTTP_VERBS = ['GET', 'POST', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'];
 
     /** @var TusServer */
     protected $tusServer;

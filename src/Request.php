@@ -75,7 +75,7 @@ class Request
      *
      * @return string|null
      */
-    public function header(string $key, $default = null)
+    public function header(string $key, $default = null) : ?string
     {
         return $this->request->headers->get($key, $default);
     }
@@ -145,7 +145,7 @@ class Request
         $uploadMetaDataChunks = explode(',', $uploadMetaData);
 
         foreach ($uploadMetaDataChunks as $chunk) {
-            list($key, $value) = explode(' ', $chunk);
+            [$key, $value] = explode(' ', $chunk);
 
             if ($key === $requestedKey) {
                 return base64_decode($value);
@@ -172,7 +172,7 @@ class Request
 
         $result = [];
         foreach ($uploadMetaDataChunks as $chunk) {
-            list($key, $value) = explode(' ', $chunk);
+            [$key, $value] = explode(' ', $chunk);
 
             $result[$key] = base64_decode($value);
         }
