@@ -9,22 +9,22 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 abstract class AbstractTus
 {
     /** @const string Tus protocol version. */
-    const TUS_PROTOCOL_VERSION = '1.0.0';
-
-    /** @const string Name separator for partial upload. */
-    const PARTIAL_UPLOAD_NAME_SEPARATOR = '_';
-
-    /** @const string Upload type normal. */
-    const UPLOAD_TYPE_NORMAL = 'normal';
+    public const TUS_PROTOCOL_VERSION = '1.0.0';
 
     /** @const string Upload type partial. */
-    const UPLOAD_TYPE_PARTIAL = 'partial';
+    public const UPLOAD_TYPE_PARTIAL = 'partial';
 
     /** @const string Upload type final. */
-    const UPLOAD_TYPE_FINAL = 'final';
+    public const UPLOAD_TYPE_FINAL = 'final';
+
+    /** @const string Name separator for partial upload. */
+    protected const PARTIAL_UPLOAD_NAME_SEPARATOR = '_';
+
+    /** @const string Upload type normal. */
+    protected const UPLOAD_TYPE_NORMAL = 'normal';
 
     /** @const string Header Content Type */
-    const HEADER_CONTENT_TYPE = 'application/offset+octet-stream';
+    protected const HEADER_CONTENT_TYPE = 'application/offset+octet-stream';
 
     /** @var Cacheable */
     protected $cache;

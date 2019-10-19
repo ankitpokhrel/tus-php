@@ -470,7 +470,7 @@ class FileTest extends TestCase
 
         $this->file->setFilePath($mergedFilePath)->merge($files);
 
-        $this->assertTrue(file_exists($mergedFilePath));
+        $this->assertFileExists($mergedFilePath);
         $this->assertEquals('123', file_get_contents($mergedFilePath));
         $this->assertEquals(60, $this->file->getOffset());
         $this->assertEquals(3, $this->file->getFileSize());
@@ -497,7 +497,7 @@ class FileTest extends TestCase
 
         $this->file->delete($files, true);
 
-        $this->assertFalse(file_exists($path));
+        $this->assertFileNotExists($path);
     }
 
     /**
@@ -544,11 +544,11 @@ class FileTest extends TestCase
         $this->file->delete($files);
 
         foreach ($files as $file) {
-            $this->assertFalse(file_exists($file));
+            $this->assertFileNotExists($file);
         }
 
-        $this->assertTrue(file_exists($path));
-        $this->assertTrue(is_dir($path));
+        $this->assertFileExists($path);
+        $this->assertDirectoryExists($path);
 
         return $path;
     }
@@ -565,7 +565,7 @@ class FileTest extends TestCase
     {
         $this->file->delete([], true);
 
-        $this->assertTrue(file_exists($path));
+        $this->assertFileExists($path);
     }
 
     /**
@@ -580,7 +580,7 @@ class FileTest extends TestCase
     {
         $this->file->delete(["$path/1"], true);
 
-        $this->assertFalse(file_exists($path));
+        $this->assertFileNotExists($path);
     }
 
     /**

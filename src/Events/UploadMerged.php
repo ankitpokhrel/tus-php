@@ -9,7 +9,7 @@ use TusPhp\Response;
 class UploadMerged extends TusEvent
 {
     /** @var string */
-    const NAME = 'tus-server.upload.merged';
+    public const NAME = 'tus-server.upload.merged';
 
     /**
      * UploadMergedEvent constructor.

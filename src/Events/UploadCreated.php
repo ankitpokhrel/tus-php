@@ -9,7 +9,7 @@ use TusPhp\Response;
 class UploadCreated extends TusEvent
 {
     /** @var string */
-    const NAME = 'tus-server.upload.created';
+    public const NAME = 'tus-server.upload.created';
 
     /**
      * UploadCreatedEvent constructor.

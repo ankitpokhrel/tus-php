@@ -11,16 +11,16 @@ use TusPhp\Exception\OutOfRangeException;
 class File
 {
     /** @const Max chunk size */
-    const CHUNK_SIZE = 8192; // 8 kilobytes.
+    public const CHUNK_SIZE = 8192; // 8 kilobytes.
 
     /** @const Input stream */
-    const INPUT_STREAM = 'php://input';
+    public const INPUT_STREAM = 'php://input';
 
     /** @const Read binary mode */
-    const READ_BINARY = 'rb';
+    public const READ_BINARY = 'rb';
 
     /** @const Append binary mode */
-    const APPEND_BINARY = 'ab';
+    public const APPEND_BINARY = 'ab';
 
     /** @var string */
     protected $key;
