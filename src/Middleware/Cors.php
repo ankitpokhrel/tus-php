@@ -8,7 +8,7 @@ use TusPhp\Response;
 class Cors implements TusMiddleware
 {
     /** @const int 24 hours access control max age header */
-    const HEADER_ACCESS_CONTROL_MAX_AGE = 86400;
+    private const HEADER_ACCESS_CONTROL_MAX_AGE = 86400;
 
     /**
      * {@inheritDoc}

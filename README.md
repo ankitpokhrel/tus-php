@@ -200,18 +200,19 @@ upload.start()
 
 #### Cloud Providers
 Many cloud providers implement PHP [streamWrapper](https://www.php.net/manual/en/class.streamwrapper.php) interface that enables us to store and retrieve data from these providers using built-in PHP functions. Since tus-php relies on PHP's built-in filesystem functions, we can easily use it to upload files to the providers like [Amazon S3](https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/s3-stream-wrapper.html) if their API supports writing in append binary mode. An example implementation to upload files directly to S3 bucket is as follows:
+
 ```php
 // server.php
 // composer require aws/aws-sdk-php
 
 use Aws\S3\S3Client;
-use Aws\Credentials\Credentials;
 use TusPhp\Tus\Server;
+use Aws\Credentials\Credentials;
 
 $awsAccessKey = 'AWS_ACCESS_KEY'; // YOUR AWS ACCESS KEY
 $awsSecretKey = 'AWS_SECRET_KEY'; // YOUR AWS SECRET KEY
-$awsRegion = 'eu-west-1'; // YOUR AWS BUCKET REGION
-$basePath = 's3://your-bucket-name';
+$awsRegion    = 'eu-west-1';      // YOUR AWS BUCKET REGION
+$basePath     = 's3://your-bucket-name';
 
 $s3Client = new S3Client([
     'version' => 'latest',
@@ -237,7 +238,9 @@ exit(0);
 - [x] This Concatenation extension is implemented except that the server is not capable of handling unfinished concatenation.
 
 #### Expiration
-The Server is capable of removing expired but unfinished uploads. You can use the following command manually or in a cron job to remove them.
+The Server is capable of removing expired but unfinished uploads. You can use the following command manually or in a
+cron job to remove them. Note that this command checks your cache storage to find expired uploads. So, make sure
+to run it before the cache is expired, else it will not find all files that needs to be cleared.
 
 ```shell
 $ ./vendor/bin/tus tus:expired --help

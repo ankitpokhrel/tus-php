@@ -9,7 +9,7 @@ use TusPhp\Response;
 class UploadProgress extends TusEvent
 {
     /** @var string */
-    const NAME = 'tus-server.upload.progress';
+    public const NAME = 'tus-server.upload.progress';
 
     /**
      * UploadProgressEvent constructor.

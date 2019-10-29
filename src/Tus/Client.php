@@ -522,7 +522,7 @@ class Client extends AbstractTus
         $key = $this->getKey();
 
         if (false !== strpos($key, self::PARTIAL_UPLOAD_NAME_SEPARATOR)) {
-            list($key, /* $partialKey */) = explode(self::PARTIAL_UPLOAD_NAME_SEPARATOR, $key);
+            [$key, /* $partialKey */] = explode(self::PARTIAL_UPLOAD_NAME_SEPARATOR, $key);
         }
 
         $this->key = $key . self::PARTIAL_UPLOAD_NAME_SEPARATOR . Uuid::uuid4()->toString();
@@ -633,7 +633,7 @@ class Client extends AbstractTus
 
         $file->close($handle);
 
-        return (string) $data;
+        return $data;
     }
 
     /**

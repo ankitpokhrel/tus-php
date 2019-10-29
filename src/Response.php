@@ -105,7 +105,7 @@ class Response
             $content = json_encode($content);
         }
 
-        $response = $this->response->create($content, $status, $headers);
+        $response = $this->response::create($content, $status, $headers);
 
         return $this->createOnly ? $response : $response->send();
     }
@@ -130,7 +130,7 @@ class Response
 
         $response->prepare(HttpRequest::createFromGlobals());
 
-        if ( ! \is_null($name)) {
+        if ($name !== null) {
             $response = $response->setContentDisposition(
                 $disposition,
                 $name
