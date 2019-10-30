@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@master
 
       - name: Update dependencies with composer
-        run: php7.3 composer update --no-interaction --no-ansi --no-progress --no-suggest
+        run: composer update --no-interaction --no-ansi --no-progress --no-suggest
 
 
       - name: Run friendsofphp/php-cs-fixer
