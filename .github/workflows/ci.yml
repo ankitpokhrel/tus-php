@@ -1,18 +1,22 @@
-name: CI
+# https://help.github.com/en/categories/automating-your-workflow-with-github-actions
 
 on:
-  pull_request:
-    branches:
-    - master
+  - push
+  - pull_request
+
+name: CI
 
 jobs:
-  fixer:
-
+  coding-guidelines:
+    name: Coding Guidelines
     runs-on: ubuntu-latest
-    
     steps:
-    - uses: actions/checkout@v1
-    - name: Code Style
-      run: |
-        composer install 
-        composer lint
+      - name: Checkout
+        uses: actions/checkout@master
+
+      - name: Update dependencies with composer
+        run: composer update --no-interaction --no-ansi --no-progress --no-suggest
+
+
+      - name: Run friendsofphp/php-cs-fixer
+        run: php7.3 ./vendor/bin/php-cs-fixer fix --diff-format=udiff --dry-run --show-progress=dots --using-cache=no --verbose
