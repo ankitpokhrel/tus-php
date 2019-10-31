@@ -365,7 +365,7 @@ class Server extends AbstractTus
         }
 
         $checksum = $this->getClientChecksum();
-        $location = $this->getRequest()->url() . $this->getApiPath() . '/' . $uploadKey;
+        $location = $this->getApiUrl() . $this->getApiPath() . '/' . $uploadKey;
 
         $file = $this->buildFile([
             'name' => $fileName,
@@ -401,7 +401,7 @@ class Server extends AbstractTus
         $uploadKey = $this->getUploadKey();
         $files     = $this->getPartialsMeta($partials);
         $filePaths = array_column($files, 'file_path');
-        $location  = $this->getRequest()->url() . $this->getApiPath() . '/' . $uploadKey;
+        $location  = $this->getApiUrl() . $this->getApiPath() . '/' . $uploadKey;
 
         $file = $this->buildFile([
             'name' => $fileName,
