@@ -96,7 +96,7 @@ class Server extends AbstractTus
      *
      * @return Server
      */
-    public function setUploadDir(string $path) : self
+    public function setUploadDir(string $path): self
     {
         $this->uploadDir = $path;
 
@@ -108,7 +108,7 @@ class Server extends AbstractTus
      *
      * @return string
      */
-    public function getUploadDir() : string
+    public function getUploadDir(): string
     {
         return $this->uploadDir;
     }
@@ -118,7 +118,7 @@ class Server extends AbstractTus
      *
      * @return Request
      */
-    public function getRequest() : Request
+    public function getRequest(): Request
     {
         return $this->request;
     }
@@ -128,7 +128,7 @@ class Server extends AbstractTus
      *
      * @return Response
      */
-    public function getResponse() : Response
+    public function getResponse(): Response
     {
         return $this->response;
     }
@@ -140,7 +140,7 @@ class Server extends AbstractTus
      *
      * @return string
      */
-    public function getServerChecksum(string $filePath) : string
+    public function getServerChecksum(string $filePath): string
     {
         return hash_file($this->getChecksumAlgorithm(), $filePath);
     }
@@ -150,7 +150,7 @@ class Server extends AbstractTus
      *
      * @return string|null
      */
-    public function getChecksumAlgorithm() : ?string
+    public function getChecksumAlgorithm(): ?string
     {
         $checksumHeader = $this->getRequest()->header('Upload-Checksum');
 
@@ -170,7 +170,7 @@ class Server extends AbstractTus
      *
      * @return Server
      */
-    public function setUploadKey(string $key) : self
+    public function setUploadKey(string $key): self
     {
         $this->uploadKey = $key;
 
@@ -184,7 +184,7 @@ class Server extends AbstractTus
      */
     public function getUploadKey()
     {
-        if ( ! empty($this->uploadKey)) {
+        if (!empty($this->uploadKey)) {
             return $this->uploadKey;
         }
 
@@ -206,7 +206,7 @@ class Server extends AbstractTus
      *
      * @return self
      */
-    public function setMiddleware(Middleware $middleware) : self
+    public function setMiddleware(Middleware $middleware): self
     {
         $this->middleware = $middleware;
 
@@ -218,7 +218,7 @@ class Server extends AbstractTus
      *
      * @return Middleware
      */
-    public function middleware() : Middleware
+    public function middleware(): Middleware
     {
         return $this->middleware;
     }
@@ -230,7 +230,7 @@ class Server extends AbstractTus
      *
      * @return Server
      */
-    public function setMaxUploadSize(int $uploadSize) : self
+    public function setMaxUploadSize(int $uploadSize): self
     {
         $this->maxUploadSize = $uploadSize;
 
@@ -242,7 +242,7 @@ class Server extends AbstractTus
      *
      * @return int
      */
-    public function getMaxUploadSize() : int
+    public function getMaxUploadSize(): int
     {
         return $this->maxUploadSize;
     }
@@ -258,7 +258,7 @@ class Server extends AbstractTus
 
         $requestMethod = $this->getRequest()->method();
 
-        if ( ! \in_array($requestMethod, $this->getRequest()->allowedHttpVerbs())) {
+        if (!\in_array($requestMethod, $this->getRequest()->allowedHttpVerbs())) {
             return $this->response->send(null, HttpResponse::HTTP_METHOD_NOT_ALLOWED);
         }
 
@@ -294,7 +294,7 @@ class Server extends AbstractTus
      *
      * @return HttpResponse
      */
-    protected function handleOptions() : HttpResponse
+    protected function handleOptions(): HttpResponse
     {
         $headers = [
             'Allow' => implode(',', $this->request->allowedHttpVerbs()),
@@ -317,11 +317,11 @@ class Server extends AbstractTus
      *
      * @return HttpResponse
      */
-    protected function handleHead() : HttpResponse
+    protected function handleHead(): HttpResponse
     {
         $key = $this->request->key();
 
-        if ( ! $fileMeta = $this->cache->get($key)) {
+        if (!$fileMeta = $this->cache->get($key)) {
             return $this->response->send(null, HttpResponse::HTTP_NOT_FOUND);
         }
 
@@ -339,7 +339,7 @@ class Server extends AbstractTus
      *
      * @return HttpResponse
      */
-    protected function handlePost() : HttpResponse
+    protected function handlePost(): HttpResponse
     {
         $fileName   = $this->getRequest()->extractFileName();
         $uploadType = self::UPLOAD_TYPE_NORMAL;
@@ -348,7 +348,7 @@ class Server extends AbstractTus
             return $this->response->send(null, HttpResponse::HTTP_BAD_REQUEST);
         }
 
-        if ( ! $this->verifyUploadSize()) {
+        if (!$this->verifyUploadSize()) {
             return $this->response->send(null, HttpResponse::HTTP_REQUEST_ENTITY_TOO_LARGE);
         }
 
@@ -395,7 +395,7 @@ class Server extends AbstractTus
      *
      * @return HttpResponse
      */
-    protected function handleConcatenation(string $fileName, string $filePath) : HttpResponse
+    protected function handleConcatenation(string $fileName, string $filePath): HttpResponse
     {
         $partials  = $this->getRequest()->extractPartials();
         $uploadKey = $this->getUploadKey();
@@ -447,11 +447,11 @@ class Server extends AbstractTus
      *
      * @return HttpResponse
      */
-    protected function handlePatch() : HttpResponse
+    protected function handlePatch(): HttpResponse
     {
         $uploadKey = $this->request->key();
 
-        if ( ! $meta = $this->cache->get($uploadKey)) {
+        if (!$meta = $this->cache->get($uploadKey)) {
             return $this->response->send(null, HttpResponse::HTTP_GONE);
         }
 
@@ -470,7 +470,7 @@ class Server extends AbstractTus
 
             // If upload is done, verify checksum.
             if ($offset === $fileSize) {
-                if ( ! $this->verifyChecksum($checksum, $meta['file_path'])) {
+                if (!$this->verifyChecksum($checksum, $meta['file_path'])) {
                     return $this->response->send(null, self::HTTP_CHECKSUM_MISMATCH);
                 }
 
@@ -506,7 +506,7 @@ class Server extends AbstractTus
      *
      * @return int
      */
-    protected function verifyPatchRequest(array $meta) : int
+    protected function verifyPatchRequest(array $meta): int
     {
         if (self::UPLOAD_TYPE_FINAL === $meta['upload_type']) {
             return HttpResponse::HTTP_FORBIDDEN;
@@ -556,14 +556,14 @@ class Server extends AbstractTus
         $path = explode('/', str_replace('/get', '', $this->request->path()));
         $key  = end($path);
 
-        if ( ! $fileMeta = $this->cache->get($key)) {
+        if (!$fileMeta = $this->cache->get($key)) {
             return $this->response->send('404 upload not found.', HttpResponse::HTTP_NOT_FOUND);
         }
 
         $resource = $fileMeta['file_path'] ?? null;
         $fileName = $fileMeta['name'] ?? null;
 
-        if ( ! $resource || ! file_exists($resource)) {
+        if (!$resource || !file_exists($resource)) {
             return $this->response->send('404 upload not found.', HttpResponse::HTTP_NOT_FOUND);
         }
 
@@ -575,19 +575,19 @@ class Server extends AbstractTus
      *
      * @return HttpResponse
      */
-    protected function handleDelete() : HttpResponse
+    protected function handleDelete(): HttpResponse
     {
         $key      = $this->request->key();
         $fileMeta = $this->cache->get($key);
         $resource = $fileMeta['file_path'] ?? null;
 
-        if ( ! $resource) {
+        if (!$resource) {
             return $this->response->send(null, HttpResponse::HTTP_NOT_FOUND);
         }
 
         $isDeleted = $this->cache->delete($key);
 
-        if ( ! $isDeleted || ! file_exists($resource)) {
+        if (!$isDeleted || !file_exists($resource)) {
             return $this->response->send(null, HttpResponse::HTTP_GONE);
         }
 
@@ -605,7 +605,7 @@ class Server extends AbstractTus
      *
      * @return array
      */
-    protected function getHeadersForHeadRequest(array $fileMeta) : array
+    protected function getHeadersForHeadRequest(array $fileMeta): array
     {
         $headers = [
             'Upload-Length' => (int) $fileMeta['size'],
@@ -631,7 +631,7 @@ class Server extends AbstractTus
      *
      * @return File
      */
-    protected function buildFile(array $meta) : File
+    protected function buildFile(array $meta): File
     {
         $file = new File($meta['name'], $this->cache);
 
@@ -647,7 +647,7 @@ class Server extends AbstractTus
      *
      * @return string
      */
-    protected function getSupportedHashAlgorithms() : string
+    protected function getSupportedHashAlgorithms(): string
     {
         $supportedAlgorithms = hash_algos();
 
@@ -680,7 +680,7 @@ class Server extends AbstractTus
 
         $checksum = base64_decode($checksum);
 
-        if (false === $checksum || ! \in_array($checksumAlgorithm, hash_algos(), true)) {
+        if (false === $checksum || !\in_array($checksumAlgorithm, hash_algos(), true)) {
             return $this->response->send(null, HttpResponse::HTTP_BAD_REQUEST);
         }
 
@@ -694,7 +694,7 @@ class Server extends AbstractTus
      *
      * @return bool
      */
-    protected function isExpired($contents) : bool
+    protected function isExpired($contents): bool
     {
         $isExpired = empty($contents['expires_at']) || Carbon::parse($contents['expires_at'])->lt(Carbon::now());
 
@@ -712,13 +712,13 @@ class Server extends AbstractTus
      *
      * @return string
      */
-    protected function getPathForPartialUpload(string $key) : string
+    protected function getPathForPartialUpload(string $key): string
     {
         [$actualKey, /* $partialUploadKey */] = explode(self::PARTIAL_UPLOAD_NAME_SEPARATOR, $key);
 
         $path = $this->uploadDir . '/' . $actualKey . '/';
 
-        if ( ! file_exists($path)) {
+        if (!file_exists($path)) {
             mkdir($path);
         }
 
@@ -732,7 +732,7 @@ class Server extends AbstractTus
      *
      * @return array
      */
-    protected function getPartialsMeta(array $partials) : array
+    protected function getPartialsMeta(array $partials): array
     {
         $files = [];
 
@@ -750,7 +750,7 @@ class Server extends AbstractTus
      *
      * @return array
      */
-    public function handleExpiration() : array
+    public function handleExpiration(): array
     {
         $deleted   = [];
         $cacheKeys = $this->cache->keys();
@@ -758,11 +758,11 @@ class Server extends AbstractTus
         foreach ($cacheKeys as $key) {
             $fileMeta = $this->cache->get($key, true);
 
-            if ( ! $this->isExpired($fileMeta)) {
+            if (!$this->isExpired($fileMeta)) {
                 continue;
             }
 
-            if ( ! $this->cache->delete($key)) {
+            if (!$this->cache->delete($key)) {
                 continue;
             }
 
@@ -777,11 +777,44 @@ class Server extends AbstractTus
     }
 
     /**
+     * Get API URL
+     * 
+     * @return string
+     */
+
+    public function getApiUrl(): string
+    {
+
+        $url = $this->apiUrl;
+
+        if (!$url) {
+            $url = $this->getRequest()->url();
+        }
+
+        return $url;
+    }
+
+
+    /**
+     * Set API URL
+     * 
+     * @param string $url
+     *
+     * @return self
+     */
+    public function setApiUrl(string $url): self
+    {
+        $this->apiUrl = $url;
+
+        return $this;
+    }
+
+    /**
      * Verify max upload size.
      *
      * @return bool
      */
-    protected function verifyUploadSize() : bool
+    protected function verifyUploadSize(): bool
     {
         $maxUploadSize = $this->getMaxUploadSize();
 
@@ -800,7 +833,7 @@ class Server extends AbstractTus
      *
      * @return bool
      */
-    protected function verifyChecksum(string $checksum, string $filePath) : bool
+    protected function verifyChecksum(string $checksum, string $filePath): bool
     {
         // Skip if checksum is empty.
         if (empty($checksum)) {
