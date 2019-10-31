@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<files psalm-version="3.6.2@05ace258176795e87ef07b4262b5ceba3fd27de3">
+  <file src="src/Cache/FileStore.php">
+    <PossiblyInvalidArrayAccess occurrences="3">
+      <code>$contents[$key]</code>
+      <code>$contents[$cacheKey]</code>
+      <code>$this-&gt;getCacheContents()[$key]</code>
+    </PossiblyInvalidArrayAccess>
+  </file>
+  <file src="src/Commands/ExpirationCommand.php">
+    <InvalidOperand occurrences="1">
+      <code>$key</code>
+    </InvalidOperand>
+    <InvalidScalarArgument occurrences="1">
+      <code>$config</code>
+    </InvalidScalarArgument>
+    <PossiblyInvalidArgument occurrences="1">
+      <code>$cacheAdapter</code>
+    </PossiblyInvalidArgument>
+  </file>
+  <file src="src/File.php">
+    <InvalidArgument occurrences="4">
+      <code>$output</code>
+      <code>$input</code>
+      <code>$output</code>
+      <code>$handle</code>
+    </InvalidArgument>
+    <PossiblyNullPropertyAssignmentValue occurrences="3">
+      <code>$name</code>
+      <code>$cache</code>
+      <code>$location</code>
+    </PossiblyNullPropertyAssignmentValue>
+    <UndefinedDocblockClass occurrences="3">
+      <code>Resource</code>
+      <code>Resource</code>
+      <code>Resource</code>
+    </UndefinedDocblockClass>
+  </file>
+  <file src="src/Middleware/Cors.php">
+    <InvalidReturnType occurrences="1">
+      <code>handle</code>
+    </InvalidReturnType>
+  </file>
+  <file src="src/Middleware/GlobalHeaders.php">
+    <InvalidReturnType occurrences="1">
+      <code>handle</code>
+    </InvalidReturnType>
+  </file>
+  <file src="src/Middleware/Middleware.php">
+    <InvalidArrayOffset occurrences="1">
+      <code>$this-&gt;globalMiddleware[$m]</code>
+    </InvalidArrayOffset>
+  </file>
+  <file src="src/Request.php">
+    <InvalidReturnStatement occurrences="1">
+      <code>$this-&gt;request-&gt;headers-&gt;get($key, $default)</code>
+    </InvalidReturnStatement>
+    <InvalidReturnType occurrences="1">
+      <code>string|null</code>
+    </InvalidReturnType>
+    <PossiblyInvalidArgument occurrences="3">
+      <code>$default</code>
+      <code>$uploadMetaData</code>
+      <code>$uploadMetaData</code>
+    </PossiblyInvalidArgument>
+    <PossiblyNullArgument occurrences="3">
+      <code>$meta</code>
+      <code>$meta</code>
+      <code>$this-&gt;header('Upload-Concat')</code>
+    </PossiblyNullArgument>
+    <TypeDoesNotContainType occurrences="1">
+      <code>explode(' ', $meta)</code>
+    </TypeDoesNotContainType>
+  </file>
+  <file src="src/Response.php">
+    <MismatchingDocblockParamType occurrences="1">
+      <code>string|null</code>
+    </MismatchingDocblockParamType>
+    <PossiblyNullArgument occurrences="1">
+      <code>$disposition</code>
+    </PossiblyNullArgument>
+  </file>
+  <file src="src/Tus/Client.php">
+    <ImplicitToStringCast occurrences="2">
+      <code>$response-&gt;getBody()</code>
+      <code>$e-&gt;getResponse()-&gt;getBody()</code>
+    </ImplicitToStringCast>
+    <InvalidArgument occurrences="2">
+      <code>$handle</code>
+      <code>$handle</code>
+    </InvalidArgument>
+    <PossiblyNullArgument occurrences="5">
+      <code>$this-&gt;getFilePath()</code>
+      <code>$this-&gt;getUrl()</code>
+      <code>$this-&gt;getUrl()</code>
+      <code>$this-&gt;getUrl()</code>
+      <code>$this-&gt;getFilePath()</code>
+    </PossiblyNullArgument>
+    <PossiblyNullReference occurrences="3">
+      <code>getStatusCode</code>
+      <code>getStatusCode</code>
+      <code>getBody</code>
+    </PossiblyNullReference>
+  </file>
+  <file src="src/Tus/Server.php">
+    <ImplicitToStringCast occurrences="7">
+      <code>$uploadKey</code>
+      <code>$uploadKey</code>
+      <code>$checksum</code>
+      <code>$uploadKey</code>
+      <code>$uploadKey</code>
+      <code>$uploadKey</code>
+      <code>$uploadKey</code>
+    </ImplicitToStringCast>
+    <InvalidArgument occurrences="4">
+      <code>UploadCreated::NAME</code>
+      <code>UploadMerged::NAME</code>
+      <code>UploadComplete::NAME</code>
+      <code>UploadProgress::NAME</code>
+    </InvalidArgument>
+    <PossiblyNullArgument occurrences="1">
+      <code>$this-&gt;getChecksumAlgorithm()</code>
+    </PossiblyNullArgument>
+    <PossiblyNullArrayAccess occurrences="2">
+      <code>$contents['offset']</code>
+      <code>$contents['size']</code>
+    </PossiblyNullArrayAccess>
+    <TooManyArguments occurrences="4">
+      <code>dispatch</code>
+      <code>dispatch</code>
+      <code>dispatch</code>
+      <code>dispatch</code>
+    </TooManyArguments>
+  </file>
+</files>
