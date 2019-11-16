@@ -258,7 +258,7 @@ class Server extends AbstractTus
 
         $requestMethod = $this->getRequest()->method();
 
-        if ( ! \in_array($requestMethod, $this->getRequest()->allowedHttpVerbs())) {
+        if ( ! \in_array($requestMethod, $this->getRequest()->allowedHttpVerbs(), true)) {
             return $this->response->send(null, HttpResponse::HTTP_METHOD_NOT_ALLOWED);
         }
 

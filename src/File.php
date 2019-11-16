@@ -392,7 +392,7 @@ class File
     /**
      * Move file pointer to given offset.
      *
-     * @param Resource $handle
+     * @param resource $handle
      * @param int      $offset
      * @param int      $whence
      *
@@ -414,7 +414,7 @@ class File
     /**
      * Read data from file.
      *
-     * @param Resource $handle
+     * @param resource $handle
      * @param int      $chunkSize
      *
      * @throws FileException
@@ -435,7 +435,7 @@ class File
     /**
      * Write data to file.
      *
-     * @param Resource $handle
+     * @param resource $handle
      * @param string   $data
      * @param int|null $length
      *

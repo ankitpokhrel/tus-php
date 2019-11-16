@@ -82,7 +82,7 @@ class RedisStoreTest extends TestCase
         try {
             $redisStore->getRedis()->ping();
         } catch (Exception $e) {
-            $this->assertTrue($e instanceof ConnectionException);
+            $this->assertInstanceOf(ConnectionException::class, $e);
         }
     }
 
@@ -121,7 +121,7 @@ class RedisStoreTest extends TestCase
 
         $this->assertTrue(static::$redisStore->set($checksum, $cacheContent));
 
-        array_push($cacheContent, $string);
+        $cacheContent[] = $string;
 
         $this->assertTrue(static::$redisStore->set($checksum, $string));
         $this->assertEquals($cacheContent, static::$redisStore->get($checksum));

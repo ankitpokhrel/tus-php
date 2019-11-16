@@ -176,11 +176,11 @@ class FileTest extends TestCase
      */
     public function it_sets_upload_metadata()
     {
-        $metadata = array(
+        $metadata = [
             'offset' => 200,
             'fileSize' => 2056,
-            'filePath' => '/path/to/file.pdf'
-        );
+            'filePath' => '/path/to/file.pdf',
+        ];
 
         $this->assertInstanceOf(File::class, $this->file->setUploadMetadata($metadata));
     }
@@ -230,7 +230,7 @@ class FileTest extends TestCase
 
         $resource = $this->file->open($file, 'rb');
 
-        $this->assertInternalType('resource', $resource);
+        $this->assertIsResource($resource);
 
         $this->file->close($resource);
     }
@@ -442,7 +442,7 @@ class FileTest extends TestCase
 
         FileFixture::makeFilesAndFolder($path, $files);
 
-        array_push($files, ['file_path' => "$path/invalid", 'offset' => 0]);
+        $files[] = ['file_path' => "$path/invalid", 'offset' => 0];
 
         $mergedFilePath = $path . '/../file.txt';
 
