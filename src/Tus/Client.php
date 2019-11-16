@@ -598,7 +598,7 @@ class Client extends AbstractTus
     protected function handleClientException(ClientException $e)
     {
         $response   = $e->getResponse();
-        $statusCode = $response ? $response->getStatusCode() : HttpResponse::HTTP_INTERNAL_SERVER_ERROR;
+        $statusCode = $response !== null ? $response->getStatusCode() : HttpResponse::HTTP_INTERNAL_SERVER_ERROR;
 
         if (HttpResponse::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE === $statusCode) {
             return new FileException('The uploaded file is corrupt.');
