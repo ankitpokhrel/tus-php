@@ -3,13 +3,11 @@
 namespace TusPhp\Test\Cache;
 
 use Exception;
-use Predis\Client;
 use TusPhp\Cache\ApcuStore;
 use PHPUnit\Framework\TestCase;
-use Predis\Connection\ConnectionException;
 
 /**
- * @coversDefaultClass \TusPhp\Cache\RedisStore
+ * @coversDefaultClass \TusPhp\Cache\ApcuStore
  */
 class ApcuStoreTest extends TestCase
 {
@@ -21,7 +19,7 @@ class ApcuStoreTest extends TestCase
     protected static $store;
 
     /**
-     * Check redis connection.
+     * Check apcu connection.
      *
      * @return void
      */
@@ -42,7 +40,7 @@ class ApcuStoreTest extends TestCase
     protected function setUp()
     {
         if ( ! self::$extensionLoaded) {
-            $this->markTestSkipped('Unable to connect to redis.');
+            $this->markTestSkipped('APCU extension not loaded.');
         }
 
         $this->checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
