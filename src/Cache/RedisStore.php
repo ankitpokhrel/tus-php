@@ -66,7 +66,7 @@ class RedisStore extends AbstractCache
         if (\is_array($value)) {
             $contents = $value + $contents;
         } else {
-            array_push($contents, $value);
+            $contents[] = $value;
         }
 
         $status = $this->redis->set($this->getPrefix() . $key, json_encode($contents));

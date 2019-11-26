@@ -988,7 +988,7 @@ class ClientTest extends TestCase
 
         $clientExceptionMock
             ->shouldReceive('getResponse')
-            ->twice()
+            ->once()
             ->andReturn($responseMock);
 
         $responseMock

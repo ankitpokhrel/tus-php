@@ -1,16 +1,16 @@
 ---
-version: '3'
+version: '3.7'
 
 services:
   tus-server:
     build: ./server
     container_name: tus-php-server
     ports:
-      - "8081:80"
+      - 8081:80
     volumes:
-        - ../:/var/www/
-        - ../example:/var/www/html
-        - ./.data/server/logs:/var/log/nginx
+      - ../:/var/www/
+      - ../example:/var/www/html
+      - ./.data/server/logs:/var/log/nginx
     entrypoint: entrypoint.sh
     labels:
       tag: tus-php-server
@@ -20,11 +20,11 @@ services:
     build: ./client
     container_name: tus-php-client
     ports:
-      - "8080:80"
+      - 8080:80
     volumes:
-        - ../:/var/www
-        - ../example:/var/www/html
-        - ./.data/client/logs:/var/log/nginx
+      - ../:/var/www
+      - ../example:/var/www/html
+      - ./.data/client/logs:/var/log/nginx
     labels:
       tag: tus-php-client
       group: tus-php
@@ -36,7 +36,7 @@ services:
     container_name: tus-php-redis
     restart: always
     ports:
-      - "6379:6379"
+      - 6379:6379
     labels:
       tag: tus-php-redis
       group: tus-php
