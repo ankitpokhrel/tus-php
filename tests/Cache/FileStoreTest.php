@@ -142,8 +142,8 @@ class FileStoreTest extends TestCase
     {
         $this->fileStore->set($this->checksum, 'Test');
 
-        $this->assertTrue(file_exists($this->cacheDir));
-        $this->assertTrue(file_exists($this->cacheDir . $this->cacheFile));
+        $this->assertFileExists($this->cacheDir);
+        $this->assertFileExists($this->cacheDir.$this->cacheFile);
 
         // Cache is invalid, should return null.
         $this->assertEquals(null, $this->fileStore->get($this->checksum));
@@ -166,8 +166,8 @@ class FileStoreTest extends TestCase
 
         $this->fileStore->set($this->checksum, $cacheContent);
 
-        $this->assertTrue(file_exists($this->cacheDir));
-        $this->assertTrue(file_exists($this->cacheDir . $this->cacheFile));
+        $this->assertFileExists($this->cacheDir);
+        $this->assertFileExists($this->cacheDir.$this->cacheFile);
         $this->assertEquals($cacheContent, $this->fileStore->get($this->checksum));
     }
 
@@ -427,7 +427,7 @@ class FileStoreTest extends TestCase
         while (-1 !== pcntl_waitpid(0, $status)) {
             $status = pcntl_wexitstatus($status);
 
-            $this->assertTrue($status === 0);
+            $this->assertSame($status, 0);
         }
 
         @unlink($filePath);

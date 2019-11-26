@@ -1,15 +1,15 @@
 ---
 filter:
-    excluded_paths:
-        - bin/*
-        - docker/*
-        - tests/*
+  paths:
+    - src/*
+  dependency_paths:
+    - vendor/
 
 checks:
-    php:
-        code_rating: true
+  php:
+    code_rating: true
 
 tools:
-    external_code_coverage:
-        timeout: 300
-    php_code_coverage: false
+  external_code_coverage:
+    timeout: 300
+  php_code_coverage: false

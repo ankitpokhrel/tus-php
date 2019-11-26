@@ -1,8 +1,12 @@
 # https://help.github.com/en/categories/automating-your-workflow-with-github-actions
 
 on:
-  - push
-  - pull_request
+  pull_request:
+    types: [opened, synchronize, reopened]
+  release:
+    types: [published]
+  push:
+    branches: [master]
 
 name: CI
 
@@ -16,7 +20,6 @@ jobs:
 
       - name: Update dependencies with composer
         run: composer update --no-interaction --no-ansi --no-progress --no-suggest
-
 
       - name: Run friendsofphp/php-cs-fixer
         run: php7.3 ./vendor/bin/php-cs-fixer fix --diff-format=udiff --dry-run --show-progress=dots --using-cache=no --verbose
