@@ -66,6 +66,7 @@ class ApcuStoreTest extends TestCase
      *
      * @covers ::set
      * @covers ::get
+     * @covers ::getActualCacheKey
      * @covers ::setTtl
      * @covers ::delete
      */
@@ -95,6 +96,7 @@ class ApcuStoreTest extends TestCase
      *
      * @covers ::set
      * @covers ::get
+     * @covers ::getActualCacheKey
      *
      * @depends it_sets_and_gets_cache_contents
      */
@@ -112,6 +114,7 @@ class ApcuStoreTest extends TestCase
      * @test
      *
      * @covers ::get
+     * @covers ::getActualCacheKey
      */
     public function it_returns_contents_if_not_expired()
     {
@@ -124,6 +127,7 @@ class ApcuStoreTest extends TestCase
      * @test
      *
      * @covers ::get
+     * @covers ::getActualCacheKey
      */
     public function it_returns_null_if_cache_is_expired()
     {
@@ -137,6 +141,7 @@ class ApcuStoreTest extends TestCase
      * @test
      *
      * @covers ::get
+     * @covers ::getActualCacheKey
      */
     public function it_returns_expired_contents_if_with_expired_is_true()
     {
@@ -152,6 +157,7 @@ class ApcuStoreTest extends TestCase
      *
      * @covers ::set
      * @covers ::get
+     * @covers ::getActualCacheKey
      * @covers ::delete
      */
     public function it_deletes_cache_content()
@@ -170,6 +176,7 @@ class ApcuStoreTest extends TestCase
      *
      * @covers ::set
      * @covers ::get
+     * @covers ::getActualCacheKey
      * @covers ::deleteAll
      */
     public function it_deletes_all_cache_keys()
