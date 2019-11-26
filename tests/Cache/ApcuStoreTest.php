@@ -27,7 +27,7 @@ class ApcuStoreTest extends TestCase
      */
     public static function setUpBeforeClass()
     {
-        self::$extensionLoaded = extension_loaded('apcu');
+        self::$extensionLoaded = \extension_loaded('apcu');
 
         self::$store = new ApcuStore();
 
@@ -41,7 +41,7 @@ class ApcuStoreTest extends TestCase
      */
     protected function setUp()
     {
-        if (!self::$extensionLoaded) {
+        if ( ! self::$extensionLoaded) {
             $this->markTestSkipped('Unable to connect to redis.');
         }
 
@@ -80,7 +80,7 @@ class ApcuStoreTest extends TestCase
         $this->assertTrue(static::$store->set($this->checksum, $cacheContent));
         $this->assertEquals($cacheContent, static::$store->get($this->checksum));
 
-        $string = 'Sherlock Holmes';
+        $string   = 'Sherlock Holmes';
         $checksum = '74f02d6da32082463e382f22';
 
         $this->assertTrue(static::$store->set($checksum, $cacheContent));
@@ -176,8 +176,8 @@ class ApcuStoreTest extends TestCase
      */
     public function it_deletes_all_cache_keys()
     {
-        $checksum1 = 'checksum-1';
-        $checksum2 = 'checksum-2';
+        $checksum1    = 'checksum-1';
+        $checksum2    = 'checksum-2';
         $cacheContent = ['expires_at' => 'Fri, 08 Dec 2017 16:25:51 GMT', 'offset' => 100];
 
         $this->assertTrue(static::$store->set($checksum1, $cacheContent));
