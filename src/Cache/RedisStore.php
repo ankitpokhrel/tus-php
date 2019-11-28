@@ -51,6 +51,10 @@ class RedisStore extends AbstractCache
             return $contents;
         }
 
+        if ( ! $contents) {
+            return null;
+        }
+
         $isExpired = Carbon::parse($contents['expires_at'])->lt(Carbon::now());
 
         return $isExpired ? null : $contents;
