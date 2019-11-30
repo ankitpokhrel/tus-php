@@ -382,7 +382,10 @@ class Server extends AbstractTus
             'Upload-Expires' => $this->cache->get($uploadKey)['expires_at'],
         ];
 
-        $this->event()->dispatch(UploadCreated::NAME, new UploadCreated($file, $this->getRequest(), $this->getResponse()->setHeaders($headers)));
+        $this->event()->dispatch(
+            new UploadCreated($file, $this->getRequest(), $this->getResponse()->setHeaders($headers)),
+            UploadCreated::NAME
+        );
 
         return $this->response->send(null, HttpResponse::HTTP_CREATED, $headers);
     }
@@ -429,8 +432,8 @@ class Server extends AbstractTus
         }
 
         $this->event()->dispatch(
-            UploadMerged::NAME,
-            new UploadMerged($file, $this->getRequest(), $this->getResponse())
+            new UploadMerged($file, $this->getRequest(), $this->getResponse()),
+            UploadMerged::NAME
         );
 
         return $this->response->send(
@@ -475,13 +478,13 @@ class Server extends AbstractTus
                 }
 
                 $this->event()->dispatch(
-                    UploadComplete::NAME,
-                    new UploadComplete($file, $this->getRequest(), $this->getResponse())
+                    new UploadComplete($file, $this->getRequest(), $this->getResponse()),
+                    UploadComplete::NAME
                 );
             } else {
                 $this->event()->dispatch(
-                    UploadProgress::NAME,
-                    new UploadProgress($file, $this->getRequest(), $this->getResponse())
+                    new UploadProgress($file, $this->getRequest(), $this->getResponse()),
+                    UploadProgress::NAME
                 );
             }
         } catch (FileException $e) {

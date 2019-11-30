@@ -52,8 +52,8 @@ class TusEventTest extends TestCase
         });
 
         $this->tusServer->event()->dispatch(
-            UploadComplete::NAME,
-            new UploadComplete(new File(), new Request(), new Response())
+            new UploadComplete(new File(), new Request(), new Response()),
+            UploadComplete::NAME
         );
     }
 }
