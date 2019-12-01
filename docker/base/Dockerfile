@@ -17,7 +17,6 @@ RUN set -x \
     && ln -sf /dev/stderr /var/log/nginx/error.log
 
 RUN apk update && apk add --no-cache \
-  php7.4-gd \
   php7.4-imap \
   php7.4-intl \
   php7.4-mbstring \
