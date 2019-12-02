@@ -45,7 +45,7 @@ class ApcuStore extends AbstractCache
      */
     public function delete(string $key): bool
     {
-        return apcu_delete($this->getActualCacheKey($key));
+        return true === apcu_delete($this->getActualCacheKey($key));
     }
 
     /**
