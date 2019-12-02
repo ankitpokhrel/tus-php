@@ -34,7 +34,7 @@ class ApcuStore extends AbstractCache
         if (\is_array($value)) {
             $contents = $value + $contents;
         } else {
-            array_push($contents, $value);
+            $contents[] = $value;
         }
 
         return apcu_store($this->getActualCacheKey($key), $contents, $this->getTtl());
