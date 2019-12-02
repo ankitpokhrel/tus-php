@@ -7,7 +7,6 @@ use APCUIterator;
 
 class ApcuStore extends AbstractCache
 {
-
     /**
      * {@inheritDoc}
      */
@@ -58,6 +57,7 @@ class ApcuStore extends AbstractCache
     public function keys(): array
     {
         $iterator = new APCUIterator('/^' . preg_quote($this->getPrefix()) . '.*$/', APC_ITER_KEY);
+
         return array_column(iterator_to_array($iterator, false), 'key');
     }
 

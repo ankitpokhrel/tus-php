@@ -2,7 +2,6 @@
 
 namespace TusPhp\Test\Cache;
 
-use Exception;
 use TusPhp\Cache\ApcuStore;
 use PHPUnit\Framework\TestCase;
 
@@ -11,13 +10,13 @@ use PHPUnit\Framework\TestCase;
  */
 class ApcuStoreTest extends TestCase
 {
-
     /** @var boolean */
     protected static $extensionLoaded;
 
     /** @var ApcuStore */
     protected static $store;
-    
+
+    /** @var string */
     protected $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
 
     /**

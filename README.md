@@ -65,6 +65,10 @@ to pause, or by accident in case of a network issue or server outage.
 Pull the package via composer.
 ```shell
 $ composer require ankitpokhrel/tus-php
+
+// Use symfony-5 branch for Symfony 5+
+
+$ composer require ankitpokhrel/tus-php:dev-symfony-5
 ```
 
 ### Usage
@@ -78,7 +82,7 @@ This is how a simple server looks like.
 ```php
 // server.php
 
-$server   = new \TusPhp\Tus\Server('redis'); // Leave empty for file based cache
+$server   = new \TusPhp\Tus\Server('redis'); // Either redis, file or apcu. Leave empty for file based cache.
 $response = $server->serve();
 
 $response->send();
@@ -249,7 +253,7 @@ Usage:
   tus:expired [<cache-adapter>] [options]
 
 Arguments:
-  cache-adapter         Cache adapter to use, redis or file. Optional, defaults to file based cache. [default: "file"]
+  cache-adapter         Cache adapter to use: redis, file or apcu [default: "file"]
 
 Options:
   -c, --config=CONFIG   File to get config parameters from.
