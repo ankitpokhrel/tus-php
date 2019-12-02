@@ -15,7 +15,7 @@ class ApcuStore extends AbstractCache
     {
         $contents = apcu_fetch($this->getActualCacheKey($key));
 
-        if (!$contents) {
+        if ( ! $contents) {
             return null;
         }
 
