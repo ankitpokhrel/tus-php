@@ -4,6 +4,7 @@ namespace TusPhp\Cache;
 
 class CacheFactory
 {
+
     /**
      * Make cache.
      *
@@ -13,12 +14,14 @@ class CacheFactory
      *
      * @return Cacheable
      */
-    public static function make(string $type = 'file') : Cacheable
+    public static function make(string $type = 'file'): Cacheable
     {
-        if ('redis' === $type) {
-            return new RedisStore;
+        switch ($type) {
+            case 'redis':
+                return new RedisStore;
+            case 'apcu':
+                return new ApcuStore;
         }
-
         return new FileStore;
     }
 }
