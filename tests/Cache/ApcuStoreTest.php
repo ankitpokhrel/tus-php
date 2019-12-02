@@ -17,6 +17,8 @@ class ApcuStoreTest extends TestCase
 
     /** @var ApcuStore */
     protected static $store;
+    
+    protected $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
 
     /**
      * Check apcu connection.
@@ -42,8 +44,6 @@ class ApcuStoreTest extends TestCase
         if ( ! self::$extensionLoaded) {
             $this->markTestSkipped('APCU extension not loaded.');
         }
-
-        $this->checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
 
         parent::setUp();
     }
