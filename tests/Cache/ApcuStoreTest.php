@@ -84,7 +84,7 @@ class ApcuStoreTest extends TestCase
 
         $this->assertTrue(static::$store->set($checksum, $cacheContent));
 
-        array_push($cacheContent, $string);
+        $cacheContent[] = $string;
 
         $this->assertTrue(static::$store->set($checksum, $string));
         $this->assertEquals($cacheContent, static::$store->get($checksum));
