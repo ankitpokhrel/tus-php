@@ -13,7 +13,11 @@ class ApcuStore extends AbstractCache
      */
     public function get(string $key, bool $withExpired = false)
     {
-        $contents = apcu_fetch($this->getActualCacheKey($key)) ?: null;
+        $contents = apcu_fetch($this->getActualCacheKey($key));
+
+        if (!$contents) {
+            return null;
+        }
 
         if ($withExpired) {
             return $contents ?: null;
