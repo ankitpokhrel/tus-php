@@ -21,7 +21,6 @@
     "symfony/http-foundation": "^5.0"
   },
   "require-dev": {
-    "ext-apcu": "*",
     "ext-pcntl": "*",
     "friendsofphp/php-cs-fixer": "^2.9",
     "mockery/mockery": "^1.3.0",
