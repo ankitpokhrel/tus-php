@@ -4,6 +4,7 @@ exemptLabels:
   - good first issue
   - defect
   - help wanted
+  - future
 staleLabel: inactive
 markComment: >
   This issue has been automatically marked as stale because it has not had
