@@ -560,14 +560,19 @@ class Server extends AbstractTus
             return $this->response->send('404 upload not found.', HttpResponse::HTTP_NOT_FOUND);
         }
 
+        $headers = [];
         $resource = $fileMeta['file_path'] ?? null;
         $fileName = $fileMeta['name'] ?? null;
+
+        if (isset($fileMeta['metadata']['type'])) {
+            $headers['Content-Type'] = $fileMeta['metadata']['type'];
+        }
 
         if ( ! $resource || ! file_exists($resource)) {
             return $this->response->send('404 upload not found.', HttpResponse::HTTP_NOT_FOUND);
         }
 
-        return $this->response->download($resource, $fileName);
+        return $this->response->download($resource, $fileName, $headers);
     }
 
     /**
