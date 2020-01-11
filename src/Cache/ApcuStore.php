@@ -2,8 +2,8 @@
 
 namespace TusPhp\Cache;
 
-use Carbon\Carbon;
 use APCUIterator;
+use Carbon\Carbon;
 
 class ApcuStore extends AbstractCache
 {
