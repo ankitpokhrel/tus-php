@@ -5,6 +5,7 @@ namespace TusPhp\Tus;
 use TusPhp\Cache\Cacheable;
 use TusPhp\Cache\CacheFactory;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 abstract class AbstractTus
 {
@@ -98,7 +99,7 @@ abstract class AbstractTus
      *
      * @return EventDispatcher
      */
-    public function event() : EventDispatcher
+    public function event() : EventDispatcherInterface
     {
         if ( ! $this->dispatcher) {
             $this->dispatcher = new EventDispatcher();
@@ -113,7 +114,7 @@ abstract class AbstractTus
      *
      * @return self
      */
-    public function setDispatcher(EventDispatcher $dispatcher) : self
+    public function setDispatcher(EventDispatcherInterface $dispatcher) : self
     {
         $this->dispatcher = $dispatcher;
 
