@@ -33,7 +33,7 @@ abstract class AbstractTus
     /** @var string */
     protected $apiPath = '/files';
 
-    /** @var EventDispatcher */
+    /** @var EventDispatcherInterface */
     protected $dispatcher;
 
     /**
@@ -97,7 +97,7 @@ abstract class AbstractTus
     /**
      * Set and get event dispatcher.
      *
-     * @return EventDispatcher
+     * @return EventDispatcherInterface
      */
     public function event() : EventDispatcherInterface
     {
