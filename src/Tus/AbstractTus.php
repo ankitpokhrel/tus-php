@@ -5,6 +5,7 @@ namespace TusPhp\Tus;
 use TusPhp\Cache\Cacheable;
 use TusPhp\Cache\CacheFactory;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 abstract class AbstractTus
 {
@@ -32,7 +33,7 @@ abstract class AbstractTus
     /** @var string */
     protected $apiPath = '/files';
 
-    /** @var EventDispatcher */
+    /** @var EventDispatcherInterface */
     protected $dispatcher;
 
     /**
@@ -96,14 +97,28 @@ abstract class AbstractTus
     /**
      * Set and get event dispatcher.
      *
-     * @return EventDispatcher
+     * @return EventDispatcherInterface
      */
-    public function event() : EventDispatcher
+    public function event() : EventDispatcherInterface
     {
         if ( ! $this->dispatcher) {
             $this->dispatcher = new EventDispatcher();
         }
 
         return $this->dispatcher;
+    }
+
+    /**
+     * Set event dispatcher.
+     *
+     * @param EventDispatcherInterface $dispatcher
+     *
+     * @return self
+     */
+    public function setDispatcher(EventDispatcherInterface $dispatcher) : self
+    {
+        $this->dispatcher = $dispatcher;
+
+        return $this;
     }
 }

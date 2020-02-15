@@ -65,9 +65,15 @@ class AbstractTusTest extends TestCase
      * @test
      *
      * @covers ::event
+     * @covers ::setDispatcher
      */
     public function it_sets_and_gets_event_dispatcher()
     {
         $this->assertInstanceOf(EventDispatcher::class, $this->tus->event());
+
+        $eventDispatcher = new EventDispatcher();
+
+        $this->assertInstanceOf(TusServer::class, $this->tus->setDispatcher($eventDispatcher));
+        $this->assertEquals($eventDispatcher, $this->tus->event());
     }
 }

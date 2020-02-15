@@ -22,11 +22,14 @@ RUN apk update && apk add --no-cache \
   php7.4-mbstring \
   php7.4-openssl \
   php7.4-ldap \
-  php7.4-soap \
   php7.4-curl \
   php7.4-pcntl \
+  php7.4-dev \
+  php7.4-pear \
   composer
 
+# Install APCu extension
+RUN pecl upgrade apcu
 
 ## Xdebug Installation, Currently Alpine repo is missing Php7.4-xdebug,
 # RUN apk add --no-cache php7.4-xdebug
