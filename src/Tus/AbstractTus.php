@@ -107,9 +107,11 @@ abstract class AbstractTus
 
         return $this->dispatcher;
     }
-    
+
     /**
-     * Setter event dispatcher.
+     * Set event dispatcher.
+     *
+     * @param EventDispatcherInterface $dispatcher
      *
      * @return self
      */
