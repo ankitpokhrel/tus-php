@@ -65,6 +65,7 @@ class AbstractTusTest extends TestCase
      * @test
      *
      * @covers ::event
+     * @covers ::setDispatcher
      */
     public function it_sets_and_gets_event_dispatcher()
     {
