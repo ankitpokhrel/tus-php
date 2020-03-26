@@ -949,7 +949,7 @@ class ServerTest extends TestCase
         $eventDispatcherMock
             ->shouldReceive('dispatch')
             ->once()
-            ->with('tus-server.upload.created', m::type(UploadCreated::class));
+            ->with(m::type(UploadCreated::class), 'tus-server.upload.created');
 
         $this->tusServerMock
             ->shouldReceive('event')
@@ -1067,7 +1067,7 @@ class ServerTest extends TestCase
         $eventDispatcherMock
             ->shouldReceive('dispatch')
             ->once()
-            ->with('tus-server.upload.created', m::type(UploadCreated::class));
+            ->with(m::type(UploadCreated::class), 'tus-server.upload.created');
 
         $this->tusServerMock
             ->shouldReceive('event')
@@ -1173,7 +1173,7 @@ class ServerTest extends TestCase
         $eventDispatcherMock
             ->shouldReceive('dispatch')
             ->once()
-            ->with('tus-server.upload.merged', m::type(UploadMerged::class));
+            ->with(m::type(UploadMerged::class), 'tus-server.upload.merged');
 
         $this->tusServerMock
             ->shouldReceive('event')
@@ -2049,7 +2049,7 @@ class ServerTest extends TestCase
         $eventDispatcherMock
             ->shouldReceive('dispatch')
             ->once()
-            ->with('tus-server.upload.complete', m::type(UploadComplete::class));
+            ->with(m::type(UploadComplete::class), 'tus-server.upload.complete');
 
         $this->tusServerMock
             ->shouldReceive('event')
@@ -2168,7 +2168,7 @@ class ServerTest extends TestCase
         $eventDispatcherMock
             ->shouldReceive('dispatch')
             ->once()
-            ->with('tus-server.upload.progress', m::type(UploadProgress::class));
+            ->with(m::type(UploadProgress::class), 'tus-server.upload.progress');
 
         $this->tusServerMock
             ->shouldReceive('event')

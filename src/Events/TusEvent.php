@@ -2,10 +2,10 @@
 
 namespace TusPhp\Events;
 
+use Symfony\Contracts\EventDispatcher\Event;
 use TusPhp\File;
 use TusPhp\Request;
 use TusPhp\Response;
-use Symfony\Component\EventDispatcher\Event;
 
 class TusEvent extends Event
 {
