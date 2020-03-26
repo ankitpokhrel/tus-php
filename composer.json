@@ -15,7 +15,7 @@
     "guzzlehttp/guzzle": "^6.3",
     "nesbot/carbon": "^1.26.3 || ^2.0",
     "predis/predis": "^1.1",
-    "ramsey/uuid": "^3.7",
+    "ramsey/uuid": "^3.7 || ^4.0",
     "symfony/console": "^5.0",
     "symfony/event-dispatcher": "^5.0",
     "symfony/http-foundation": "^5.0"
@@ -25,7 +25,7 @@
     "friendsofphp/php-cs-fixer": "^2.9",
     "mockery/mockery": "^1.3.0",
     "php-mock/php-mock": "^2.0",
-    "phpunit/phpunit": "7.5.18"
+    "phpunit/phpunit": "7.5.20"
   },
   "autoload": {
     "psr-4": {
