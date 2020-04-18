@@ -100,27 +100,24 @@ location /files {
     try_files $uri $uri/ /server.php?$query_string;
 }
 ```
-You may also want to stop request body buffering with `fastcgi_request_buffering off;`.  If you 
-do not turn off fastcgi\_request\_buffering and you use fastcgi, you will not be able to resume
-uploads because nginx will not give the request to PHP until the entire file is uploaded.
+
+A new config option [fastcgi_request_buffering](http://nginx.org/en/docs/http/ngx_http_fastcgi_module.html#fastcgi_request_buffering) is available since nginx 1.7.11.
+When buffering is enabled, the entire request body is read from the client before sending the request to a FastCGI server. Disabling this option might help with timeouts during the upload.
+Furthermore, it helps if you’re running out of disc space on the tmp partition of your system.
+
+If you do not turn off `fastcgi_request_buffering` and you use `fastcgi`, you will not be able to resume uploads because nginx will not give the request back to PHP until the entire file is uploaded.
 
 ```nginx
-    location ~ \.php$ {
-        fastcgi_request_buffering off;
-        fastcgi_split_path_info ^(.+\.php)(/.+)$;
-        fastcgi_pass unix:/var/run/php/php7.3-fpm.sock;
-        fastcgi_index index.php;
-        include fastcgi_params;
-        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-        //other settings ...
-        //fastcgi_intercept_errors off;
-        //fastcgi_buffer_size 16k;
-        //fastcgi_buffers 4 16k;
-        //fastcgi_connect_timeout 300;
-        //fastcgi_send_timeout 300;
-        //fastcgi_read_timeout 300;
-    }
+location ~ \.php$ {
+    # ...
+
+    fastcgi_request_buffering off; # Disable request buffering
+    
+    # ...
+}
 ```
+
+A sample nginx configuration can be found [here](docker/server/configs/default.conf).
 
 ###### Apache
 ```apache
