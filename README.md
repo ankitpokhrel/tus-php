@@ -66,9 +66,9 @@ Pull the package via composer.
 ```shell
 $ composer require ankitpokhrel/tus-php
 
-// Use symfony-5 branch for Symfony 5+
+// Use v1 for dependencies that require Symfony 3 or 4.
 
-$ composer require ankitpokhrel/tus-php:dev-symfony-5
+$ composer require ankitpokhrel/tus-php:^1.2
 ```
 
 ### Usage
