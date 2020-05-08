@@ -70,5 +70,7 @@ class ExpirationCommand extends Command
         }
 
         $output->writeln('');
+        
+        return 0;
     }
 }
