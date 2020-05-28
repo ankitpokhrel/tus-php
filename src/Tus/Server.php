@@ -803,7 +803,7 @@ class Server extends AbstractTus
      *
      * @return bool
      */
-    protected function verifyChecksum(string $checksum, string $filePath) : bool
+    protected function verifyChecksum(?string $checksum, string $filePath) : bool
     {
         // Skip if checksum is empty.
         if (empty($checksum)) {
