@@ -5,7 +5,7 @@
         <img alt="PHP Version" src="https://img.shields.io/badge/php-7.1.3%2B-brightgreen.svg?style=flat-square" />
     </a>
     <a href="https://travis-ci.org/ankitpokhrel/tus-php">
-        <img alt="Build Status" src="https://img.shields.io/travis/ankitpokhrel/tus-php/master.svg?style=flat-square" />
+        <img alt="Build Status" src="https://img.shields.io/travis/ankitpokhrel/tus-php/v1.svg?style=flat-square" />
     </a>
     <a href="https://scrutinizer-ci.com/g/ankitpokhrel/tus-php">
         <img alt="Code Coverage" src="https://img.shields.io/scrutinizer/coverage/g/ankitpokhrel/tus-php.svg?style=flat-square" />
