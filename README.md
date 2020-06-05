@@ -2,7 +2,7 @@
 
 <p align="center">
     <a href="https://packagist.org/packages/ankitpokhrel/tus-php">
-        <img alt="PHP Version" src="https://img.shields.io/badge/php-7.1.3%2B-brightgreen.svg?style=flat-square" />
+        <img alt="PHP Version" src="https://img.shields.io/badge/php-7.2.5%2B-brightgreen.svg?style=flat-square" />
     </a>
     <a href="https://travis-ci.org/ankitpokhrel/tus-php">
         <img alt="Build Status" src="https://img.shields.io/travis/ankitpokhrel/tus-php/master.svg?style=flat-square" />
@@ -66,7 +66,7 @@ Pull the package via composer.
 ```shell
 $ composer require ankitpokhrel/tus-php
 
-// Use v1 for dependencies that require Symfony 3 or 4.
+// Use v1 for php7.1, Symfony 3 or 4.
 
 $ composer require ankitpokhrel/tus-php:^1.2
 ```
