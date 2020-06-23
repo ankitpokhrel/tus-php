@@ -49,6 +49,9 @@ class Client extends AbstractTus
     /** @var array */
     protected $metadata = [];
 
+    /** @var array */
+    protected $headers = [];
+
     /**
      * Client constructor.
      *
@@ -59,9 +62,10 @@ class Client extends AbstractTus
      */
     public function __construct(string $baseUri, array $options = [])
     {
+        $this->headers = $options['headers'] ?? [];
         $options['headers'] = [
             'Tus-Resumable' => self::TUS_PROTOCOL_VERSION,
-        ] + ($options['headers'] ?? []);
+        ] + ($this->headers);
 
         $this->client = new GuzzleClient(
             ['base_uri' => $baseUri] + $options
@@ -422,7 +426,7 @@ class Client extends AbstractTus
      */
     public function create(string $key) : string
     {
-        $headers = [
+        $headers = $this->headers + [
             'Upload-Length' => $this->fileSize,
             'Upload-Key' => $key,
             'Upload-Checksum' => $this->getUploadChecksumHeader(),
@@ -464,7 +468,7 @@ class Client extends AbstractTus
     public function concat(string $key, ...$partials) : string
     {
         $response = $this->getClient()->post($this->apiPath, [
-            'headers' => [
+            'headers' => $this->headers + [
                 'Upload-Length' => $this->fileSize,
                 'Upload-Key' => $key,
                 'Upload-Checksum' => $this->getUploadChecksumHeader(),
@@ -562,7 +566,7 @@ class Client extends AbstractTus
     protected function sendPatchRequest(int $bytes, int $offset) : int
     {
         $data    = $this->getData($offset, $bytes);
-        $headers = [
+        $headers = $this->headers + [
             'Content-Type' => self::HEADER_CONTENT_TYPE,
             'Content-Length' => \strlen($data),
             'Upload-Checksum' => $this->getUploadChecksumHeader(),
