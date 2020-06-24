@@ -62,7 +62,7 @@ class Client extends AbstractTus
      */
     public function __construct(string $baseUri, array $options = [])
     {
-        $this->headers = $options['headers'] ?? [];
+        $this->headers      = $options['headers'] ?? [];
         $options['headers'] = [
             'Tus-Resumable' => self::TUS_PROTOCOL_VERSION,
         ] + ($this->headers);
