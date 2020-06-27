@@ -28,7 +28,6 @@ class ResponseTest extends TestCase
     /**
      * @test
      *
-     * @covers ::__construct
      * @covers ::createOnly
      * @covers ::getCreateOnly
      */
@@ -44,7 +43,6 @@ class ResponseTest extends TestCase
     /**
      * @test
      *
-     * @covers ::__construct
      * @covers ::setHeaders
      * @covers ::getHeaders
      */

@@ -19,14 +19,6 @@ class Response
     protected $headers = [];
 
     /**
-     * Response constructor.
-     */
-    public function __construct()
-    {
-        $this->response = new HttpResponse;
-    }
-
-    /**
      * Set create only.
      *
      * @param bool $state
@@ -105,7 +97,7 @@ class Response
             $content = json_encode($content);
         }
 
-        $response = $this->response::create($content, $status, $headers);
+        $response = new HttpResponse($content, $status, $headers);
 
         return $this->createOnly ? $response : $response->send();
     }
