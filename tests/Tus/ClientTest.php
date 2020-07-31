@@ -12,6 +12,8 @@ use TusPhp\Tus\Client as TusClient;
 use TusPhp\Exception\FileException;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ConnectException;
+use TusPhp\Exception\TusException;
+use TusPhp\Exception\ConnectionException;
 
 /**
  * @coversDefaultClass \TusPhp\Tus\Client
@@ -29,7 +31,7 @@ class ClientTest extends TestCase
      *
      * @return void
      */
-    public function setUp()
+    public function setUp() : void
     {
         $this->tusClient     = new TusClient('http://tus.local');
         $this->tusClientMock = m::mock(TusClient::class)
@@ -43,12 +45,12 @@ class ClientTest extends TestCase
      * @test
      *
      * @covers ::file
-     *
-     * @expectedException \TusPhp\Exception\FileException
-     * @expectedExceptionMessageRegExp /Cannot read file: [a-zA-Z0-9-\/.]+/
      */
-    public function it_throws_exception_for_invalid_file()
+    public function it_throws_exception_for_invalid_file() : void
     {
+        $this->expectException(FileException::class);
+        $this->expectExceptionMessageMatches('/Cannot read file: [a-zA-Z0-9-\/.]+/');
+
         $this->tusClient->file('/path/to/invalid/file.txt');
     }
 
@@ -58,12 +60,12 @@ class ClientTest extends TestCase
      * @covers ::file
      *
      * @runInSeparateProcess
-     *
-     * @expectedException \TusPhp\Exception\FileException
-     * @expectedExceptionMessageRegExp /Cannot read file: [a-zA-Z0-9-\/.]+/
      */
-    public function it_throws_exception_for_unreadable_file()
+    public function it_throws_exception_for_unreadable_file() : void
     {
+        $this->expectException(FileException::class);
+        $this->expectExceptionMessageMatches('/Cannot read file: [a-zA-Z0-9-\/.]+/');
+
         $file = __DIR__ . '/../Fixtures/403.txt';
 
         $mockBuilder = (new MockBuilder)->setNamespace('\TusPhp\Tus');
@@ -93,7 +95,7 @@ class ClientTest extends TestCase
      * @covers ::getFileName
      * @covers ::getFileSize
      */
-    public function it_sets_and_gets_file_attributes()
+    public function it_sets_and_gets_file_attributes() : void
     {
         $file = __DIR__ . '/../Fixtures/data.txt';
 
@@ -110,7 +112,7 @@ class ClientTest extends TestCase
      * @covers ::setFileName
      * @covers ::getFileName
      */
-    public function it_sets_and_gets_filename()
+    public function it_sets_and_gets_filename() : void
     {
         $this->assertNull($this->tusClient->getFileName());
         $this->assertInstanceOf(TusClient::class, $this->tusClient->setFileName('file.txt'));
@@ -125,7 +127,7 @@ class ClientTest extends TestCase
      * @covers ::setMetadata
      * @covers ::getMetadata
      */
-    public function it_sets_and_gets_metadata()
+    public function it_sets_and_gets_metadata() : void
     {
         $filePath = __DIR__ . '/../Fixtures/empty.txt';
 
@@ -161,7 +163,7 @@ class ClientTest extends TestCase
      * @covers ::__construct
      * @covers ::getClient
      */
-    public function it_gets_client()
+    public function it_gets_client() : void
     {
         $this->assertInstanceOf(Client::class, $this->tusClient->getClient());
         $this->assertEquals('http://tus.local', $this->tusClient->getClient()->getConfig()['base_uri']);
@@ -173,7 +175,7 @@ class ClientTest extends TestCase
      * @covers ::__construct
      * @covers ::getClient
      */
-    public function it_injects_options_in_client()
+    public function it_injects_options_in_client() : void
     {
         $headers = [
             'User-Agent' => 'testing/1.0',
@@ -202,7 +204,7 @@ class ClientTest extends TestCase
      * @covers ::getChecksum
      * @covers ::setChecksum
      */
-    public function it_sets_and_gets_checksum()
+    public function it_sets_and_gets_checksum() : void
     {
         $file     = __DIR__ . '/../Fixtures/data.txt';
         $checksum = hash_file('sha256', $file);
@@ -224,7 +226,7 @@ class ClientTest extends TestCase
      * @covers ::setKey
      * @covers ::getKey
      */
-    public function it_sets_and_gets_key()
+    public function it_sets_and_gets_key() : void
     {
         $key = uniqid();
 
@@ -237,7 +239,7 @@ class ClientTest extends TestCase
      *
      * @covers ::getUrl
      */
-    public function it_gets_url_from_cache()
+    public function it_gets_url_from_cache() : void
     {
         $key = uniqid();
         $url = 'https://server.tus.local';
@@ -268,12 +270,12 @@ class ClientTest extends TestCase
      * @test
      *
      * @covers ::getUrl
-     *
-     * @expectedException \TusPhp\Exception\FileException
-     * @expectedExceptionMessage File not found.
      */
-    public function it_throws_file_exception_for_empty_url()
+    public function it_throws_file_exception_for_empty_url() : void
     {
+        $this->expectException(FileException::class);
+        $this->expectExceptionMessage('File not found.');
+
         $key = uniqid();
 
         $cacheMock = m::mock(FileStore::class);
@@ -302,7 +304,7 @@ class ClientTest extends TestCase
      * @covers ::setChecksumAlgorithm
      * @covers ::getChecksumAlgorithm
      */
-    public function it_sets_and_gets_checksum_algorithm()
+    public function it_sets_and_gets_checksum_algorithm() : void
     {
         $this->assertEquals('sha256', $this->tusClient->getChecksumAlgorithm());
         $this->assertInstanceOf(TusClient::class, $this->tusClient->setChecksumAlgorithm('crc32'));
@@ -317,7 +319,7 @@ class ClientTest extends TestCase
      * @covers ::getPartialOffset
      * @covers ::isPartial
      */
-    public function it_sets_and_gets_partial()
+    public function it_sets_and_gets_partial() : void
     {
         $key = uniqid();
 
@@ -338,7 +340,7 @@ class ClientTest extends TestCase
      * @covers ::isPartial
      * @covers ::partial
      */
-    public function it_set_state_only_for_partial_equals_false()
+    public function it_set_state_only_for_partial_equals_false() : void
     {
         $this->assertFalse($this->tusClientMock->isPartial());
         $this->assertNull($this->tusClientMock->partial(false));
@@ -350,7 +352,7 @@ class ClientTest extends TestCase
      *
      * @covers ::partial
      */
-    public function it_generates_unique_key_for_partial_checksum()
+    public function it_generates_unique_key_for_partial_checksum() : void
     {
         $actualKey  = uniqid();
         $partialKey = $actualKey . '_partial';
@@ -369,7 +371,7 @@ class ClientTest extends TestCase
      *
      * @covers ::isExpired
      */
-    public function it_returns_false_if_upload_is_not_expired()
+    public function it_returns_false_if_upload_is_not_expired() : void
     {
         $key = uniqid();
         $url = 'https://server.tus.local';
@@ -402,7 +404,7 @@ class ClientTest extends TestCase
      *
      * @covers ::isExpired
      */
-    public function it_returns_true_if_upload_is_expired()
+    public function it_returns_true_if_upload_is_expired() : void
     {
         $key = uniqid();
         $url = 'https://server.tus.local';
@@ -435,7 +437,7 @@ class ClientTest extends TestCase
      *
      * @covers ::upload
      */
-    public function it_uploads_a_file()
+    public function it_uploads_a_file() : void
     {
         $bytes  = 100;
         $offset = 0;
@@ -464,7 +466,7 @@ class ClientTest extends TestCase
      *
      * @covers ::upload
      */
-    public function it_uploads_full_file_if_size_is_not_given()
+    public function it_uploads_full_file_if_size_is_not_given() : void
     {
         $bytes  = 100;
         $offset = 0;
@@ -495,12 +497,12 @@ class ClientTest extends TestCase
 
     /**
      * @test
-     *
-     * @expectedException \TusPhp\Exception\TusException
-     * @expectedExceptionMessage Upload expired.
      */
-    public function it_should_not_resume_upload_if_upload_is_expired()
+    public function it_should_not_resume_upload_if_upload_is_expired() : void
     {
+        $this->expectException(TusException::class);
+        $this->expectExceptionMessage('Upload expired.');
+
         $this->tusClientMock
             ->shouldReceive('getFileSize')
             ->once()
@@ -524,7 +526,7 @@ class ClientTest extends TestCase
      *
      * @covers ::upload
      */
-    public function it_creates_and_then_uploads_a_file_in_file_exception()
+    public function it_creates_and_then_uploads_a_file_in_file_exception() : void
     {
         $key    = uniqid();
         $bytes  = 100;
@@ -564,7 +566,7 @@ class ClientTest extends TestCase
      *
      * @covers ::upload
      */
-    public function it_creates_and_then_uploads_a_file_in_client_exception()
+    public function it_creates_and_then_uploads_a_file_in_client_exception() : void
     {
         $key    = uniqid();
         $bytes  = 100;
@@ -603,12 +605,12 @@ class ClientTest extends TestCase
      * @test
      *
      * @covers ::upload
-     *
-     * @expectedException \TusPhp\Exception\ConnectionException
-     * @expectedExceptionMessage Couldn't connect to server.
      */
-    public function it_throws_connection_exception_for_network_issues()
+    public function it_throws_connection_exception_for_network_issues() : void
     {
+        $this->expectException(ConnectionException::class);
+        $this->expectExceptionMessage('Couldn\'t connect to server.');
+
         $this->tusClientMock
             ->shouldReceive('sendHeadRequest')
             ->once()
@@ -622,7 +624,7 @@ class ClientTest extends TestCase
      *
      * @covers ::getOffset
      */
-    public function it_returns_false_for_file_exception_in_get_offset()
+    public function it_returns_false_for_file_exception_in_get_offset() : void
     {
         $this->tusClientMock
             ->shouldReceive('sendHeadRequest')
@@ -637,7 +639,7 @@ class ClientTest extends TestCase
      *
      * @covers ::getOffset
      */
-    public function it_returns_false_for_client_exception_in_get_offset()
+    public function it_returns_false_for_client_exception_in_get_offset() : void
     {
         $this->tusClientMock
             ->shouldReceive('sendHeadRequest')
@@ -652,7 +654,7 @@ class ClientTest extends TestCase
      *
      * @covers ::getOffset
      */
-    public function it_gets_offset_for_partially_uploaded_resource()
+    public function it_gets_offset_for_partially_uploaded_resource() : void
     {
         $this->tusClientMock
             ->shouldReceive('sendHeadRequest')
@@ -667,7 +669,7 @@ class ClientTest extends TestCase
      *
      * @covers ::sendHeadRequest
      */
-    public function it_sends_a_head_request()
+    public function it_sends_a_head_request() : void
     {
         $key          = '74f02d6da32';
         $guzzleMock   = m::mock(Client::class);
@@ -707,12 +709,12 @@ class ClientTest extends TestCase
      * @test
      *
      * @covers ::sendHeadRequest
-     *
-     * @expectedException \TusPhp\Exception\FileException
-     * @expectedExceptionMessage File not found.
      */
-    public function it_throws_file_exception_in_head_request()
+    public function it_throws_file_exception_in_head_request() : void
     {
+        $this->expectException(FileException::class);
+        $this->expectExceptionMessage('File not found.');
+
         $key          = '74f02d6da32';
         $guzzleMock   = m::mock(Client::class);
         $responseMock = m::mock(Response::class);
@@ -746,12 +748,12 @@ class ClientTest extends TestCase
      *
      * @covers ::sendPatchRequest
      * @covers ::handleClientException
-     *
-     * @expectedException \TusPhp\Exception\FileException
-     * @expectedExceptionMessage The uploaded file is corrupt.
      */
-    public function it_throws_file_exception_for_corrupt_data_in_patch_request()
+    public function it_throws_file_exception_for_corrupt_data_in_patch_request() : void
     {
+        $this->expectException(FileException::class);
+        $this->expectExceptionMessage('The uploaded file is corrupt.');
+
         $data     = 'Hello World!';
         $bytes    = 12;
         $offset   = 0;
@@ -815,12 +817,12 @@ class ClientTest extends TestCase
      *
      * @covers ::sendPatchRequest
      * @covers ::handleClientException
-     *
-     * @expectedException \TusPhp\Exception\ConnectionException
-     * @expectedExceptionMessage Connection aborted by user.
      */
-    public function it_throws_connection_exception_if_user_aborts_connection_during_patch_request()
+    public function it_throws_connection_exception_if_user_aborts_connection_during_patch_request() : void
     {
+        $this->expectException(ConnectionException::class);
+        $this->expectExceptionMessage('Connection aborted by user.');
+
         $data     = 'Hello World!';
         $bytes    = 12;
         $offset   = 0;
@@ -884,12 +886,12 @@ class ClientTest extends TestCase
      *
      * @covers ::sendPatchRequest
      * @covers ::handleClientException
-     *
-     * @expectedException \TusPhp\Exception\TusException
-     * @expectedExceptionMessage Unsupported media types.
      */
-    public function it_throws_tus_exception_for_unsupported_media_types()
+    public function it_throws_tus_exception_for_unsupported_media_types() : void
     {
+        $this->expectException(TusException::class);
+        $this->expectExceptionMessage('Unsupported media types.');
+
         $data     = 'Hello World!';
         $bytes    = 12;
         $offset   = 0;
@@ -953,13 +955,13 @@ class ClientTest extends TestCase
      *
      * @covers ::sendPatchRequest
      * @covers ::handleClientException
-     *
-     * @expectedException \TusPhp\Exception\TusException
-     * @expectedExceptionMessage Unable to open file.
-     * @expectedExceptionCode    403
      */
-    public function it_throws_exception_for_other_exceptions_in_patch_request()
+    public function it_throws_exception_for_other_exceptions_in_patch_request() : void
     {
+        $this->expectException(TusException::class);
+        $this->expectExceptionCode(403);
+        $this->expectExceptionMessage('Unable to open file.');
+
         $data     = 'Hello World!';
         $bytes    = 12;
         $offset   = 0;
@@ -1028,12 +1030,12 @@ class ClientTest extends TestCase
      *
      * @covers ::sendPatchRequest
      * @covers ::handleClientException
-     *
-     * @expectedException \TusPhp\Exception\ConnectionException
-     * @expectedExceptionMessage Couldn't connect to server.
      */
-    public function it_throws_connection_exception_if_it_cannot_connect_to_server()
+    public function it_throws_connection_exception_if_it_cannot_connect_to_server() : void
     {
+        $this->expectException(ConnectionException::class);
+        $this->expectExceptionMessage('Couldn\'t connect to server.');
+
         $data     = 'Hello World!';
         $bytes    = 12;
         $offset   = 0;
@@ -1085,7 +1087,7 @@ class ClientTest extends TestCase
      *
      * @covers ::sendPatchRequest
      */
-    public function it_sends_a_patch_request()
+    public function it_sends_a_patch_request() : void
     {
         $data     = 'Hello World!';
         $bytes    = 12;
@@ -1144,7 +1146,7 @@ class ClientTest extends TestCase
      *
      * @covers ::sendPatchRequest
      */
-    public function it_sends_a_partial_patch_request()
+    public function it_sends_a_partial_patch_request() : void
     {
         $data     = 'Hello World!';
         $bytes    = 12;
@@ -1208,7 +1210,7 @@ class ClientTest extends TestCase
      *
      * @covers ::create
      */
-    public function it_creates_a_resource_with_post_request()
+    public function it_creates_a_resource_with_post_request() : void
     {
         $key          = uniqid();
         $checksum     = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
@@ -1286,7 +1288,7 @@ class ClientTest extends TestCase
      *
      * @covers ::create
      */
-    public function it_creates_a_partial_resource_with_post_request()
+    public function it_creates_a_partial_resource_with_post_request() : void
     {
         $key          = uniqid();
         $checksum     = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
@@ -1369,12 +1371,12 @@ class ClientTest extends TestCase
      * @test
      *
      * @covers ::create
-     *
-     * @expectedException \TusPhp\Exception\FileException
-     * @expectedExceptionMessage Unable to create resource.
      */
-    public function it_throws_exception_when_unable_to_create_resource()
+    public function it_throws_exception_when_unable_to_create_resource() : void
     {
+        $this->expectException(FileException::class);
+        $this->expectExceptionMessage('Unable to create resource.');
+
         $key          = uniqid();
         $filePath     = __DIR__ . '/../Fixtures/empty.txt';
         $fileName     = 'file.txt';
@@ -1420,7 +1422,7 @@ class ClientTest extends TestCase
      *
      * @covers ::concat
      */
-    public function it_creates_a_concat_resource_with_post_request()
+    public function it_creates_a_concat_resource_with_post_request() : void
     {
         $key          = uniqid();
         $checksum     = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
@@ -1480,12 +1482,12 @@ class ClientTest extends TestCase
      * @test
      *
      * @covers ::concat
-     *
-     * @expectedException \TusPhp\Exception\FileException
-     * @expectedExceptionMessage Unable to create resource.
      */
-    public function it_throws_exception_when_unable_to_create_concat_resource()
+    public function it_throws_exception_when_unable_to_create_concat_resource() : void
     {
+        $this->expectException(FileException::class);
+        $this->expectExceptionMessage('Unable to create resource.');
+
         $key          = uniqid();
         $filePath     = __DIR__ . '/../Fixtures/empty.txt';
         $fileName     = 'file.txt';
@@ -1537,12 +1539,12 @@ class ClientTest extends TestCase
      * @test
      *
      * @covers ::concat
-     *
-     * @expectedException \TusPhp\Exception\FileException
-     * @expectedExceptionMessage Unable to create resource.
      */
-    public function it_throws_exception_when_unable_to_get_checksum_in_concat()
+    public function it_throws_exception_when_unable_to_get_checksum_in_concat() : void
     {
+        $this->expectException(FileException::class);
+        $this->expectExceptionMessage('Unable to create resource.');
+
         $filePath     = __DIR__ . '/../Fixtures/empty.txt';
         $fileName     = 'file.txt';
         $guzzleMock   = m::mock(Client::class);
@@ -1593,7 +1595,7 @@ class ClientTest extends TestCase
      *
      * @covers ::delete
      */
-    public function it_sends_a_delete_request()
+    public function it_sends_a_delete_request() : void
     {
         $uploadKey    = '74f02d6da32';
         $guzzleMock   = m::mock(Client::class);
@@ -1623,12 +1625,12 @@ class ClientTest extends TestCase
      * @test
      *
      * @covers ::delete
-     *
-     * @expectedException \TusPhp\Exception\FileException
-     * @expectedExceptionMessage File not found.
      */
-    public function it_throws_404_for_invalid_delete_request()
+    public function it_throws_404_for_invalid_delete_request() : void
     {
+        $this->expectException(FileException::class);
+        $this->expectExceptionMessage('File not found.');
+
         $uploadKey    = '74f02d6da32';
         $guzzleMock   = m::mock(Client::class);
         $responseMock = m::mock(Response::class);
@@ -1669,12 +1671,12 @@ class ClientTest extends TestCase
      * @test
      *
      * @covers ::delete
-     *
-     * @expectedException \TusPhp\Exception\FileException
-     * @expectedExceptionMessage File not found.
      */
-    public function it_throws_404_for_response_http_gone()
+    public function it_throws_404_for_response_http_gone() : void
     {
+        $this->expectException(FileException::class);
+        $this->expectExceptionMessage('File not found.');
+
         $uploadKey    = '74f02d6da32';
         $guzzleMock   = m::mock(Client::class);
         $responseMock = m::mock(Response::class);
@@ -1716,7 +1718,7 @@ class ClientTest extends TestCase
      *
      * @covers ::getData
      */
-    public function it_gets_all_data()
+    public function it_gets_all_data() : void
     {
         $offset     = 0;
         $filePath   = __DIR__ . '/../Fixtures/data.txt';
@@ -1741,7 +1743,7 @@ class ClientTest extends TestCase
      *
      * @covers ::getData
      */
-    public function it_gets_partial_data()
+    public function it_gets_partial_data() : void
     {
         $offset     = 49;
         $filePath   = __DIR__ . '/../Fixtures/data.txt';
@@ -1763,7 +1765,7 @@ class ClientTest extends TestCase
      *
      * @covers ::getUploadChecksumHeader
      */
-    public function it_gets_upload_checksum_header()
+    public function it_gets_upload_checksum_header() : void
     {
         $file     = __DIR__ . '/../Fixtures/empty.txt';
         $checksum = hash_file('crc32', $file);
@@ -1786,7 +1788,7 @@ class ClientTest extends TestCase
      *
      * @covers ::getUploadMetadataHeader
      */
-    public function it_gets_upload_metadata_header()
+    public function it_gets_upload_metadata_header() : void
     {
         $filePath = __DIR__ . '/../Fixtures/empty.txt';
 
@@ -1810,7 +1812,7 @@ class ClientTest extends TestCase
      *
      * @return void.
      */
-    public function tearDown()
+    public function tearDown() : void
     {
         m::close();
 

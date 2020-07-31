@@ -21,7 +21,7 @@ class GlobalHeadersTest extends TestCase
      *
      * @return void
      */
-    public function setUp()
+    public function setUp() : void
     {
         $this->globalHeaders = new GlobalHeaders;
 
@@ -33,7 +33,7 @@ class GlobalHeadersTest extends TestCase
      *
      * @covers ::handle
      */
-    public function it_adds_global_headers()
+    public function it_adds_global_headers() : void
     {
         $requestMock  = m::mock(Request::class, [])->makePartial();
         $responseMock = m::mock(Response::class);
@@ -55,7 +55,7 @@ class GlobalHeadersTest extends TestCase
      *
      * @return void.
      */
-    public function tearDown()
+    public function tearDown() : void
     {
         m::close();
 

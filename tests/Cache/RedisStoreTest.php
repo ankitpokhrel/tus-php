@@ -27,7 +27,7 @@ class RedisStoreTest extends TestCase
      *
      * @return void
      */
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass() : void
     {
         $connection = new RedisStore([
             'host' => getenv('REDIS_HOST'),
@@ -52,7 +52,7 @@ class RedisStoreTest extends TestCase
      *
      * @return void
      */
-    protected function setUp()
+    protected function setUp() : void
     {
         if (false === static::$redisStore) {
             $this->markTestSkipped('Unable to connect to redis.');
@@ -69,7 +69,7 @@ class RedisStoreTest extends TestCase
      * @covers ::__construct
      * @covers ::getRedis
      */
-    public function it_passes_proper_options_to_redis_client()
+    public function it_passes_proper_options_to_redis_client() : void
     {
         $options = [
             'host' => '129.0.0.1',
@@ -92,7 +92,7 @@ class RedisStoreTest extends TestCase
      * @covers ::setPrefix
      * @covers ::getPrefix
      */
-    public function it_sets_and_gets_redis_cache_prefix()
+    public function it_sets_and_gets_redis_cache_prefix() : void
     {
         $this->assertEquals('tus:', static::$redisStore->getPrefix());
         $this->assertInstanceOf(RedisStore::class, static::$redisStore->setPrefix('redis:'));
@@ -107,7 +107,7 @@ class RedisStoreTest extends TestCase
      * @covers ::setTtl
      * @covers ::delete
      */
-    public function it_sets_and_gets_cache_contents()
+    public function it_sets_and_gets_cache_contents() : void
     {
         $cacheContent = ['expires_at' => 'Sat, 09 Dec 2017 16:25:51 GMT', 'offset' => 100];
 
@@ -138,7 +138,7 @@ class RedisStoreTest extends TestCase
      *
      * @depends it_sets_and_gets_cache_contents
      */
-    public function it_doesnt_replace_cache_key_in_set()
+    public function it_doesnt_replace_cache_key_in_set() : void
     {
         $this->assertTrue(static::$redisStore->set($this->checksum, ['offset' => 500]));
 
@@ -153,7 +153,7 @@ class RedisStoreTest extends TestCase
      *
      * @covers ::get
      */
-    public function it_returns_contents_if_not_expired()
+    public function it_returns_contents_if_not_expired() : void
     {
         $cacheContent = ['expires_at' => 'Sat, 09 Dec 2017 16:25:51 GMT', 'offset' => 500];
 
@@ -165,7 +165,7 @@ class RedisStoreTest extends TestCase
      *
      * @covers ::get
      */
-    public function it_returns_null_if_cache_is_expired()
+    public function it_returns_null_if_cache_is_expired() : void
     {
         $cacheContent = ['expires_at' => 'Thu, 07 Dec 2017 16:25:51 GMT', 'offset' => 100];
 
@@ -178,7 +178,7 @@ class RedisStoreTest extends TestCase
      *
      * @covers ::get
      */
-    public function it_returns_expired_contents_if_with_expired_is_true()
+    public function it_returns_expired_contents_if_with_expired_is_true() : void
     {
         $cacheContent = ['expires_at' => 'Thu, 07 Dec 2017 16:25:51 GMT', 'offset' => 100];
 
@@ -194,7 +194,7 @@ class RedisStoreTest extends TestCase
      * @covers ::get
      * @covers ::delete
      */
-    public function it_deletes_cache_content()
+    public function it_deletes_cache_content() : void
     {
         $cacheContent = ['expires_at' => 'Fri, 08 Dec 2017 16:25:51 GMT', 'offset' => 100];
 
@@ -212,7 +212,7 @@ class RedisStoreTest extends TestCase
      * @covers ::get
      * @covers ::deleteAll
      */
-    public function it_deletes_all_cache_keys()
+    public function it_deletes_all_cache_keys() : void
     {
         $checksum1    = 'checksum-1';
         $checksum2    = 'checksum-2';
@@ -231,7 +231,7 @@ class RedisStoreTest extends TestCase
      *
      * @covers ::getRedis
      */
-    public function it_gets_redis_object()
+    public function it_gets_redis_object() : void
     {
         $this->assertInstanceOf(Client::class, static::$redisStore->getRedis());
     }
@@ -241,7 +241,7 @@ class RedisStoreTest extends TestCase
      *
      * @covers ::keys
      */
-    public function it_gets_cache_keys()
+    public function it_gets_cache_keys() : void
     {
         $this->assertTrue(static::$redisStore->set($this->checksum, []));
         $this->assertEquals([static::$redisStore->getPrefix() . $this->checksum], static::$redisStore->keys());
@@ -252,7 +252,7 @@ class RedisStoreTest extends TestCase
      *
      * @return void
      */
-    public static function tearDownAfterClass()
+    public static function tearDownAfterClass() : void
     {
         if (false !== static::$redisStore) {
             $redis = static::$redisStore->getRedis();

@@ -21,7 +21,7 @@ class CorsTest extends TestCase
      *
      * @return void
      */
-    public function setUp()
+    public function setUp() : void
     {
         $this->cors = new Cors;
 
@@ -33,7 +33,7 @@ class CorsTest extends TestCase
      *
      * @covers ::handle
      */
-    public function it_adds_cors_headers()
+    public function it_adds_cors_headers() : void
     {
         $requestMock  = m::mock(Request::class, [])->makePartial();
         $responseMock = m::mock(Response::class);
@@ -58,7 +58,7 @@ class CorsTest extends TestCase
      *
      * @return void.
      */
-    public function tearDown()
+    public function tearDown() : void
     {
         m::close();
 

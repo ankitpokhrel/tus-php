@@ -24,7 +24,7 @@ class TusEventTest extends TestCase
      *
      * @return void
      */
-    public function setUp()
+    public function setUp() : void
     {
         $this->tusServer = new TusServer;
     }
@@ -36,7 +36,7 @@ class TusEventTest extends TestCase
      * @covers ::getRequest
      * @covers ::getResponse
      */
-    public function it_gets_file_request_and_response()
+    public function it_gets_file_request_and_response() : void
     {
         $this->tusServer->event()->addListener(UploadComplete::NAME, function (TusEvent $event) {
             $this->assertInstanceOf(File::class, $event->getFile());
