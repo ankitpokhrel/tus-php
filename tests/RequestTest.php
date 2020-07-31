@@ -19,7 +19,7 @@ class RequestTest extends TestCase
      *
      * @return void
      */
-    public function setUp()
+    public function setUp() : void
     {
         $this->request = new Request;
 
@@ -32,7 +32,7 @@ class RequestTest extends TestCase
      * @covers ::__construct
      * @covers ::method
      */
-    public function it_returns_current_request_method()
+    public function it_returns_current_request_method() : void
     {
         $this->assertEquals('GET', $this->request->method());
 
@@ -48,7 +48,7 @@ class RequestTest extends TestCase
      *
      * @covers ::key
      */
-    public function it_should_return_checksum_from_request_url()
+    public function it_should_return_checksum_from_request_url() : void
     {
         $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
 
@@ -62,7 +62,7 @@ class RequestTest extends TestCase
      *
      * @covers ::path
      */
-    public function it_returns_url_path_info()
+    public function it_returns_url_path_info() : void
     {
         $this->request->getRequest()->server->set('REQUEST_URI', '/tus/files/');
 
@@ -74,7 +74,7 @@ class RequestTest extends TestCase
      *
      * @covers ::allowedHttpVerbs
      */
-    public function it_returns_allowed_http_verbs()
+    public function it_returns_allowed_http_verbs() : void
     {
         $this->assertEquals([
             'GET',
@@ -91,7 +91,7 @@ class RequestTest extends TestCase
      *
      * @covers ::header
      */
-    public function it_extracts_header()
+    public function it_extracts_header() : void
     {
         $this->request->getRequest()->headers->set('content-length', 100);
 
@@ -103,7 +103,7 @@ class RequestTest extends TestCase
      *
      * @covers ::url
      */
-    public function it_gets_root_url()
+    public function it_gets_root_url() : void
     {
         $this->request->getRequest()->server->add([
             'SERVER_NAME' => 'tus.local',
@@ -125,7 +125,7 @@ class RequestTest extends TestCase
      *
      * @covers ::extractFromHeader
      */
-    public function it_extracts_data_from_header()
+    public function it_extracts_data_from_header() : void
     {
         $this->request->getRequest()->headers->set('Upload-Metadata', 'filename dGVzdA==');
         $this->request->getRequest()->headers->set('Upload-Concat', 'final;/files/a /files/b');
@@ -142,7 +142,7 @@ class RequestTest extends TestCase
      * @covers ::extractFileName
      * @covers ::isValidFilename
      */
-    public function it_extracts_file_name()
+    public function it_extracts_file_name() : void
     {
         $validFileNames = [
             'file.txt',
@@ -171,7 +171,7 @@ class RequestTest extends TestCase
      * @covers ::extractFileName
      * @covers ::isValidFilename
      */
-    public function it_replaces_bad_file_names()
+    public function it_replaces_bad_file_names() : void
     {
         $badFileNames = [
             '../file.txt',
@@ -197,7 +197,7 @@ class RequestTest extends TestCase
      * @covers ::extractFileName
      * @covers ::extractAllMeta
      */
-    public function it_extracts_metadata_from_multiple_concatenated_headers()
+    public function it_extracts_metadata_from_multiple_concatenated_headers() : void
     {
         $filename = 'file.txt';
         $fileType = 'image';
@@ -228,7 +228,7 @@ class RequestTest extends TestCase
      * @covers ::extractMeta
      * @covers ::extractAllMeta
      */
-    public function it_returns_empty_if_upload_metadata_header_not_present()
+    public function it_returns_empty_if_upload_metadata_header_not_present() : void
     {
         $this->assertEmpty($this->request->extractMeta('invalid-key'));
 
@@ -247,7 +247,7 @@ class RequestTest extends TestCase
      * @covers ::extractFromHeader
      * @covers ::extractPartials
      */
-    public function it_extracts_partials()
+    public function it_extracts_partials() : void
     {
         $this->request->getRequest()->headers->set('Upload-Concat', 'final;/files/a /files/b');
 
@@ -259,7 +259,7 @@ class RequestTest extends TestCase
      *
      * @covers ::isPartial
      */
-    public function it_checks_if_a_request_is_partial()
+    public function it_checks_if_a_request_is_partial() : void
     {
         $this->assertFalse($this->request->isPartial());
 
@@ -273,7 +273,7 @@ class RequestTest extends TestCase
      *
      * @covers ::isFinal
      */
-    public function it_checks_if_a_request_is_final()
+    public function it_checks_if_a_request_is_final() : void
     {
         $this->assertFalse($this->request->isFinal());
 
@@ -287,7 +287,7 @@ class RequestTest extends TestCase
      *
      * @covers ::getRequest
      */
-    public function it_gets_request()
+    public function it_gets_request() : void
     {
         $this->assertInstanceOf(HttpRequest::class, $this->request->getRequest());
     }
@@ -297,7 +297,7 @@ class RequestTest extends TestCase
      *
      * @covers ::extractAllMeta
      */
-    public function it_extracts_all_metadata()
+    public function it_extracts_all_metadata() : void
     {
         $this->request->getRequest()->headers->set('Upload-Metadata', '');
         $this->assertEmpty($this->request->extractAllMeta());

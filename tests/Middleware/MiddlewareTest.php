@@ -22,7 +22,7 @@ class MiddlewareTest extends TestCase
      *
      * @return void
      */
-    public function setUp()
+    public function setUp() : void
     {
         $this->middleware = new Middleware;
 
@@ -35,7 +35,7 @@ class MiddlewareTest extends TestCase
      * @covers ::__construct
      * @covers ::list
      */
-    public function it_sets_default_middleware()
+    public function it_sets_default_middleware() : void
     {
         $middleware = $this->middleware->list();
 
@@ -49,7 +49,7 @@ class MiddlewareTest extends TestCase
      * @covers ::add
      * @covers ::list
      */
-    public function it_adds_valid_middleware()
+    public function it_adds_valid_middleware() : void
     {
         $corsMock  = m::mock(Cors::class);
         $mockClass = \get_class($corsMock);
@@ -70,7 +70,7 @@ class MiddlewareTest extends TestCase
      *
      * @covers ::list
      */
-    public function it_gets_middleware_list()
+    public function it_gets_middleware_list() : void
     {
         $this->assertCount(2, $this->middleware->list());
     }
@@ -81,7 +81,7 @@ class MiddlewareTest extends TestCase
      * @covers ::skip
      * @covers ::list
      */
-    public function it_skips_given_middleware()
+    public function it_skips_given_middleware() : void
     {
         $this->assertInstanceOf(Middleware::class, $this->middleware->skip(GlobalHeaders::class));
 
@@ -96,7 +96,7 @@ class MiddlewareTest extends TestCase
      *
      * @return void.
      */
-    public function tearDown()
+    public function tearDown() : void
     {
         m::close();
 

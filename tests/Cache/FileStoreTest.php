@@ -28,7 +28,7 @@ class FileStoreTest extends TestCase
      *
      * @return void
      */
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->checksum  = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
         $this->cacheDir  = Config::get('file.dir');
@@ -48,7 +48,7 @@ class FileStoreTest extends TestCase
      * @covers ::getTtl
      * @covers ::setTtl
      */
-    public function it_sets_and_gets_ttl()
+    public function it_sets_and_gets_ttl() : void
     {
         $this->assertEquals(86400, $this->fileStore->getTtl());
 
@@ -63,7 +63,7 @@ class FileStoreTest extends TestCase
      * @covers ::setPrefix
      * @covers ::getPrefix
      */
-    public function it_sets_and_gets_file_cache_prefix()
+    public function it_sets_and_gets_file_cache_prefix() : void
     {
         $this->assertEquals('tus:', $this->fileStore->getPrefix());
         $this->assertInstanceOf(FileStore::class, $this->fileStore->setPrefix('file:'));
@@ -76,7 +76,7 @@ class FileStoreTest extends TestCase
      * @covers ::__construct
      * @covers ::getCacheFile
      */
-    public function it_sets_default_cache_dir_and_file()
+    public function it_sets_default_cache_dir_and_file() : void
     {
         $this->assertEquals(Config::get('file.dir') . Config::get('file.name'), (new FileStore)->getCacheFile());
     }
@@ -87,7 +87,7 @@ class FileStoreTest extends TestCase
      * @covers ::__construct
      * @covers ::getCacheFile
      */
-    public function it_sets_cache_dir_and_file()
+    public function it_sets_cache_dir_and_file() : void
     {
         $cacheDir  = '.temp' . DS;
         $cacheFile = 'cache_file.cache';
@@ -105,7 +105,7 @@ class FileStoreTest extends TestCase
      * @covers ::setCacheDir
      * @covers ::getCacheDir
      */
-    public function it_sets_and_gets_cache_dir()
+    public function it_sets_and_gets_cache_dir() : void
     {
         $cacheDir = '/path/to/cache/dir';
 
@@ -119,7 +119,7 @@ class FileStoreTest extends TestCase
      * @covers ::setCacheFile
      * @covers ::getCacheFile
      */
-    public function it_sets_and_gets_cache_file()
+    public function it_sets_and_gets_cache_file() : void
     {
         $cacheFile       = 'tus_cache.txt';
         $defaultCacheDir = Config::get('file.dir');
@@ -138,7 +138,7 @@ class FileStoreTest extends TestCase
      * @covers ::createCacheDir
      * @covers ::isValid
      */
-    public function it_creates_cache_file_if_file_does_not_exist()
+    public function it_creates_cache_file_if_file_does_not_exist() : void
     {
         $this->fileStore->set($this->checksum, 'Test');
 
@@ -160,7 +160,7 @@ class FileStoreTest extends TestCase
      * @covers ::get
      * @covers ::put
      */
-    public function it_sets_cache_contents()
+    public function it_sets_cache_contents() : void
     {
         $cacheContent = ['expires_at' => 'Fri, 08 Dec 2017 16:25:51 GMT', 'offset' => 0];
 
@@ -178,7 +178,7 @@ class FileStoreTest extends TestCase
      * @covers ::get
      * @covers ::put
      */
-    public function it_doesnt_replace_cache_key_in_set()
+    public function it_doesnt_replace_cache_key_in_set() : void
     {
         $cacheContent = ['expires_at' => 'Sat, 09 Dec 2017 16:25:51 GMT', 'offset' => 100];
 
@@ -199,7 +199,7 @@ class FileStoreTest extends TestCase
      *
      * @covers ::get
      */
-    public function it_returns_null_if_cache_key_doesnt_exist()
+    public function it_returns_null_if_cache_key_doesnt_exist() : void
     {
         $content = $this->fileStore->get($this->checksum);
 
@@ -212,7 +212,7 @@ class FileStoreTest extends TestCase
      * @covers ::get
      * @covers ::set
      */
-    public function it_returns_null_for_invalid_expiry_key()
+    public function it_returns_null_for_invalid_expiry_key() : void
     {
         $cacheContent = ['expires_at' => '', 'offset' => 100];
 
@@ -231,7 +231,7 @@ class FileStoreTest extends TestCase
      *
      * @covers ::get
      */
-    public function it_returns_expired_contents_if_with_expired_is_true()
+    public function it_returns_expired_contents_if_with_expired_is_true() : void
     {
         $cacheContent = ['expires_at' => 'Thu, 07 Dec 2017 16:25:51 GMT', 'offset' => 100];
 
@@ -247,7 +247,7 @@ class FileStoreTest extends TestCase
      * @covers ::set
      * @covers ::get
      */
-    public function it_gets_cache_content()
+    public function it_gets_cache_content() : void
     {
         $cacheContent = ['expires_at' => 'Fri, 08 Dec 2017 16:25:51 GMT', 'offset' => 100];
 
@@ -262,7 +262,7 @@ class FileStoreTest extends TestCase
      * @covers ::set
      * @covers ::isValid
      */
-    public function it_checks_cache_expiry_date()
+    public function it_checks_cache_expiry_date() : void
     {
         $cacheContent = ['expires_at' => 'Fri, 08 Dec 2017 16:25:51 GMT'];
 
@@ -281,7 +281,7 @@ class FileStoreTest extends TestCase
      *
      * @covers ::getCacheContents
      */
-    public function it_returns_false_if_cache_file_doesnt_exist()
+    public function it_returns_false_if_cache_file_doesnt_exist() : void
     {
         $this->assertFalse($this->fileStore->getCacheContents());
     }
@@ -294,7 +294,7 @@ class FileStoreTest extends TestCase
      * @covers ::getCacheContents
      * @covers ::sharedGet
      */
-    public function it_gets_all_cache_contents()
+    public function it_gets_all_cache_contents() : void
     {
         $cacheContent = ['expires_at' => 'Fri, 08 Dec 2017 16:25:51 GMT', 'offset' => 100];
 
@@ -318,7 +318,7 @@ class FileStoreTest extends TestCase
      * @covers ::put
      * @covers ::getCacheContents
      */
-    public function it_deletes_cache_content()
+    public function it_deletes_cache_content() : void
     {
         $cacheContent = ['expires_at' => 'Fri, 08 Dec 2017 16:25:51 GMT', 'offset' => 100];
 
@@ -338,7 +338,7 @@ class FileStoreTest extends TestCase
      * @covers ::get
      * @covers ::deleteAll
      */
-    public function it_deletes_all_cache_keys()
+    public function it_deletes_all_cache_keys() : void
     {
         $checksum1    = 'checksum-1';
         $checksum2    = 'checksum-2';
@@ -358,7 +358,7 @@ class FileStoreTest extends TestCase
      *
      * @covers ::keys
      */
-    public function it_gets_cache_keys()
+    public function it_gets_cache_keys() : void
     {
         $this->fileStore->set($this->checksum, []);
 
@@ -370,7 +370,7 @@ class FileStoreTest extends TestCase
      *
      * @covers ::keys
      */
-    public function it_returns_empty_array_for_invalid_cache_contents()
+    public function it_returns_empty_array_for_invalid_cache_contents() : void
     {
         $this->fileStore->setCacheFile('/path/to/invalid/file');
 
@@ -383,7 +383,7 @@ class FileStoreTest extends TestCase
      * @covers ::getActualCacheKey
      * @covers ::setPrefix
      */
-    public function it_gets_actual_cache_key()
+    public function it_gets_actual_cache_key() : void
     {
         $this->assertEquals('tus:cache-key', $this->fileStore->getActualCacheKey('cache-key'));
         $this->assertEquals('tus:cache-key', $this->fileStore->getActualCacheKey('tus:cache-key'));
@@ -400,7 +400,7 @@ class FileStoreTest extends TestCase
      * @covers ::put
      * @covers ::sharedGet
      */
-    public function it_gets_data_with_shared_lock()
+    public function it_gets_data_with_shared_lock() : void
     {
         $filePath  = __DIR__ . '/../.tmp/shared.txt';
         $fileStore = new FileStore(__DIR__ . '/../.tmp/', 'shared.txt');
@@ -438,7 +438,7 @@ class FileStoreTest extends TestCase
      *
      * @covers ::sharedGet
      */
-    public function it_gets_empty_contents_for_invalid_file_in_shared_get()
+    public function it_gets_empty_contents_for_invalid_file_in_shared_get() : void
     {
         $this->assertEmpty($this->fileStore->sharedGet(__DIR__ . '/.tmp/invalid.file'));
     }
@@ -448,7 +448,7 @@ class FileStoreTest extends TestCase
      *
      * @return void
      */
-    protected function tearDown()
+    protected function tearDown() : void
     {
         if (file_exists($this->cacheDir . $this->cacheFile)) {
             unlink($this->cacheDir . $this->cacheFile);

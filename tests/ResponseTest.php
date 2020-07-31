@@ -4,6 +4,7 @@ namespace TusPhp\Test;
 
 use TusPhp\Response;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
 
 /**
  * @coversDefaultClass \TusPhp\Response
@@ -18,7 +19,7 @@ class ResponseTest extends TestCase
      *
      * @return void
      */
-    public function setUp()
+    public function setUp() : void
     {
         $this->response = new Response;
 
@@ -31,7 +32,7 @@ class ResponseTest extends TestCase
      * @covers ::createOnly
      * @covers ::getCreateOnly
      */
-    public function it_sets_and_gets_create_only()
+    public function it_sets_and_gets_create_only() : void
     {
         $this->assertTrue($this->response->getCreateOnly());
 
@@ -46,7 +47,7 @@ class ResponseTest extends TestCase
      * @covers ::setHeaders
      * @covers ::getHeaders
      */
-    public function it_sets_and_gets_headers()
+    public function it_sets_and_gets_headers() : void
     {
         $this->assertEquals([], $this->response->getHeaders());
 
@@ -70,7 +71,7 @@ class ResponseTest extends TestCase
      * @covers ::replaceHeaders
      * @covers ::getHeaders
      */
-    public function it_replaces_headers()
+    public function it_replaces_headers() : void
     {
         $this->assertEquals([], $this->response->getHeaders());
         $this->assertInstanceOf(Response::class, $this->response->setHeaders(['Access-Control-Max-Age' => 86400]));
@@ -86,7 +87,7 @@ class ResponseTest extends TestCase
      *
      * @covers ::send
      */
-    public function it_sends_a_response()
+    public function it_sends_a_response() : void
     {
         $content  = '204 No Content';
         $response = $this->response
@@ -105,7 +106,7 @@ class ResponseTest extends TestCase
      *
      * @covers ::send
      */
-    public function it_sends_array_response()
+    public function it_sends_array_response() : void
     {
         $content  = ['status' => '204 No Content'];
         $response = $this->response
@@ -121,11 +122,10 @@ class ResponseTest extends TestCase
      * @test
      *
      * @covers ::download
-     *
-     * @expectedException \Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException
      */
-    public function it_returns_file_not_found_exception()
+    public function it_returns_file_not_found_exception() : void
     {
+        $this->expectException(FileNotFoundException::class);
         $file = __DIR__ . '/Fixtures/404.txt';
 
         $this->response->createOnly(true)->download($file, null);
@@ -136,7 +136,7 @@ class ResponseTest extends TestCase
      *
      * @covers ::download
      */
-    public function it_sends_binary_response()
+    public function it_sends_binary_response() : void
     {
         $file = __DIR__ . '/Fixtures/empty.txt';
         $name = 'file.txt';
@@ -152,7 +152,7 @@ class ResponseTest extends TestCase
      *
      * @covers ::download
      */
-    public function it_sends_binary_response_when_name_is_null()
+    public function it_sends_binary_response_when_name_is_null() : void
     {
         $file = __DIR__ . '/Fixtures/empty.txt';
 

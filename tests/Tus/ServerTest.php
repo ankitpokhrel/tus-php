@@ -46,7 +46,7 @@ class ServerTest extends TestCase
      *
      * @return void
      */
-    public function setUp()
+    public function setUp() : void
     {
         $this->tusServer     = new TusServer;
         $this->tusServerMock = m::mock(TusServer::class)
@@ -89,7 +89,7 @@ class ServerTest extends TestCase
      * @covers ::getUploadDir
      * @covers ::setUploadDir
      */
-    public function it_sets_and_gets_upload_dir()
+    public function it_sets_and_gets_upload_dir() : void
     {
         $this->assertEquals(\dirname(__DIR__, 2) . '/uploads', $this->tusServer->getUploadDir());
 
@@ -104,7 +104,7 @@ class ServerTest extends TestCase
      * @covers ::__construct
      * @covers ::getRequest
      */
-    public function it_gets_a_request()
+    public function it_gets_a_request() : void
     {
         $this->assertInstanceOf(Request::class, $this->tusServer->getRequest());
     }
@@ -115,7 +115,7 @@ class ServerTest extends TestCase
      * @covers ::__construct
      * @covers ::getResponse
      */
-    public function it_gets_a_response()
+    public function it_gets_a_response() : void
     {
         $this->assertInstanceOf(Response::class, $this->tusServer->getResponse());
     }
@@ -125,7 +125,7 @@ class ServerTest extends TestCase
      *
      * @covers ::getServerChecksum
      */
-    public function it_gets_a_checksum()
+    public function it_gets_a_checksum() : void
     {
         $filePath = __DIR__ . '/../Fixtures/empty.txt';
         $checksum = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
@@ -138,7 +138,7 @@ class ServerTest extends TestCase
      *
      * @covers ::getChecksumAlgorithm
      */
-    public function it_gets_checksum_algorithm()
+    public function it_gets_checksum_algorithm() : void
     {
         $this->assertEquals('sha256', $this->tusServerMock->getChecksumAlgorithm());
 
@@ -159,7 +159,7 @@ class ServerTest extends TestCase
      * @covers ::middleware
      * @covers ::setMiddleware
      */
-    public function it_sets_and_gets_middleware()
+    public function it_sets_and_gets_middleware() : void
     {
         $this->assertInstanceOf(Middleware::class, $this->tusServerMock->middleware());
         $this->assertInstanceOf(Server::class, $this->tusServerMock->setMiddleware(new Middleware));
@@ -171,7 +171,7 @@ class ServerTest extends TestCase
      * @covers ::getMaxUploadSize
      * @covers ::setMaxUploadSize
      */
-    public function it_sets_and_gets_max_upload_size()
+    public function it_sets_and_gets_max_upload_size() : void
     {
         $this->assertEquals(0, $this->tusServerMock->getMaxUploadSize());
         $this->assertInstanceOf(TusServer::class, $this->tusServerMock->setMaxUploadSize(1000));
@@ -183,7 +183,7 @@ class ServerTest extends TestCase
      *
      * @covers ::serve
      */
-    public function it_sends_405_for_invalid_http_verbs()
+    public function it_sends_405_for_invalid_http_verbs() : void
     {
         $this->tusServerMock
             ->getRequest()
@@ -202,7 +202,7 @@ class ServerTest extends TestCase
      *
      * @covers ::serve
      */
-    public function it_sends_412_if_pre_condition_fails()
+    public function it_sends_412_if_pre_condition_fails() : void
     {
         $tusServerMock = m::mock(TusServer::class)
                           ->shouldAllowMockingProtectedMethods()
@@ -250,7 +250,7 @@ class ServerTest extends TestCase
      *
      * @covers ::serve
      */
-    public function it_passes_pre_condition_check_if_requests_matches_tus_resumable_header()
+    public function it_passes_pre_condition_check_if_requests_matches_tus_resumable_header() : void
     {
         $tusServerMock = m::mock(TusServer::class)
                           ->shouldAllowMockingProtectedMethods()
@@ -299,7 +299,7 @@ class ServerTest extends TestCase
      *
      * @covers ::serve
      */
-    public function it_calls_proper_handle_method()
+    public function it_calls_proper_handle_method() : void
     {
         foreach (self::ALLOWED_HTTP_VERBS as $method) {
             $tusServerMock = m::mock(TusServer::class)
@@ -339,7 +339,7 @@ class ServerTest extends TestCase
      *
      * @covers ::serve
      */
-    public function it_overrides_http_method()
+    public function it_overrides_http_method() : void
     {
         $tusServerMock = m::mock(TusServer::class)
                           ->shouldAllowMockingProtectedMethods()
@@ -383,7 +383,7 @@ class ServerTest extends TestCase
      *
      * @covers ::applyMiddleware
      */
-    public function it_applies_middleware()
+    public function it_applies_middleware() : void
     {
         $requestMock  = m::mock(Request::class);
         $responseMock = m::mock(Response::class);
@@ -417,7 +417,7 @@ class ServerTest extends TestCase
      *
      * @covers ::__call
      */
-    public function it_sends_400_for_other_methods()
+    public function it_sends_400_for_other_methods() : void
     {
         $response = $this->tusServer->handleHead();
 
@@ -430,7 +430,7 @@ class ServerTest extends TestCase
      *
      * @covers ::handleOptions
      */
-    public function it_handles_options_request()
+    public function it_handles_options_request() : void
     {
         $this->tusServerMock
             ->getRequest()
@@ -466,7 +466,7 @@ class ServerTest extends TestCase
      *
      * @covers ::handleOptions
      */
-    public function it_adds_max_size_header_in_options_request()
+    public function it_adds_max_size_header_in_options_request() : void
     {
         $this->tusServerMock
             ->getRequest()
@@ -493,7 +493,7 @@ class ServerTest extends TestCase
      * @covers ::handleHead
      * @covers ::getHeadersForHeadRequest
      */
-    public function it_sends_404_for_invalid_checksum_in_head_method()
+    public function it_sends_404_for_invalid_checksum_in_head_method() : void
     {
         $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
 
@@ -534,7 +534,7 @@ class ServerTest extends TestCase
      * @covers ::handleHead
      * @covers ::getHeadersForHeadRequest
      */
-    public function it_returns_410_if_no_offset_is_set()
+    public function it_returns_410_if_no_offset_is_set() : void
     {
         $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
 
@@ -576,7 +576,7 @@ class ServerTest extends TestCase
      * @covers ::handleHead
      * @covers ::getHeadersForHeadRequest
      */
-    public function it_handles_head_request()
+    public function it_handles_head_request() : void
     {
         $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
 
@@ -624,7 +624,7 @@ class ServerTest extends TestCase
      * @covers ::handleHead
      * @covers ::getHeadersForHeadRequest
      */
-    public function it_handles_head_request_for_partial_upload()
+    public function it_handles_head_request_for_partial_upload() : void
     {
         $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
 
@@ -672,7 +672,7 @@ class ServerTest extends TestCase
      * @covers ::handleHead
      * @covers ::getHeadersForHeadRequest
      */
-    public function it_handles_head_request_for_final_upload()
+    public function it_handles_head_request_for_final_upload() : void
     {
         $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
 
@@ -719,7 +719,7 @@ class ServerTest extends TestCase
      *
      * @covers ::handlePost
      */
-    public function it_returns_400_for_invalid_upload()
+    public function it_returns_400_for_invalid_upload() : void
     {
         $this->tusServerMock
             ->getRequest()
@@ -741,7 +741,7 @@ class ServerTest extends TestCase
      *
      * @covers ::handlePost
      */
-    public function it_returns_413_for_uploads_larger_than_max_size()
+    public function it_returns_413_for_uploads_larger_than_max_size() : void
     {
         $fileName = 'file.txt';
 
@@ -789,7 +789,7 @@ class ServerTest extends TestCase
      *
      * @covers ::handlePost
      */
-    public function it_calls_concatenation_for_final_upload()
+    public function it_calls_concatenation_for_final_upload() : void
     {
         $fileName  = 'file.txt';
         $checksum  = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
@@ -845,7 +845,7 @@ class ServerTest extends TestCase
      * @covers ::handlePost
      * @covers \TusPhp\Events\UploadCreated::__construct
      */
-    public function it_handles_post_for_partial_request()
+    public function it_handles_post_for_partial_request() : void
     {
         $key        = uniqid();
         $partialKey = $key . '_partial';
@@ -973,7 +973,7 @@ class ServerTest extends TestCase
      * @covers ::handlePost
      * @covers \TusPhp\Events\UploadCreated::__construct
      */
-    public function it_handles_post_request()
+    public function it_handles_post_request() : void
     {
         $key       = uniqid();
         $fileName  = 'file.txt';
@@ -1092,7 +1092,7 @@ class ServerTest extends TestCase
      * @covers ::getPartialsMeta
      * @covers \TusPhp\Events\UploadMerged::__construct
      */
-    public function it_handles_concatenation_request()
+    public function it_handles_concatenation_request() : void
     {
         $key      = uniqid();
         $fileName = 'file.txt';
@@ -1266,7 +1266,7 @@ class ServerTest extends TestCase
      * @covers ::handleConcatenation
      * @covers ::getPartialsMeta
      */
-    public function it_throws_460_for_checksum_mismatch_in_concatenation_request()
+    public function it_throws_460_for_checksum_mismatch_in_concatenation_request() : void
     {
         $key      = uniqid();
         $fileName = 'file.txt';
@@ -1389,7 +1389,7 @@ class ServerTest extends TestCase
      * @covers ::handlePatch
      * @covers ::verifyPatchRequest
      */
-    public function it_returns_410_for_invalid_patch_request()
+    public function it_returns_410_for_invalid_patch_request() : void
     {
         $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
 
@@ -1429,7 +1429,7 @@ class ServerTest extends TestCase
      * @covers ::handlePatch
      * @covers ::verifyPatchRequest
      */
-    public function it_returns_409_for_upload_offset_mismatch()
+    public function it_returns_409_for_upload_offset_mismatch() : void
     {
         $key       = uniqid();
         $fileName  = 'file.txt';
@@ -1494,7 +1494,7 @@ class ServerTest extends TestCase
      * @covers ::handlePatch
      * @covers ::verifyPatchRequest
      */
-    public function it_returns_422_for_file_exception()
+    public function it_returns_422_for_file_exception() : void
     {
         $key       = uniqid();
         $fileName  = 'file.txt';
@@ -1597,7 +1597,7 @@ class ServerTest extends TestCase
      * @covers ::handlePatch
      * @covers ::verifyPatchRequest
      */
-    public function it_returns_416_for_corrupt_upload()
+    public function it_returns_416_for_corrupt_upload() : void
     {
         $key       = uniqid();
         $fileName  = 'file.txt';
@@ -1700,7 +1700,7 @@ class ServerTest extends TestCase
      * @covers ::handlePatch
      * @covers ::verifyPatchRequest
      */
-    public function it_returns_100_for_aborted_upload()
+    public function it_returns_100_for_aborted_upload() : void
     {
         $key       = uniqid();
         $fileName  = 'file.txt';
@@ -1803,7 +1803,7 @@ class ServerTest extends TestCase
      * @covers ::handlePatch
      * @covers ::verifyPatchRequest
      */
-    public function it_returns_403_for_patch_request_against_final_upload()
+    public function it_returns_403_for_patch_request_against_final_upload() : void
     {
         $fileName  = 'file.txt';
         $fileSize  = 1024;
@@ -1860,7 +1860,7 @@ class ServerTest extends TestCase
      * @covers ::handlePatch
      * @covers ::verifyPatchRequest
      */
-    public function it_returns_460_for_corrupt_upload()
+    public function it_returns_460_for_corrupt_upload() : void
     {
         $key       = uniqid();
         $fileName  = 'file.txt';
@@ -1964,7 +1964,7 @@ class ServerTest extends TestCase
      * @covers ::verifyPatchRequest
      * @covers \TusPhp\Events\UploadComplete::__construct
      */
-    public function it_handles_final_patch_request()
+    public function it_handles_final_patch_request() : void
     {
         $key       = uniqid();
         $fileName  = 'file.txt';
@@ -2088,7 +2088,7 @@ class ServerTest extends TestCase
      * @covers ::verifyPatchRequest
      * @covers \TusPhp\Events\UploadProgress::__construct
      */
-    public function it_handles_patch_request()
+    public function it_handles_patch_request() : void
     {
         $key       = uniqid();
         $fileName  = 'file.txt';
@@ -2205,7 +2205,7 @@ class ServerTest extends TestCase
      *
      * @covers ::handleGet
      */
-    public function it_treats_head_and_get_as_identical_request()
+    public function it_treats_head_and_get_as_identical_request() : void
     {
         $key = '74f02d6da32082463e382';
 
@@ -2242,7 +2242,7 @@ class ServerTest extends TestCase
      *
      * @covers ::handleGet
      */
-    public function it_sends_a_download_request_when_calling_get()
+    public function it_sends_a_download_request_when_calling_get() : void
     {
         $key = '74f02d6da32082463e382';
 
@@ -2280,7 +2280,7 @@ class ServerTest extends TestCase
      * @covers ::handleGet
      * @covers ::handleDownload
      */
-    public function it_returns_404_for_request_without_key()
+    public function it_returns_404_for_request_without_key() : void
     {
         $this->tusServerMock
             ->getRequest()
@@ -2318,7 +2318,7 @@ class ServerTest extends TestCase
      * @covers ::handleGet
      * @covers ::handleDownload
      */
-    public function it_returns_404_for_invalid_download_request()
+    public function it_returns_404_for_invalid_download_request() : void
     {
         $uploadKey = '74f02d6da32082463e3';
 
@@ -2358,7 +2358,7 @@ class ServerTest extends TestCase
      * @covers ::handleGet
      * @covers ::handleDownload
      */
-    public function it_returns_404_if_resource_doesnt_exist()
+    public function it_returns_404_if_resource_doesnt_exist() : void
     {
         $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
 
@@ -2400,7 +2400,7 @@ class ServerTest extends TestCase
      * @covers ::handleGet
      * @covers ::handleDownload
      */
-    public function it_handles_download_request()
+    public function it_handles_download_request() : void
     {
         $fileName  = 'file.txt';
         $fileSize  = 1024;
@@ -2458,7 +2458,7 @@ class ServerTest extends TestCase
      *
      * @covers ::handleDelete
      */
-    public function it_returns_404_for_invalid_resource_in_delete_request()
+    public function it_returns_404_for_invalid_resource_in_delete_request() : void
     {
         $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
 
@@ -2497,7 +2497,7 @@ class ServerTest extends TestCase
      *
      * @covers ::handleDelete
      */
-    public function it_returns_410_for_invalid_resource_in_delete_request()
+    public function it_returns_410_for_invalid_resource_in_delete_request() : void
     {
         $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
 
@@ -2544,7 +2544,7 @@ class ServerTest extends TestCase
      *
      * @covers ::handleDelete
      */
-    public function it_handles_delete_request()
+    public function it_handles_delete_request() : void
     {
         $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
 
@@ -2609,7 +2609,7 @@ class ServerTest extends TestCase
      *
      * @covers ::getHeadersForHeadRequest
      */
-    public function it_gets_required_headers_for_head_request()
+    public function it_gets_required_headers_for_head_request() : void
     {
         $fileMeta = [
             'offset' => '49',
@@ -2642,7 +2642,7 @@ class ServerTest extends TestCase
      *
      * @covers ::buildFile
      */
-    public function it_builds_file_object_from_meta()
+    public function it_builds_file_object_from_meta() : void
     {
         $fileName  = 'file.txt';
         $fileSize  = 1024;
@@ -2686,7 +2686,7 @@ class ServerTest extends TestCase
      *
      * @covers ::getSupportedHashAlgorithms
      */
-    public function it_gets_supported_hash_algorithms()
+    public function it_gets_supported_hash_algorithms() : void
     {
         $mockBuilder = (new MockBuilder())->setNamespace('\TusPhp\Tus');
 
@@ -2712,7 +2712,7 @@ class ServerTest extends TestCase
      *
      * @covers ::getClientChecksum
      */
-    public function it_returns_empty_string_if_upload_checksum_header_is_not_present()
+    public function it_returns_empty_string_if_upload_checksum_header_is_not_present() : void
     {
         $response = $this->tusServerMock->getClientChecksum();
 
@@ -2726,7 +2726,7 @@ class ServerTest extends TestCase
      *
      * @covers ::getClientChecksum
      */
-    public function it_returns_404_for_unsupported_hash_algorithm()
+    public function it_returns_404_for_unsupported_hash_algorithm() : void
     {
         $filePath    = __DIR__ . '/../Fixtures/empty.txt';
         $checksum    = hash_file('sha1', $filePath);
@@ -2765,7 +2765,7 @@ class ServerTest extends TestCase
      *
      * @covers ::getClientChecksum
      */
-    public function it_returns_400_for_invalid_checksum_in_header()
+    public function it_returns_400_for_invalid_checksum_in_header() : void
     {
         $mockBuilder = (new MockBuilder())->setNamespace('\TusPhp\Tus');
 
@@ -2800,7 +2800,7 @@ class ServerTest extends TestCase
      *
      * @covers ::getClientChecksum
      */
-    public function it_gets_upload_checksum_from_header()
+    public function it_gets_upload_checksum_from_header() : void
     {
         $filePath = __DIR__ . '/../Fixtures/empty.txt';
         $checksum = hash_file('sha1', $filePath);
@@ -2819,7 +2819,7 @@ class ServerTest extends TestCase
      *
      * @covers ::getUploadKey
      */
-    public function it_returns_400_for_empty_upload_key_in_header()
+    public function it_returns_400_for_empty_upload_key_in_header() : void
     {
         $this->tusServerMock
             ->getRequest()
@@ -2838,7 +2838,7 @@ class ServerTest extends TestCase
      *
      * @covers ::getUploadKey
      */
-    public function it_generates_upload_key_if_upload_key_is_not_present_in_header()
+    public function it_generates_upload_key_if_upload_key_is_not_present_in_header() : void
     {
         $response = $this->tusServerMock->getUploadKey();
 
@@ -2850,7 +2850,7 @@ class ServerTest extends TestCase
      *
      * @covers ::getUploadKey
      */
-    public function it_gets_upload_key_from_header()
+    public function it_gets_upload_key_from_header() : string
     {
         $key = uniqid();
 
@@ -2873,7 +2873,7 @@ class ServerTest extends TestCase
      * @covers ::setUploadKey
      * @covers ::getUploadKey
      */
-    public function it_gets_upload_key_if_already_set(string $key)
+    public function it_gets_upload_key_if_already_set(string $key) : void
     {
         $this->assertInstanceOf(Server::class, $this->tusServerMock->setUploadKey($key));
         $this->assertEquals($key, $this->tusServerMock->getUploadKey());
@@ -2884,7 +2884,7 @@ class ServerTest extends TestCase
      *
      * @covers ::isExpired
      */
-    public function it_checks_expiry_date()
+    public function it_checks_expiry_date() : void
     {
         $this->assertFalse($this->tusServerMock->isExpired(['expires_at' => 'Sat, 09 Dec 2017 00:00:00 GMT']));
 
@@ -2908,7 +2908,7 @@ class ServerTest extends TestCase
      * @covers ::isExpired
      * @covers ::handleExpiration
      */
-    public function it_deletes_expired_uploads()
+    public function it_deletes_expired_uploads() : void
     {
         $filePath  = __DIR__ . '/../.tmp/upload.txt';
         $cacheMock = m::mock(FileStore::class);
@@ -2985,7 +2985,7 @@ class ServerTest extends TestCase
      * @covers ::isExpired
      * @covers ::handleExpiration
      */
-    public function it_doesnt_unlink_if_unable_to_delete_from_cache()
+    public function it_doesnt_unlink_if_unable_to_delete_from_cache() : void
     {
         $filePath  = \dirname(__DIR__) . DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR . 'empty.txt';
         $cacheMock = m::mock(FileStore::class);
@@ -3029,7 +3029,7 @@ class ServerTest extends TestCase
      * @covers ::setUploadDir
      * @covers ::getPathForPartialUpload
      */
-    public function it_gets_path_for_partial_upload()
+    public function it_gets_path_for_partial_upload() : void
     {
         $baseDir   = __DIR__ . '/../.tmp';
         $uploadDir = $baseDir . '/checksum/';
@@ -3052,7 +3052,7 @@ class ServerTest extends TestCase
      *
      * @covers ::getPartialsMeta
      */
-    public function it_gets_partials_meta()
+    public function it_gets_partials_meta() : void
     {
         $filePath = __DIR__ . '/../.tmp/';
         $partials = ['file_a', 'file_b'];
@@ -3092,7 +3092,7 @@ class ServerTest extends TestCase
      * @covers ::verifyUploadSize
      * @covers ::setMaxUploadSize
      */
-    public function it_verifies_upload_size()
+    public function it_verifies_upload_size() : void
     {
         $this->assertTrue($this->tusServerMock->verifyUploadSize());
 
@@ -3127,7 +3127,7 @@ class ServerTest extends TestCase
      *
      * @covers ::verifyChecksum
      */
-    public function it_verifies_checksum()
+    public function it_verifies_checksum() : void
     {
         $filePath = __DIR__ . '/../Fixtures/empty.txt';
         $checksum = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
@@ -3143,7 +3143,7 @@ class ServerTest extends TestCase
      * @covers ::handlePatch
      * @covers ::verifyPatchRequest
      */
-    public function it_returns_415_for_content_type_mismatch()
+    public function it_returns_415_for_content_type_mismatch() : void
     {
         $key       = uniqid();
         $fileName  = 'file.txt';
@@ -3201,7 +3201,7 @@ class ServerTest extends TestCase
      *
      * @return void.
      */
-    public function tearDown()
+    public function tearDown() : void
     {
         m::close();
 

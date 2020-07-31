@@ -9,6 +9,9 @@ use TusPhp\Cache\FileStore;
 use TusPhp\Cache\CacheFactory;
 use PHPUnit\Framework\TestCase;
 use TusPhp\Test\Fixtures\FileFixture;
+use TusPhp\Exception\FileException;
+use TusPhp\Exception\ConnectionException;
+use TusPhp\Exception\OutOfRangeException;
 
 /**
  * @coversDefaultClass \TusPhp\File
@@ -26,7 +29,7 @@ class FileTest extends TestCase
      *
      * @return void
      */
-    public function setUp()
+    public function setUp() : void
     {
         $this->file        = new File('tus.txt', CacheFactory::make());
         $this->mockBuilder = (new MockBuilder)->setNamespace('\TusPhp');
@@ -43,7 +46,7 @@ class FileTest extends TestCase
      * @covers ::setMeta
      * @covers ::details
      */
-    public function it_sets_meta_and_gets_details()
+    public function it_sets_meta_and_gets_details() : void
     {
         $this->file->setMeta(200, 2056, '/path/to/file.pdf', 'http://tus.local/uploads/file.pdf');
 
@@ -64,7 +67,7 @@ class FileTest extends TestCase
      * @covers ::getName
      * @covers ::setName
      */
-    public function it_sets_and_gets_name()
+    public function it_sets_and_gets_name() : void
     {
         $this->assertEquals('tus.txt', $this->file->getName());
 
@@ -78,7 +81,7 @@ class FileTest extends TestCase
      * @covers ::setFileSize
      * @covers ::getFileSize
      */
-    public function it_sets_and_gets_file_size()
+    public function it_sets_and_gets_file_size() : void
     {
         $this->assertEquals(1024, $this->file->getFileSize());
 
@@ -92,7 +95,7 @@ class FileTest extends TestCase
      * @covers ::getChecksum
      * @covers ::setChecksum
      */
-    public function it_sets_and_gets_checksum()
+    public function it_sets_and_gets_checksum() : void
     {
         $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
 
@@ -106,7 +109,7 @@ class FileTest extends TestCase
      * @covers ::setKey
      * @covers ::getKey
      */
-    public function it_sets_and_gets_key()
+    public function it_sets_and_gets_key() : void
     {
         $key = uniqid();
 
@@ -120,7 +123,7 @@ class FileTest extends TestCase
      * @covers ::getOffset
      * @covers ::setOffset
      */
-    public function it_sets_and_gets_offset()
+    public function it_sets_and_gets_offset() : void
     {
         $this->assertEquals(100, $this->file->getOffset());
         $this->assertInstanceOf(File::class, $this->file->setOffset(500));
@@ -133,7 +136,7 @@ class FileTest extends TestCase
      * @covers ::getLocation
      * @covers ::setLocation
      */
-    public function it_sets_and_gets_location()
+    public function it_sets_and_gets_location() : void
     {
         $this->assertEquals('http://tus.local/uploads/file.txt', $this->file->getLocation());
 
@@ -149,7 +152,7 @@ class FileTest extends TestCase
      * @covers ::getFilePath
      * @covers ::setFilePath
      */
-    public function it_sets_and_gets_file_path()
+    public function it_sets_and_gets_file_path() : void
     {
         $this->assertEquals('/path/to/file.txt', $this->file->getFilePath());
 
@@ -164,7 +167,7 @@ class FileTest extends TestCase
      *
      * @covers ::getInputStream
      */
-    public function it_gets_input_stream()
+    public function it_gets_input_stream() : void
     {
         $this->assertEquals('php://input', $this->file->getInputStream());
     }
@@ -174,7 +177,7 @@ class FileTest extends TestCase
      *
      * @covers ::setUploadMetadata
      */
-    public function it_sets_upload_metadata()
+    public function it_sets_upload_metadata() : void
     {
         $metadata = [
             'offset' => 200,
@@ -190,12 +193,12 @@ class FileTest extends TestCase
      *
      * @covers ::open
      * @covers ::exists
-     *
-     * @expectedException \TusPhp\Exception\FileException
-     * @expectedExceptionMessage File not found.
      */
-    public function it_throws_404_for_invalid_file()
+    public function it_throws_404_for_invalid_file() : void
     {
+        $this->expectException(FileException::class);
+        $this->expectExceptionMessage('File not found.');
+
         $this->file->open('/path/to/invalid/file.txt', 'rb');
     }
 
@@ -204,12 +207,12 @@ class FileTest extends TestCase
      *
      * @covers ::open
      * @covers ::exists
-     *
-     * @expectedException \TusPhp\Exception\FileException
-     * @expectedExceptionMessageRegExp  /Unable to open [a-zA-Z0-9-\/.]+/
      */
-    public function it_throws_exception_for_file_with_no_permission()
+    public function it_throws_exception_for_file_with_no_permission() : void
     {
+        $this->expectException(FileException::class);
+        $this->expectErrorMessageMatches('/Unable to open [a-zA-Z0-9-\/.]+/');
+
         $file = __DIR__ . '/Fixtures/403.txt';
 
         chmod($file, 0444);
@@ -224,7 +227,7 @@ class FileTest extends TestCase
      * @covers ::exists
      * @covers ::close
      */
-    public function it_opens_a_file()
+    public function it_opens_a_file() : void
     {
         $file = __DIR__ . '/Fixtures/empty.txt';
 
@@ -240,7 +243,7 @@ class FileTest extends TestCase
      *
      * @covers ::exists
      */
-    public function it_checks_if_file_exists_based_on_mode()
+    public function it_checks_if_file_exists_based_on_mode() : void
     {
         $this->assertTrue($this->file->exists('php://input'));
         $this->assertTrue($this->file->exists(__DIR__ . '/Fixtures/empty.txt'));
@@ -251,12 +254,12 @@ class FileTest extends TestCase
      * @test
      *
      * @covers ::exists
-     *
-     * @expectedException \TusPhp\Exception\FileException
-     * @expectedExceptionMessage File not found.
      */
-    public function it_throws_file_exception_if_file_doesnt_exists_for_read_mode()
+    public function it_throws_file_exception_if_file_doesnt_exists_for_read_mode() : void
     {
+        $this->expectException(FileException::class);
+        $this->expectExceptionMessage('File not found.');
+
         $this->assertFalse($this->file->exists(__DIR__ . '/Fixtures/invalid.txt'));
     }
 
@@ -266,12 +269,12 @@ class FileTest extends TestCase
      * @covers ::seek
      *
      * @runInSeparateProcess
-     *
-     * @expectedException \TusPhp\Exception\FileException
-     * @expectedExceptionMessage Cannot move pointer to desired position.
      */
-    public function it_throws_exception_if_it_cannot_seek()
+    public function it_throws_exception_if_it_cannot_seek() : void
     {
+        $this->expectException(FileException::class);
+        $this->expectExceptionMessage('Cannot move pointer to desired position.');
+
         $this->mockBuilder
             ->setName('fseek')
             ->setFunction(
@@ -299,7 +302,7 @@ class FileTest extends TestCase
      * @covers ::seek
      * @covers ::close
      */
-    public function it_moves_to_proper_location_in_a_file()
+    public function it_moves_to_proper_location_in_a_file() : void
     {
         $file = __DIR__ . '/Fixtures/data.txt';
 
@@ -318,12 +321,12 @@ class FileTest extends TestCase
      * @covers ::read
      *
      * @runInSeparateProcess
-     *
-     * @expectedException \TusPhp\Exception\FileException
-     * @expectedExceptionMessage Cannot read file.
      */
-    public function it_throws_exception_if_it_cannot_read()
+    public function it_throws_exception_if_it_cannot_read() : void
     {
+        $this->expectException(FileException::class);
+        $this->expectExceptionMessage('Cannot read file.');
+
         $this->mockBuilder
             ->setName('fread')
             ->setFunction(
@@ -352,7 +355,7 @@ class FileTest extends TestCase
      * @covers ::read
      * @covers ::close
      */
-    public function it_reads_from_a_file()
+    public function it_reads_from_a_file() : void
     {
         $file = __DIR__ . '/Fixtures/data.txt';
 
@@ -371,12 +374,12 @@ class FileTest extends TestCase
      * @covers ::write
      *
      * @runInSeparateProcess
-     *
-     * @expectedException \TusPhp\Exception\FileException
-     * @expectedExceptionMessage Cannot write to a file.
      */
-    public function it_throws_exception_if_it_cannot_write()
+    public function it_throws_exception_if_it_cannot_write() : void
     {
+        $this->expectException(FileException::class);
+        $this->expectExceptionMessage('Cannot write to a file.');
+
         $this->mockBuilder
             ->setName('fwrite')
             ->setFunction(
@@ -406,7 +409,7 @@ class FileTest extends TestCase
      * @covers ::read
      * @covers ::close
      */
-    public function it_writes_to_a_file()
+    public function it_writes_to_a_file() : void
     {
         $file   = __DIR__ . '/.tmp/upload.txt';
         $handle = $this->file->open($file, 'w+');
@@ -429,12 +432,12 @@ class FileTest extends TestCase
      * @test
      *
      * @covers ::merge
-     *
-     * @expectedException \TusPhp\Exception\FileException
-     * @expectedExceptionMessage File to be merged not found.
      */
-    public function it_throws_file_exception_if_file_to_merge_doesnt_exist()
+    public function it_throws_file_exception_if_file_to_merge_doesnt_exist() : void
     {
+        $this->expectException(FileException::class);
+        $this->expectExceptionMessage('File to be merged not found.');
+
         $path  = __DIR__ . '/.tmp/fld';
         $files = [
             ['file_path' => "$path/1", 'offset' => 10],
@@ -487,7 +490,7 @@ class FileTest extends TestCase
      *
      * @covers ::delete
      */
-    public function it_deletes_all_files_and_folder(string $path)
+    public function it_deletes_all_files_and_folder(string $path) : void
     {
         $files = [
             "$path/1",
@@ -505,12 +508,12 @@ class FileTest extends TestCase
      *
      * @covers ::copy
      * @covers ::merge
-     *
-     * @expectedException \TusPhp\Exception\FileException
-     * @expectedExceptionMessageRegExp /Cannot copy source \(.+\) to destination \(.+\)\./
      */
-    public function it_throws_file_exception_if_it_cannot_copy_file()
+    public function it_throws_file_exception_if_it_cannot_copy_file() : void
     {
+        $this->expectException(FileException::class);
+        $this->expectExceptionMessageMatches('/Cannot copy source \(.+\) to destination \(.+\)\./');
+
         $path  = __DIR__ . '/.tmp/fld';
         $files = [
             ['file_path' => "$path/invalid", 'offset' => 10],
@@ -561,7 +564,7 @@ class FileTest extends TestCase
      * @covers ::delete
      * @covers ::deleteFiles
      */
-    public function it_doesnt_delete_folder_if_file_path_is_not_given(string $path)
+    public function it_doesnt_delete_folder_if_file_path_is_not_given(string $path) : void
     {
         $this->file->delete([], true);
 
@@ -588,7 +591,7 @@ class FileTest extends TestCase
      *
      * @covers ::upload
      */
-    public function it_throws_file_exception_if_already_uploaded()
+    public function it_throws_file_exception_if_already_uploaded() : void
     {
         $this->assertEquals(1000, $this->file->setOffset(1000)->upload(1000));
     }
@@ -598,12 +601,12 @@ class FileTest extends TestCase
      *
      * @covers ::upload
      * @covers ::open
-     *
-     * @expectedException \TusPhp\Exception\FileException
-     * @expectedExceptionMessageRegExp /Unable to open [a-zA-Z0-9-\/.]+/
      */
-    public function it_throws_404_if_source_file_not_found()
+    public function it_throws_404_if_source_file_not_found() : void
     {
+        $this->expectException(FileException::class);
+        $this->expectExceptionMessageMatches('/Unable to open [a-zA-Z0-9-\/.]+/');
+
         $this->file->setOffset(10)->upload(100);
     }
 
@@ -614,12 +617,12 @@ class FileTest extends TestCase
      * @covers ::open
      *
      * @runInSeparateProcess
-     *
-     * @expectedException \TusPhp\Exception\ConnectionException
-     * @expectedExceptionMessage Connection aborted by user.
      */
-    public function it_throws_connection_exception_if_connection_is_aborted_by_user()
+    public function it_throws_connection_exception_if_connection_is_aborted_by_user() : void
     {
+        $this->expectException(ConnectionException::class);
+        $this->expectExceptionMessage('Connection aborted by user.');
+
         $file = __DIR__ . '/.tmp/upload.txt';
         $key  = uniqid();
 
@@ -657,12 +660,12 @@ class FileTest extends TestCase
      * @test
      *
      * @covers ::upload
-     *
-     * @expectedException \TusPhp\Exception\OutOfRangeException
-     * @expectedExceptionMessage The uploaded file is corrupt.
      */
-    public function it_throws_exception_if_uploaded_file_is_corrupt()
+    public function it_throws_exception_if_uploaded_file_is_corrupt() : void
     {
+        $this->expectException(OutOfRangeException::class);
+        $this->expectExceptionMessage('The uploaded file is corrupt.');
+
         $file  = __DIR__ . '/.tmp/upload.txt';
         $data  = file_get_contents(__DIR__ . '/Fixtures/data.txt');
         $key   = uniqid();
@@ -702,7 +705,7 @@ class FileTest extends TestCase
      *
      * @runInSeparateProcess
      */
-    public function it_uploads_a_chunk()
+    public function it_uploads_a_chunk() : void
     {
         $file       = __DIR__ . '/.tmp/upload.txt';
         $dataFile   = __DIR__ . '/Fixtures/large.txt';
@@ -773,7 +776,7 @@ class FileTest extends TestCase
      *
      * @runInSeparateProcess
      */
-    public function it_uploads_complete_file()
+    public function it_uploads_complete_file() : void
     {
         $file       = __DIR__ . '/.tmp/upload.txt';
         $data       = file_get_contents(__DIR__ . '/Fixtures/data.txt');
@@ -829,7 +832,7 @@ class FileTest extends TestCase
      *
      * @return void.
      */
-    public function tearDown()
+    public function tearDown() : void
     {
         m::close();
 

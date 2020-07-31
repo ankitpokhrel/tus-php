@@ -21,7 +21,7 @@ class AbstractTusTest extends TestCase
      *
      * @return void
      */
-    public function setUp()
+    public function setUp() : void
     {
         $this->tus = new TusServer;
 
@@ -34,7 +34,7 @@ class AbstractTusTest extends TestCase
      * @covers ::getCache
      * @covers ::setCache
      */
-    public function it_sets_and_gets_cache()
+    public function it_sets_and_gets_cache() : void
     {
         $this->assertInstanceOf(FileStore::class, $this->tus->getCache());
 
@@ -54,7 +54,7 @@ class AbstractTusTest extends TestCase
      * @covers ::getApiPath
      * @covers ::setApiPath
      */
-    public function it_sets_and_gets_api_path()
+    public function it_sets_and_gets_api_path() : void
     {
         $this->assertEquals('/files', $this->tus->getApiPath());
         $this->assertInstanceOf(TusServer::class, $this->tus->setApiPath('/api'));
@@ -67,7 +67,7 @@ class AbstractTusTest extends TestCase
      * @covers ::event
      * @covers ::setDispatcher
      */
-    public function it_sets_and_gets_event_dispatcher()
+    public function it_sets_and_gets_event_dispatcher() : void
     {
         $this->assertInstanceOf(EventDispatcher::class, $this->tus->event());
 
