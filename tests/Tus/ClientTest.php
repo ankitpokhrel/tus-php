@@ -1,6 +1,6 @@
 <?php
 
-namespace TusPhp\Test;
+namespace TusPhp\Test\Tus;
 
 use Mockery as m;
 use GuzzleHttp\Client;
