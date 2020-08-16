@@ -5,6 +5,8 @@ LABEL maintainer="hello@ankit.pl,samundra@msn.com" \
 
 ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
+ENV PHP_INI_DIR /etc/php/7.3
+ENV COMPOSER_ALLOW_SUPERUSER 1
 
 ADD https://repos.php.earth/alpine/phpearth.rsa.pub /etc/apk/keys/phpearth.rsa.pub
 
@@ -22,17 +24,15 @@ RUN apk update && apk add --no-cache \
   php7.3-pear \
   composer
 
-# Install APCu extension
-RUN pecl upgrade apcu
+# Install APCu and Xdebug extension.
+RUN pecl upgrade apcu xdebug
 
-## Xdebug Installation, Currently Alpine repo is missing Php7.4-xdebug,
-# RUN apk add --no-cache php7.4-xdebug
+COPY ./bin/xdebug.sh /bin/xdebug
+RUN chmod +x /bin/xdebug
 
 COPY ./configs/nginx.conf /etc/nginx/nginx.conf
-
-ENV PHP_INI_DIR /etc/php/7.3
-
 COPY ./configs/php.ini $PHP_INI_DIR/php.ini
+COPY ./configs/xdebug.ini $PHP_INI_DIR/conf.d/00_xdebug.disable
 COPY ./configs/www.conf $PHP_INI_DIR/php-fpm.d/www.conf
 
 ENTRYPOINT [ "sh" ]

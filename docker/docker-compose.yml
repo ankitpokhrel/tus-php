@@ -8,9 +8,10 @@ services:
     ports:
       - 8081:80
     volumes:
-      - ../:/var/www/
-      - ../example:/var/www/html
-      - ./.data/server/logs:/var/log/nginx
+      - ../:/var/www:delegated
+      - ../example:/var/www/html:delegated
+      - ./.data/server/logs:/var/log/nginx:delegated
+      - ./.data/server/xdebug:/var/log/xdebug:delegated
     entrypoint: entrypoint.sh
     labels:
       tag: tus-php-server
@@ -22,9 +23,10 @@ services:
     ports:
       - 8080:80
     volumes:
-      - ../:/var/www
-      - ../example:/var/www/html
-      - ./.data/client/logs:/var/log/nginx
+      - ../:/var/www:delegated
+      - ../example:/var/www/html:delegated
+      - ./.data/client/logs:/var/log/nginx:delegated
+      - ./.data/server/xdebug:/var/log/xdebug:delegated
     labels:
       tag: tus-php-client
       group: tus-php
