@@ -438,7 +438,7 @@ We also have some utility scripts to re-create docker images.
 Please note that `bin/rebuild.sh` will delete tus-php related docker containers and images.
 It will also delete `uploads` folder and re-create it. So that when you use `bin/docker.sh`
 it will be like a fresh start. This command is useful when you start to make changes
-to docker configurations, server configrations.
+to docker configurations, server configurations.
 
 ```shell
 $ bin/rebuild.sh
@@ -479,11 +479,11 @@ Since the server supports tus expiration extension, a cron job is set to run onc
      ```
 3. Run tests with phpunit
     ```shell
-    $ ./vendor/bin/phpunit
-
-    # or
-
     $ composer test
+    
+    # or
+    
+    $ ./vendor/bin/phpunit
     ```
 4. Validate changes against [PSR2 Coding Standards](http://www.php-fig.org/psr/psr-2/)
     ```shell
@@ -501,6 +501,8 @@ at project root. You can open `coverage/index.html` to checkout coverage report.
 # Command to Generate Coverage
 $ docker exec tus-php-server composer test-coverage
 ```
+
+You can use `xdebug enable` and `xdebug disable` to enable and disable [Xdebug](https://xdebug.org/) inside the container. 
 
 ### Questions about this project?
 Please feel free to report any bug found. Pull requests, issues, and project recommendations are more than welcome!
