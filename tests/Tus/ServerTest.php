@@ -322,6 +322,12 @@ class ServerTest extends TestCase
             $tusServerMock
                 ->getRequest()
                 ->getRequest()
+                ->headers
+                ->add(['Tus-Resumable' => '1.0.0']);
+
+            $tusServerMock
+                ->getRequest()
+                ->getRequest()
                 ->server
                 ->set('REQUEST_METHOD', $method);
 
@@ -332,6 +338,50 @@ class ServerTest extends TestCase
 
             $this->assertInstanceOf(HttpResponse::class, $tusServerMock->serve());
         }
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::serve
+     */
+    public function it_skips_version_check_for_options_method() : void
+    {
+        $tusServerMock = m::mock(TusServer::class)
+                          ->shouldAllowMockingProtectedMethods()
+                          ->makePartial();
+
+        $tusServerMock
+            ->shouldReceive('setCache')
+            ->once()
+            ->with('file')
+            ->andReturnSelf();
+
+        $tusServerMock->__construct('file');
+
+        $tusServerMock
+            ->shouldReceive('applyMiddleware')
+            ->once()
+            ->andReturnNull();
+
+        $tusServerMock
+            ->getRequest()
+            ->getRequest()
+            ->headers
+            ->add(['Tus-Resumable' => '0.1.0']);
+
+        $tusServerMock
+            ->getRequest()
+            ->getRequest()
+            ->server
+            ->set('REQUEST_METHOD', 'OPTIONS');
+
+        $tusServerMock
+            ->shouldReceive('handle' . ucfirst(strtolower('OPTIONS')))
+            ->once()
+            ->andReturn(m::mock(HttpResponse::class));
+
+        $this->assertInstanceOf(HttpResponse::class, $tusServerMock->serve());
     }
 
     /**

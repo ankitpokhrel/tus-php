@@ -17,6 +17,7 @@ use TusPhp\Exception\FileException;
 use TusPhp\Exception\ConnectionException;
 use TusPhp\Exception\OutOfRangeException;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\Request as HttpRequest;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 class Server extends AbstractTus
@@ -264,7 +265,7 @@ class Server extends AbstractTus
 
         $clientVersion = $this->getRequest()->header('Tus-Resumable');
 
-        if ($clientVersion && $clientVersion !== self::TUS_PROTOCOL_VERSION) {
+        if (HttpRequest::METHOD_OPTIONS !== $requestMethod && $clientVersion && self::TUS_PROTOCOL_VERSION !== $clientVersion) {
             return $this->response->send(null, HttpResponse::HTTP_PRECONDITION_FAILED, [
                 'Tus-Version' => self::TUS_PROTOCOL_VERSION,
             ]);
