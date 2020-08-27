@@ -225,7 +225,7 @@ class Server extends AbstractTus
     }
 
     /**
-     * Set max upload size.
+     * Set max upload size in bytes.
      *
      * @param int $uploadSize
      *
