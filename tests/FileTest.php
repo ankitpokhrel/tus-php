@@ -52,13 +52,13 @@ class FileTest extends TestCase
 
         $meta = $this->file->details();
 
-        $this->assertEquals('tus.txt', $meta['name']);
-        $this->assertEquals(2056, $meta['size']);
-        $this->assertEquals(200, $meta['offset']);
-        $this->assertEquals('http://tus.local/uploads/file.pdf', $meta['location']);
-        $this->assertEquals('/path/to/file.pdf', $meta['file_path']);
-        $this->assertEquals('Fri, 08 Dec 2017 00:00:00 GMT', $meta['created_at']);
-        $this->assertEquals('Sat, 09 Dec 2017 00:00:00 GMT', $meta['expires_at']);
+        self::assertEquals('tus.txt', $meta['name']);
+        self::assertEquals(2056, $meta['size']);
+        self::assertEquals(200, $meta['offset']);
+        self::assertEquals('http://tus.local/uploads/file.pdf', $meta['location']);
+        self::assertEquals('/path/to/file.pdf', $meta['file_path']);
+        self::assertEquals('Fri, 08 Dec 2017 00:00:00 GMT', $meta['created_at']);
+        self::assertEquals('Sat, 09 Dec 2017 00:00:00 GMT', $meta['expires_at']);
     }
 
     /**
@@ -69,10 +69,10 @@ class FileTest extends TestCase
      */
     public function it_sets_and_gets_name() : void
     {
-        $this->assertEquals('tus.txt', $this->file->getName());
+        self::assertEquals('tus.txt', $this->file->getName());
 
-        $this->assertInstanceOf(File::class, $this->file->setName('file.txt'));
-        $this->assertEquals('file.txt', $this->file->getName());
+        self::assertInstanceOf(File::class, $this->file->setName('file.txt'));
+        self::assertEquals('file.txt', $this->file->getName());
     }
 
     /**
@@ -83,10 +83,10 @@ class FileTest extends TestCase
      */
     public function it_sets_and_gets_file_size() : void
     {
-        $this->assertEquals(1024, $this->file->getFileSize());
+        self::assertEquals(1024, $this->file->getFileSize());
 
-        $this->assertInstanceOf(File::class, $this->file->setFileSize(2056));
-        $this->assertEquals(2056, $this->file->getFileSize());
+        self::assertInstanceOf(File::class, $this->file->setFileSize(2056));
+        self::assertEquals(2056, $this->file->getFileSize());
     }
 
     /**
@@ -99,8 +99,8 @@ class FileTest extends TestCase
     {
         $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
 
-        $this->assertInstanceOf(File::class, $this->file->setChecksum($checksum));
-        $this->assertEquals($checksum, $this->file->getChecksum());
+        self::assertInstanceOf(File::class, $this->file->setChecksum($checksum));
+        self::assertEquals($checksum, $this->file->getChecksum());
     }
 
     /**
@@ -113,8 +113,8 @@ class FileTest extends TestCase
     {
         $key = uniqid();
 
-        $this->assertInstanceOf(File::class, $this->file->setKey($key));
-        $this->assertEquals($key, $this->file->getKey());
+        self::assertInstanceOf(File::class, $this->file->setKey($key));
+        self::assertEquals($key, $this->file->getKey());
     }
 
     /**
@@ -125,9 +125,9 @@ class FileTest extends TestCase
      */
     public function it_sets_and_gets_offset() : void
     {
-        $this->assertEquals(100, $this->file->getOffset());
-        $this->assertInstanceOf(File::class, $this->file->setOffset(500));
-        $this->assertEquals(500, $this->file->getOffset());
+        self::assertEquals(100, $this->file->getOffset());
+        self::assertInstanceOf(File::class, $this->file->setOffset(500));
+        self::assertEquals(500, $this->file->getOffset());
     }
 
     /**
@@ -138,12 +138,12 @@ class FileTest extends TestCase
      */
     public function it_sets_and_gets_location() : void
     {
-        $this->assertEquals('http://tus.local/uploads/file.txt', $this->file->getLocation());
+        self::assertEquals('http://tus.local/uploads/file.txt', $this->file->getLocation());
 
         $location = 'http://tus.local/uploads/file.pdf';
 
-        $this->assertInstanceOf(File::class, $this->file->setLocation($location));
-        $this->assertEquals($location, $this->file->getLocation());
+        self::assertInstanceOf(File::class, $this->file->setLocation($location));
+        self::assertEquals($location, $this->file->getLocation());
     }
 
     /**
@@ -154,12 +154,12 @@ class FileTest extends TestCase
      */
     public function it_sets_and_gets_file_path() : void
     {
-        $this->assertEquals('/path/to/file.txt', $this->file->getFilePath());
+        self::assertEquals('/path/to/file.txt', $this->file->getFilePath());
 
         $filePath = '/path/to/file.pdf';
 
-        $this->assertInstanceOf(File::class, $this->file->setFilePath($filePath));
-        $this->assertEquals($filePath, $this->file->getFilePath());
+        self::assertInstanceOf(File::class, $this->file->setFilePath($filePath));
+        self::assertEquals($filePath, $this->file->getFilePath());
     }
 
     /**
@@ -169,7 +169,7 @@ class FileTest extends TestCase
      */
     public function it_gets_input_stream() : void
     {
-        $this->assertEquals('php://input', $this->file->getInputStream());
+        self::assertEquals('php://input', $this->file->getInputStream());
     }
 
     /**
@@ -185,7 +185,7 @@ class FileTest extends TestCase
             'filePath' => '/path/to/file.pdf',
         ];
 
-        $this->assertInstanceOf(File::class, $this->file->setUploadMetadata($metadata));
+        self::assertInstanceOf(File::class, $this->file->setUploadMetadata($metadata));
     }
 
     /**
@@ -233,7 +233,7 @@ class FileTest extends TestCase
 
         $resource = $this->file->open($file, 'rb');
 
-        $this->assertIsResource($resource);
+        self::assertIsResource($resource);
 
         $this->file->close($resource);
     }
@@ -245,9 +245,9 @@ class FileTest extends TestCase
      */
     public function it_checks_if_file_exists_based_on_mode() : void
     {
-        $this->assertTrue($this->file->exists('php://input'));
-        $this->assertTrue($this->file->exists(__DIR__ . '/Fixtures/empty.txt'));
-        $this->assertTrue($this->file->exists(__DIR__ . '/Fixtures/invalid.txt', 'wb+'));
+        self::assertTrue($this->file->exists('php://input'));
+        self::assertTrue($this->file->exists(__DIR__ . '/Fixtures/empty.txt'));
+        self::assertTrue($this->file->exists(__DIR__ . '/Fixtures/invalid.txt', 'wb+'));
     }
 
     /**
@@ -260,7 +260,7 @@ class FileTest extends TestCase
         $this->expectException(FileException::class);
         $this->expectExceptionMessage('File not found.');
 
-        $this->assertFalse($this->file->exists(__DIR__ . '/Fixtures/invalid.txt'));
+        self::assertFalse($this->file->exists(__DIR__ . '/Fixtures/invalid.txt'));
     }
 
     /**
@@ -310,7 +310,7 @@ class FileTest extends TestCase
 
         $this->file->seek($handle, 5);
 
-        $this->assertEquals(5, ftell($handle));
+        self::assertEquals(5, ftell($handle));
 
         $this->file->close($handle);
     }
@@ -363,7 +363,7 @@ class FileTest extends TestCase
 
         $this->file->seek($handle, 49);
 
-        $this->assertEquals('Sherlock Holmes', $this->file->read($handle, 15));
+        self::assertEquals('Sherlock Holmes', $this->file->read($handle, 15));
 
         $this->file->close($handle);
     }
@@ -417,11 +417,11 @@ class FileTest extends TestCase
 
         $this->file->write($handle, 'Sherlock Holmes', $bytes);
 
-        $this->assertEquals('', $this->file->read($handle, $bytes));
+        self::assertEquals('', $this->file->read($handle, $bytes));
 
         $this->file->seek($handle, 0);
 
-        $this->assertEquals('Sherlock Holmes', $this->file->read($handle, $bytes));
+        self::assertEquals('Sherlock Holmes', $this->file->read($handle, $bytes));
 
         $this->file->close($handle);
 
@@ -473,10 +473,10 @@ class FileTest extends TestCase
 
         $this->file->setFilePath($mergedFilePath)->merge($files);
 
-        $this->assertFileExists($mergedFilePath);
-        $this->assertEquals('123', file_get_contents($mergedFilePath));
-        $this->assertEquals(60, $this->file->getOffset());
-        $this->assertEquals(3, $this->file->getFileSize());
+        self::assertFileExists($mergedFilePath);
+        self::assertEquals('123', file_get_contents($mergedFilePath));
+        self::assertEquals(60, $this->file->getOffset());
+        self::assertEquals(3, $this->file->getFileSize());
 
         @unlink($mergedFilePath);
 
@@ -500,7 +500,7 @@ class FileTest extends TestCase
 
         $this->file->delete($files, true);
 
-        $this->assertFileNotExists($path);
+        self::assertFileNotExists($path);
     }
 
     /**
@@ -547,11 +547,11 @@ class FileTest extends TestCase
         $this->file->delete($files);
 
         foreach ($files as $file) {
-            $this->assertFileNotExists($file);
+            self::assertFileNotExists($file);
         }
 
-        $this->assertFileExists($path);
-        $this->assertDirectoryExists($path);
+        self::assertFileExists($path);
+        self::assertDirectoryExists($path);
 
         return $path;
     }
@@ -568,7 +568,7 @@ class FileTest extends TestCase
     {
         $this->file->delete([], true);
 
-        $this->assertFileExists($path);
+        self::assertFileExists($path);
     }
 
     /**
@@ -583,7 +583,7 @@ class FileTest extends TestCase
     {
         $this->file->delete(["$path/1"], true);
 
-        $this->assertFileNotExists($path);
+        self::assertFileNotExists($path);
     }
 
     /**
@@ -593,7 +593,7 @@ class FileTest extends TestCase
      */
     public function it_throws_file_exception_if_already_uploaded() : void
     {
-        $this->assertEquals(1000, $this->file->setOffset(1000)->upload(1000));
+        self::assertEquals(1000, $this->file->setOffset(1000)->upload(1000));
     }
 
     /**
@@ -762,7 +762,7 @@ class FileTest extends TestCase
             ->setOffset(0)
             ->upload($totalBytes);
 
-        $this->assertEquals($totalBytes, $bytesWritten);
+        self::assertEquals($totalBytes, $bytesWritten);
 
         $mock->disable();
 
@@ -820,7 +820,7 @@ class FileTest extends TestCase
             ->setOffset(0)
             ->upload($totalBytes);
 
-        $this->assertEquals($totalBytes, $bytesWritten);
+        self::assertEquals($totalBytes, $bytesWritten);
 
         $mock->disable();
 

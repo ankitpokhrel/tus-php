@@ -47,7 +47,7 @@ class ConfigTest extends TestCase
 
         Config::set($config, true);
 
-        $this->assertEquals($config, Config::get());
+        self::assertEquals($config, Config::get());
     }
 
     /**
@@ -60,7 +60,7 @@ class ConfigTest extends TestCase
     {
         Config::set(__DIR__ . '/Fixtures/config.php', true);
 
-        $this->assertEquals($this->config, Config::get());
+        self::assertEquals($this->config, Config::get());
     }
 
     /**
@@ -73,8 +73,8 @@ class ConfigTest extends TestCase
     {
         Config::set([]);
 
-        $this->assertNotEmpty(Config::get());
-        $this->assertEquals($this->config, Config::get());
+        self::assertNotEmpty(Config::get());
+        self::assertEquals($this->config, Config::get());
     }
 
     /**
@@ -84,9 +84,9 @@ class ConfigTest extends TestCase
      */
     public function it_gets_value_for_a_key() : void
     {
-        $this->assertEquals($this->config['redis'], Config::get('redis'));
-        $this->assertEquals($this->config['redis']['host'], Config::get('redis.host'));
-        $this->assertEquals($this->config['file']['meta']['name'], Config::get('file.meta.name'));
+        self::assertEquals($this->config['redis'], Config::get('redis'));
+        self::assertEquals($this->config['redis']['host'], Config::get('redis.host'));
+        self::assertEquals($this->config['file']['meta']['name'], Config::get('file.meta.name'));
     }
 
     /**
@@ -96,6 +96,6 @@ class ConfigTest extends TestCase
      */
     public function it_returns_null_for_invalid_key() : void
     {
-        $this->assertNull(Config::get('redis.invalid'));
+        self::assertNull(Config::get('redis.invalid'));
     }
 }

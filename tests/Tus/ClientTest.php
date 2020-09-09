@@ -101,9 +101,9 @@ class ClientTest extends TestCase
 
         $this->tusClient->file($file);
 
-        $this->assertEquals($file, $this->tusClient->getFilePath());
-        $this->assertEquals('data.txt', $this->tusClient->getFileName());
-        $this->assertEquals(filesize($file), $this->tusClient->getFileSize());
+        self::assertEquals($file, $this->tusClient->getFilePath());
+        self::assertEquals('data.txt', $this->tusClient->getFileName());
+        self::assertEquals(filesize($file), $this->tusClient->getFileSize());
     }
 
     /**
@@ -114,9 +114,9 @@ class ClientTest extends TestCase
      */
     public function it_sets_and_gets_filename() : void
     {
-        $this->assertNull($this->tusClient->getFileName());
-        $this->assertInstanceOf(TusClient::class, $this->tusClient->setFileName('file.txt'));
-        $this->assertEquals('file.txt', $this->tusClient->getFileName());
+        self::assertNull($this->tusClient->getFileName());
+        self::assertInstanceOf(TusClient::class, $this->tusClient->setFileName('file.txt'));
+        self::assertEquals('file.txt', $this->tusClient->getFileName());
     }
 
     /**
@@ -132,13 +132,13 @@ class ClientTest extends TestCase
         $filePath = __DIR__ . '/../Fixtures/empty.txt';
 
         $this->tusClient->file($filePath);
-        $this->assertEquals(['filename' => base64_encode('empty.txt')], $this->tusClient->getMetadata());
+        self::assertEquals(['filename' => base64_encode('empty.txt')], $this->tusClient->getMetadata());
 
         $this->tusClient->addMetadata('filename', 'file.mp4');
-        $this->assertEquals(['filename' => base64_encode('file.mp4')], $this->tusClient->getMetadata());
+        self::assertEquals(['filename' => base64_encode('file.mp4')], $this->tusClient->getMetadata());
 
         $this->tusClient->addMetadata('filetype', 'video/mp4');
-        $this->assertEquals([
+        self::assertEquals([
             'filename' => base64_encode('file.mp4'),
             'filetype' => base64_encode('video/mp4'),
         ], $this->tusClient->getMetadata());
@@ -148,13 +148,13 @@ class ClientTest extends TestCase
             'filetype' => 'video/mp4',
         ]);
 
-        $this->assertEquals([
+        self::assertEquals([
             'filename' => base64_encode('file.mp4'),
             'filetype' => base64_encode('video/mp4'),
         ], $this->tusClient->getMetadata());
 
         $this->tusClient->removeMetadata('filetype');
-        $this->assertEquals(['filename' => base64_encode('file.mp4')], $this->tusClient->getMetadata());
+        self::assertEquals(['filename' => base64_encode('file.mp4')], $this->tusClient->getMetadata());
     }
 
     /**
@@ -165,8 +165,8 @@ class ClientTest extends TestCase
      */
     public function it_gets_client() : void
     {
-        $this->assertInstanceOf(Client::class, $this->tusClient->getClient());
-        $this->assertEquals('http://tus.local', $this->tusClient->getClient()->getConfig()['base_uri']);
+        self::assertInstanceOf(Client::class, $this->tusClient->getClient());
+        self::assertEquals('http://tus.local', $this->tusClient->getClient()->getConfig()['base_uri']);
     }
 
     /**
@@ -192,10 +192,10 @@ class ClientTest extends TestCase
 
         $guzzleConfig = $tusClient->getClient()->getConfig();
 
-        $this->assertEquals('http://tus.local', $guzzleConfig['base_uri']);
-        $this->assertEquals(3.14, $guzzleConfig['connect_timeout']);
-        $this->assertFalse($guzzleConfig['allow_redirects']);
-        $this->assertEquals($headers, $guzzleConfig['headers']);
+        self::assertEquals('http://tus.local', $guzzleConfig['base_uri']);
+        self::assertEquals(3.14, $guzzleConfig['connect_timeout']);
+        self::assertFalse($guzzleConfig['allow_redirects']);
+        self::assertEquals($headers, $guzzleConfig['headers']);
     }
 
     /**
@@ -214,10 +214,10 @@ class ClientTest extends TestCase
             ->once()
             ->andReturn($file);
 
-        $this->assertEquals($checksum, $this->tusClientMock->getChecksum());
+        self::assertEquals($checksum, $this->tusClientMock->getChecksum());
 
         $checksum = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
-        $this->assertInstanceOf(TusClient::class, $this->tusClientMock->setChecksum($checksum));
+        self::assertInstanceOf(TusClient::class, $this->tusClientMock->setChecksum($checksum));
     }
 
     /**
@@ -230,8 +230,8 @@ class ClientTest extends TestCase
     {
         $key = uniqid();
 
-        $this->assertInstanceOf(TusClient::class, $this->tusClient->setKey($key));
-        $this->assertEquals($key, $this->tusClient->getKey());
+        self::assertInstanceOf(TusClient::class, $this->tusClient->setKey($key));
+        self::assertEquals($key, $this->tusClient->getKey());
     }
 
     /**
@@ -263,7 +263,7 @@ class ClientTest extends TestCase
             ->once()
             ->andReturn($cacheMock);
 
-        $this->assertEquals($url, $this->tusClientMock->getUrl());
+        self::assertEquals($url, $this->tusClientMock->getUrl());
     }
 
     /**
@@ -306,9 +306,9 @@ class ClientTest extends TestCase
      */
     public function it_sets_and_gets_checksum_algorithm() : void
     {
-        $this->assertEquals('sha256', $this->tusClient->getChecksumAlgorithm());
-        $this->assertInstanceOf(TusClient::class, $this->tusClient->setChecksumAlgorithm('crc32'));
-        $this->assertEquals('crc32', $this->tusClient->getChecksumAlgorithm());
+        self::assertEquals('sha256', $this->tusClient->getChecksumAlgorithm());
+        self::assertInstanceOf(TusClient::class, $this->tusClient->setChecksumAlgorithm('crc32'));
+        self::assertEquals('crc32', $this->tusClient->getChecksumAlgorithm());
     }
 
     /**
@@ -328,10 +328,10 @@ class ClientTest extends TestCase
             ->once()
             ->andReturn($key);
 
-        $this->assertFalse($this->tusClientMock->isPartial());
-        $this->assertInstanceOf(TusClient::class, $this->tusClientMock->seek(100));
-        $this->assertTrue($this->tusClientMock->isPartial());
-        $this->assertEquals(100, $this->tusClientMock->getPartialOffset());
+        self::assertFalse($this->tusClientMock->isPartial());
+        self::assertInstanceOf(TusClient::class, $this->tusClientMock->seek(100));
+        self::assertTrue($this->tusClientMock->isPartial());
+        self::assertEquals(100, $this->tusClientMock->getPartialOffset());
     }
 
     /**
@@ -342,9 +342,9 @@ class ClientTest extends TestCase
      */
     public function it_set_state_only_for_partial_equals_false() : void
     {
-        $this->assertFalse($this->tusClientMock->isPartial());
-        $this->assertNull($this->tusClientMock->partial(false));
-        $this->assertFalse($this->tusClientMock->isPartial());
+        self::assertFalse($this->tusClientMock->isPartial());
+        self::assertNull($this->tusClientMock->partial(false));
+        self::assertFalse($this->tusClientMock->isPartial());
     }
 
     /**
@@ -362,8 +362,8 @@ class ClientTest extends TestCase
             ->once()
             ->andReturn($partialKey);
 
-        $this->assertNull($this->tusClientMock->partial());
-        $this->assertTrue($this->tusClientMock->isPartial());
+        self::assertNull($this->tusClientMock->partial());
+        self::assertTrue($this->tusClientMock->isPartial());
     }
 
     /**
@@ -396,7 +396,7 @@ class ClientTest extends TestCase
             ->once()
             ->andReturn($cacheMock);
 
-        $this->assertFalse($this->tusClientMock->isExpired());
+        self::assertFalse($this->tusClientMock->isExpired());
     }
 
     /**
@@ -429,7 +429,7 @@ class ClientTest extends TestCase
             ->once()
             ->andReturn($cacheMock);
 
-        $this->assertTrue($this->tusClientMock->isExpired());
+        self::assertTrue($this->tusClientMock->isExpired());
     }
 
     /**
@@ -458,7 +458,7 @@ class ClientTest extends TestCase
             ->with($bytes, $offset)
             ->andReturn($bytes);
 
-        $this->assertEquals($bytes, $this->tusClientMock->upload($bytes));
+        self::assertEquals($bytes, $this->tusClientMock->upload($bytes));
     }
 
     /**
@@ -492,7 +492,7 @@ class ClientTest extends TestCase
             ->with($bytes, $offset)
             ->andReturn($bytes);
 
-        $this->assertEquals($bytes, $this->tusClientMock->upload());
+        self::assertEquals($bytes, $this->tusClientMock->upload());
     }
 
     /**
@@ -558,7 +558,7 @@ class ClientTest extends TestCase
             ->with($bytes, $offset)
             ->andReturn($bytes);
 
-        $this->assertEquals($bytes, $this->tusClientMock->upload($bytes));
+        self::assertEquals($bytes, $this->tusClientMock->upload($bytes));
     }
 
     /**
@@ -598,7 +598,7 @@ class ClientTest extends TestCase
             ->with($bytes, $offset)
             ->andReturn($bytes);
 
-        $this->assertEquals($bytes, $this->tusClientMock->upload($bytes));
+        self::assertEquals($bytes, $this->tusClientMock->upload($bytes));
     }
 
     /**
@@ -631,7 +631,7 @@ class ClientTest extends TestCase
             ->once()
             ->andThrow(new FileException);
 
-        $this->assertFalse($this->tusClientMock->getOffset());
+        self::assertFalse($this->tusClientMock->getOffset());
     }
 
     /**
@@ -646,7 +646,7 @@ class ClientTest extends TestCase
             ->once()
             ->andThrow(m::mock(ClientException::class));
 
-        $this->assertFalse($this->tusClientMock->getOffset());
+        self::assertFalse($this->tusClientMock->getOffset());
     }
 
     /**
@@ -661,7 +661,7 @@ class ClientTest extends TestCase
             ->once()
             ->andReturn(100);
 
-        $this->assertEquals(100, $this->tusClientMock->getOffset());
+        self::assertEquals(100, $this->tusClientMock->getOffset());
     }
 
     /**
@@ -702,7 +702,7 @@ class ClientTest extends TestCase
             ->with('upload-offset')
             ->andReturn([100]);
 
-        $this->assertEquals(100, $this->tusClientMock->sendHeadRequest());
+        self::assertEquals(100, $this->tusClientMock->sendHeadRequest());
     }
 
     /**
@@ -1138,7 +1138,7 @@ class ClientTest extends TestCase
             ->with('upload-offset')
             ->andReturn([$bytes]);
 
-        $this->assertEquals($bytes, $this->tusClientMock->sendPatchRequest($bytes, $offset));
+        self::assertEquals($bytes, $this->tusClientMock->sendPatchRequest($bytes, $offset));
     }
 
     /**
@@ -1202,7 +1202,7 @@ class ClientTest extends TestCase
             ->with('upload-offset')
             ->andReturn([$bytes]);
 
-        $this->assertEquals($bytes, $this->tusClientMock->sendPatchRequest($bytes, $offset));
+        self::assertEquals($bytes, $this->tusClientMock->sendPatchRequest($bytes, $offset));
     }
 
     /**
@@ -1280,7 +1280,7 @@ class ClientTest extends TestCase
             ])
             ->andReturn($responseMock);
 
-        $this->assertEquals('http://tus-server/files/' . $key, $this->tusClientMock->create($key));
+        self::assertEquals('http://tus-server/files/' . $key, $this->tusClientMock->create($key));
     }
 
     /**
@@ -1364,7 +1364,7 @@ class ClientTest extends TestCase
             ])
             ->andReturn($responseMock);
 
-        $this->assertEquals('http://tus-server/files/' . $key, $this->tusClientMock->create($key));
+        self::assertEquals('http://tus-server/files/' . $key, $this->tusClientMock->create($key));
     }
 
     /**
@@ -1472,7 +1472,7 @@ class ClientTest extends TestCase
             ])
             ->andReturn($responseMock);
 
-        $this->assertEquals(
+        self::assertEquals(
             $checksum,
             $this->tusClientMock->concat($key, $partials[0], $partials[1], $partials[2])
         );
@@ -1618,7 +1618,7 @@ class ClientTest extends TestCase
 
         $response = $this->tusClientMock->delete();
 
-        $this->assertNull($response);
+        self::assertNull($response);
     }
 
     /**
@@ -1664,7 +1664,7 @@ class ClientTest extends TestCase
 
         $response = $this->tusClientMock->delete();
 
-        $this->assertNull($response);
+        self::assertNull($response);
     }
 
     /**
@@ -1710,7 +1710,7 @@ class ClientTest extends TestCase
 
         $response = $this->tusClientMock->delete();
 
-        $this->assertNull($response);
+        self::assertNull($response);
     }
 
     /**
@@ -1731,8 +1731,8 @@ class ClientTest extends TestCase
 
         $data = $this->tusClientMock->getData($offset, $dataLength);
 
-        $this->assertEquals($dataLength, \strlen($data));
-        $this->assertEquals(
+        self::assertEquals($dataLength, \strlen($data));
+        self::assertEquals(
             'The Project Gutenberg EBook of The Adventures of Sherlock Holmes by Sir Arthur Conan Doyle.',
             trim($data)
         );
@@ -1756,8 +1756,8 @@ class ClientTest extends TestCase
 
         $data = $this->tusClientMock->getData($offset, $dataLength);
 
-        $this->assertEquals($dataLength, \strlen($data));
-        $this->assertEquals('Sherlock Holmes', $data);
+        self::assertEquals($dataLength, \strlen($data));
+        self::assertEquals('Sherlock Holmes', $data);
     }
 
     /**
@@ -1780,7 +1780,7 @@ class ClientTest extends TestCase
             ->once()
             ->andReturn('crc32');
 
-        $this->assertEquals('crc32 ' . base64_encode($checksum), $this->tusClientMock->getUploadChecksumHeader());
+        self::assertEquals('crc32 ' . base64_encode($checksum), $this->tusClientMock->getUploadChecksumHeader());
     }
 
     /**
@@ -1794,17 +1794,17 @@ class ClientTest extends TestCase
 
         $this->tusClientMock->file($filePath);
 
-        $this->assertEquals('filename ' . base64_encode('empty.txt'), $this->tusClientMock->getUploadMetadataHeader());
+        self::assertEquals('filename ' . base64_encode('empty.txt'), $this->tusClientMock->getUploadMetadataHeader());
 
         $this->tusClientMock->addMetadata('filename', 'test.txt');
 
         $metadata = 'filename ' . base64_encode('test.txt');
-        $this->assertEquals($metadata, $this->tusClientMock->getUploadMetadataHeader());
+        self::assertEquals($metadata, $this->tusClientMock->getUploadMetadataHeader());
 
         $this->tusClientMock->addMetadata('filetype', 'plain/text');
 
         $metadata .= ',filetype ' . base64_encode('plain/text');
-        $this->assertEquals($metadata, $this->tusClientMock->getUploadMetadataHeader());
+        self::assertEquals($metadata, $this->tusClientMock->getUploadMetadataHeader());
     }
 
     /**

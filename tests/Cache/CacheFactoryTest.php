@@ -20,9 +20,9 @@ class CacheFactoryTest extends TestCase
      */
     public function it_makes_cache_store_object() : void
     {
-        $this->assertInstanceOf(FileStore::class, CacheFactory::make());
-        $this->assertInstanceOf(RedisStore::class, CacheFactory::make('redis'));
-        $this->assertInstanceOf(ApcuStore::class, CacheFactory::make('apcu'));
-        $this->assertInstanceOf(FileStore::class, CacheFactory::make('invalid'));
+        self::assertInstanceOf(FileStore::class, CacheFactory::make());
+        self::assertInstanceOf(RedisStore::class, CacheFactory::make('redis'));
+        self::assertInstanceOf(ApcuStore::class, CacheFactory::make('apcu'));
+        self::assertInstanceOf(FileStore::class, CacheFactory::make('invalid'));
     }
 }

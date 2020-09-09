@@ -41,7 +41,7 @@ class ApcuStoreTest extends TestCase
     protected function setUp() : void
     {
         if ( ! self::$extensionLoaded) {
-            $this->markTestSkipped('APCU extension not loaded.');
+            self::markTestSkipped('APCU extension not loaded.');
         }
 
         parent::setUp();
@@ -55,9 +55,9 @@ class ApcuStoreTest extends TestCase
      */
     public function it_sets_and_gets_apcu_cache_prefix() : void
     {
-        $this->assertEquals('tus:', static::$store->getPrefix());
-        $this->assertInstanceOf(ApcuStore::class, static::$store->setPrefix('apcu:'));
-        $this->assertEquals('apcu:', static::$store->getPrefix());
+        self::assertEquals('tus:', static::$store->getPrefix());
+        self::assertInstanceOf(ApcuStore::class, static::$store->setPrefix('apcu:'));
+        self::assertEquals('apcu:', static::$store->getPrefix());
     }
 
     /**
@@ -75,19 +75,19 @@ class ApcuStoreTest extends TestCase
 
         static::$store->setTtl(1);
 
-        $this->assertTrue(static::$store->set($this->checksum, $cacheContent));
-        $this->assertEquals($cacheContent, static::$store->get($this->checksum));
+        self::assertTrue(static::$store->set($this->checksum, $cacheContent));
+        self::assertEquals($cacheContent, static::$store->get($this->checksum));
 
         $string   = 'Sherlock Holmes';
         $checksum = '74f02d6da32082463e382f22';
 
-        $this->assertTrue(static::$store->set($checksum, $cacheContent));
+        self::assertTrue(static::$store->set($checksum, $cacheContent));
 
         $cacheContent[] = $string;
 
-        $this->assertTrue(static::$store->set($checksum, $string));
-        $this->assertEquals($cacheContent, static::$store->get($checksum));
-        $this->assertTrue(static::$store->delete($checksum));
+        self::assertTrue(static::$store->set($checksum, $string));
+        self::assertEquals($cacheContent, static::$store->get($checksum));
+        self::assertTrue(static::$store->delete($checksum));
     }
 
     /**
@@ -101,12 +101,12 @@ class ApcuStoreTest extends TestCase
      */
     public function it_doesnt_replace_cache_key_in_set() : void
     {
-        $this->assertTrue(static::$store->set($this->checksum, ['offset' => 500]));
+        self::assertTrue(static::$store->set($this->checksum, ['offset' => 500]));
 
         $contents = static::$store->get($this->checksum);
 
-        $this->assertEquals(500, $contents['offset']);
-        $this->assertEquals('Sat, 09 Dec 2017 16:25:51 GMT', $contents['expires_at']);
+        self::assertEquals(500, $contents['offset']);
+        self::assertEquals('Sat, 09 Dec 2017 16:25:51 GMT', $contents['expires_at']);
     }
 
     /**
@@ -119,7 +119,7 @@ class ApcuStoreTest extends TestCase
     {
         $cacheContent = ['expires_at' => 'Sat, 09 Dec 2017 16:25:51 GMT', 'offset' => 500];
 
-        $this->assertEquals($cacheContent, static::$store->get($this->checksum));
+        self::assertEquals($cacheContent, static::$store->get($this->checksum));
     }
 
     /**
@@ -132,8 +132,8 @@ class ApcuStoreTest extends TestCase
     {
         $cacheContent = ['expires_at' => 'Thu, 07 Dec 2017 16:25:51 GMT', 'offset' => 100];
 
-        $this->assertTrue(static::$store->set($this->checksum, $cacheContent));
-        $this->assertNull(static::$store->get($this->checksum));
+        self::assertTrue(static::$store->set($this->checksum, $cacheContent));
+        self::assertNull(static::$store->get($this->checksum));
     }
 
     /**
@@ -146,9 +146,9 @@ class ApcuStoreTest extends TestCase
     {
         $cacheContent = ['expires_at' => 'Thu, 07 Dec 2017 16:25:51 GMT', 'offset' => 100];
 
-        $this->assertTrue(static::$store->set($this->checksum, $cacheContent));
-        $this->assertNull(static::$store->get($this->checksum));
-        $this->assertEquals($cacheContent, static::$store->get($this->checksum, true));
+        self::assertTrue(static::$store->set($this->checksum, $cacheContent));
+        self::assertNull(static::$store->get($this->checksum));
+        self::assertEquals($cacheContent, static::$store->get($this->checksum, true));
     }
 
     /**
@@ -163,11 +163,11 @@ class ApcuStoreTest extends TestCase
     {
         $cacheContent = ['expires_at' => 'Fri, 08 Dec 2017 16:25:51 GMT', 'offset' => 100];
 
-        $this->assertTrue(static::$store->set($this->checksum, $cacheContent));
-        $this->assertEquals($cacheContent, static::$store->get($this->checksum));
-        $this->assertFalse(static::$store->delete('invalid-checksum'));
-        $this->assertTrue(static::$store->delete($this->checksum));
-        $this->assertNull(static::$store->get($this->checksum));
+        self::assertTrue(static::$store->set($this->checksum, $cacheContent));
+        self::assertEquals($cacheContent, static::$store->get($this->checksum));
+        self::assertFalse(static::$store->delete('invalid-checksum'));
+        self::assertTrue(static::$store->delete($this->checksum));
+        self::assertNull(static::$store->get($this->checksum));
     }
 
     /**
@@ -184,12 +184,12 @@ class ApcuStoreTest extends TestCase
         $checksum2    = 'checksum-2';
         $cacheContent = ['expires_at' => 'Fri, 08 Dec 2017 16:25:51 GMT', 'offset' => 100];
 
-        $this->assertTrue(static::$store->set($checksum1, $cacheContent));
-        $this->assertTrue(static::$store->set($checksum2, $cacheContent));
-        $this->assertTrue(static::$store->deleteAll([$checksum1, $checksum2]));
-        $this->assertFalse(static::$store->deleteAll([]));
-        $this->assertNull(static::$store->get($checksum1));
-        $this->assertNull(static::$store->get($checksum2));
+        self::assertTrue(static::$store->set($checksum1, $cacheContent));
+        self::assertTrue(static::$store->set($checksum2, $cacheContent));
+        self::assertTrue(static::$store->deleteAll([$checksum1, $checksum2]));
+        self::assertFalse(static::$store->deleteAll([]));
+        self::assertNull(static::$store->get($checksum1));
+        self::assertNull(static::$store->get($checksum2));
     }
 
     /**
@@ -199,7 +199,7 @@ class ApcuStoreTest extends TestCase
      */
     public function it_gets_cache_keys() : void
     {
-        $this->assertTrue(static::$store->set($this->checksum, []));
-        $this->assertEquals([static::$store->getPrefix() . $this->checksum], static::$store->keys());
+        self::assertTrue(static::$store->set($this->checksum, []));
+        self::assertEquals([static::$store->getPrefix() . $this->checksum], static::$store->keys());
     }
 }

@@ -36,16 +36,16 @@ class AbstractTusTest extends TestCase
      */
     public function it_sets_and_gets_cache() : void
     {
-        $this->assertInstanceOf(FileStore::class, $this->tus->getCache());
+        self::assertInstanceOf(FileStore::class, $this->tus->getCache());
 
         $this->tus->setCache('redis');
 
-        $this->assertInstanceOf(RedisStore::class, $this->tus->getCache());
+        self::assertInstanceOf(RedisStore::class, $this->tus->getCache());
 
         $fileStore = new FileStore;
 
-        $this->assertInstanceOf(TusServer::class, $this->tus->setCache($fileStore));
-        $this->assertInstanceOf(FileStore::class, $this->tus->getCache());
+        self::assertInstanceOf(TusServer::class, $this->tus->setCache($fileStore));
+        self::assertInstanceOf(FileStore::class, $this->tus->getCache());
     }
 
     /**
@@ -56,9 +56,9 @@ class AbstractTusTest extends TestCase
      */
     public function it_sets_and_gets_api_path() : void
     {
-        $this->assertEquals('/files', $this->tus->getApiPath());
-        $this->assertInstanceOf(TusServer::class, $this->tus->setApiPath('/api'));
-        $this->assertEquals('/api', $this->tus->getApiPath());
+        self::assertEquals('/files', $this->tus->getApiPath());
+        self::assertInstanceOf(TusServer::class, $this->tus->setApiPath('/api'));
+        self::assertEquals('/api', $this->tus->getApiPath());
     }
 
     /**
@@ -69,11 +69,11 @@ class AbstractTusTest extends TestCase
      */
     public function it_sets_and_gets_event_dispatcher() : void
     {
-        $this->assertInstanceOf(EventDispatcher::class, $this->tus->event());
+        self::assertInstanceOf(EventDispatcher::class, $this->tus->event());
 
         $eventDispatcher = new EventDispatcher();
 
-        $this->assertInstanceOf(TusServer::class, $this->tus->setDispatcher($eventDispatcher));
-        $this->assertEquals($eventDispatcher, $this->tus->event());
+        self::assertInstanceOf(TusServer::class, $this->tus->setDispatcher($eventDispatcher));
+        self::assertEquals($eventDispatcher, $this->tus->event());
     }
 }

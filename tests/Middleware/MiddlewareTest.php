@@ -39,8 +39,8 @@ class MiddlewareTest extends TestCase
     {
         $middleware = $this->middleware->list();
 
-        $this->assertInstanceOf(GlobalHeaders::class, $middleware[GlobalHeaders::class]);
-        $this->assertInstanceOf(Cors::class, $middleware[Cors::class]);
+        self::assertInstanceOf(GlobalHeaders::class, $middleware[GlobalHeaders::class]);
+        self::assertInstanceOf(Cors::class, $middleware[Cors::class]);
     }
 
     /**
@@ -54,15 +54,15 @@ class MiddlewareTest extends TestCase
         $corsMock  = m::mock(Cors::class);
         $mockClass = \get_class($corsMock);
 
-        $this->assertInstanceOf(Middleware::class, $this->middleware->add($corsMock, TestMiddleware::class));
+        self::assertInstanceOf(Middleware::class, $this->middleware->add($corsMock, TestMiddleware::class));
 
         $middleware = $this->middleware->list();
 
-        $this->assertCount(4, $middleware);
-        $this->assertInstanceOf($mockClass, $middleware[$mockClass]);
-        $this->assertInstanceOf(Cors::class, $middleware[Cors::class]);
-        $this->assertInstanceOf(GlobalHeaders::class, $middleware[GlobalHeaders::class]);
-        $this->assertInstanceOf(TestMiddleware::class, $middleware[TestMiddleware::class]);
+        self::assertCount(4, $middleware);
+        self::assertInstanceOf($mockClass, $middleware[$mockClass]);
+        self::assertInstanceOf(Cors::class, $middleware[Cors::class]);
+        self::assertInstanceOf(GlobalHeaders::class, $middleware[GlobalHeaders::class]);
+        self::assertInstanceOf(TestMiddleware::class, $middleware[TestMiddleware::class]);
     }
 
     /**
@@ -72,7 +72,7 @@ class MiddlewareTest extends TestCase
      */
     public function it_gets_middleware_list() : void
     {
-        $this->assertCount(2, $this->middleware->list());
+        self::assertCount(2, $this->middleware->list());
     }
 
     /**
@@ -83,12 +83,12 @@ class MiddlewareTest extends TestCase
      */
     public function it_skips_given_middleware() : void
     {
-        $this->assertInstanceOf(Middleware::class, $this->middleware->skip(GlobalHeaders::class));
+        self::assertInstanceOf(Middleware::class, $this->middleware->skip(GlobalHeaders::class));
 
         $middleware = $this->middleware->list();
 
-        $this->assertCount(1, $middleware);
-        $this->assertInstanceOf(Cors::class, $middleware[Cors::class]);
+        self::assertCount(1, $middleware);
+        self::assertInstanceOf(Cors::class, $middleware[Cors::class]);
     }
 
     /**

@@ -91,11 +91,11 @@ class ServerTest extends TestCase
      */
     public function it_sets_and_gets_upload_dir() : void
     {
-        $this->assertEquals(\dirname(__DIR__, 2) . '/uploads', $this->tusServer->getUploadDir());
+        self::assertEquals(\dirname(__DIR__, 2) . '/uploads', $this->tusServer->getUploadDir());
 
         $this->tusServer->setUploadDir(\dirname(__DIR__) . '/storage');
 
-        $this->assertEquals(\dirname(__DIR__) . '/storage', $this->tusServer->getUploadDir());
+        self::assertEquals(\dirname(__DIR__) . '/storage', $this->tusServer->getUploadDir());
     }
 
     /**
@@ -106,7 +106,7 @@ class ServerTest extends TestCase
      */
     public function it_gets_a_request() : void
     {
-        $this->assertInstanceOf(Request::class, $this->tusServer->getRequest());
+        self::assertInstanceOf(Request::class, $this->tusServer->getRequest());
     }
 
     /**
@@ -117,7 +117,7 @@ class ServerTest extends TestCase
      */
     public function it_gets_a_response() : void
     {
-        $this->assertInstanceOf(Response::class, $this->tusServer->getResponse());
+        self::assertInstanceOf(Response::class, $this->tusServer->getResponse());
     }
 
     /**
@@ -130,7 +130,7 @@ class ServerTest extends TestCase
         $filePath = __DIR__ . '/../Fixtures/empty.txt';
         $checksum = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
 
-        $this->assertEquals($checksum, $this->tusServer->getServerChecksum($filePath));
+        self::assertEquals($checksum, $this->tusServer->getServerChecksum($filePath));
     }
 
     /**
@@ -140,7 +140,7 @@ class ServerTest extends TestCase
      */
     public function it_gets_checksum_algorithm() : void
     {
-        $this->assertEquals('sha256', $this->tusServerMock->getChecksumAlgorithm());
+        self::assertEquals('sha256', $this->tusServerMock->getChecksumAlgorithm());
 
         $checksumAlgorithm = 'sha1';
 
@@ -150,7 +150,7 @@ class ServerTest extends TestCase
             ->headers
             ->set('Upload-Checksum', $checksumAlgorithm . ' checksum');
 
-        $this->assertEquals($checksumAlgorithm, $this->tusServerMock->getChecksumAlgorithm());
+        self::assertEquals($checksumAlgorithm, $this->tusServerMock->getChecksumAlgorithm());
     }
 
     /**
@@ -161,8 +161,8 @@ class ServerTest extends TestCase
      */
     public function it_sets_and_gets_middleware() : void
     {
-        $this->assertInstanceOf(Middleware::class, $this->tusServerMock->middleware());
-        $this->assertInstanceOf(Server::class, $this->tusServerMock->setMiddleware(new Middleware));
+        self::assertInstanceOf(Middleware::class, $this->tusServerMock->middleware());
+        self::assertInstanceOf(Server::class, $this->tusServerMock->setMiddleware(new Middleware));
     }
 
     /**
@@ -173,9 +173,9 @@ class ServerTest extends TestCase
      */
     public function it_sets_and_gets_max_upload_size() : void
     {
-        $this->assertEquals(0, $this->tusServerMock->getMaxUploadSize());
-        $this->assertInstanceOf(TusServer::class, $this->tusServerMock->setMaxUploadSize(1000));
-        $this->assertEquals(1000, $this->tusServerMock->getMaxUploadSize());
+        self::assertEquals(0, $this->tusServerMock->getMaxUploadSize());
+        self::assertInstanceOf(TusServer::class, $this->tusServerMock->setMaxUploadSize(1000));
+        self::assertEquals(1000, $this->tusServerMock->getMaxUploadSize());
     }
 
     /**
@@ -193,8 +193,8 @@ class ServerTest extends TestCase
 
         $response = $this->tusServerMock->serve();
 
-        $this->assertEquals(405, $response->getStatusCode());
-        $this->assertEmpty($response->getContent());
+        self::assertEquals(405, $response->getStatusCode());
+        self::assertEmpty($response->getContent());
     }
 
     /**
@@ -240,9 +240,9 @@ class ServerTest extends TestCase
 
         $response = $tusServerMock->serve();
 
-        $this->assertEquals(412, $response->getStatusCode());
-        $this->assertEquals('1.0.0', $response->headers->get('Tus-Version'));
-        $this->assertEmpty($response->getContent());
+        self::assertEquals(412, $response->getStatusCode());
+        self::assertEquals('1.0.0', $response->headers->get('Tus-Version'));
+        self::assertEmpty($response->getContent());
     }
 
     /**
@@ -291,7 +291,7 @@ class ServerTest extends TestCase
             ->once()
             ->andReturn(m::mock(HttpResponse::class));
 
-        $this->assertInstanceOf(HttpResponse::class, $tusServerMock->serve());
+        self::assertInstanceOf(HttpResponse::class, $tusServerMock->serve());
     }
 
     /**
@@ -336,7 +336,7 @@ class ServerTest extends TestCase
                 ->once()
                 ->andReturn(m::mock(HttpResponse::class));
 
-            $this->assertInstanceOf(HttpResponse::class, $tusServerMock->serve());
+            self::assertInstanceOf(HttpResponse::class, $tusServerMock->serve());
         }
     }
 
@@ -381,7 +381,7 @@ class ServerTest extends TestCase
             ->once()
             ->andReturn(m::mock(HttpResponse::class));
 
-        $this->assertInstanceOf(HttpResponse::class, $tusServerMock->serve());
+        self::assertInstanceOf(HttpResponse::class, $tusServerMock->serve());
     }
 
     /**
@@ -425,7 +425,7 @@ class ServerTest extends TestCase
             ->once()
             ->andReturn(m::mock(HttpResponse::class));
 
-        $this->assertInstanceOf(HttpResponse::class, $tusServerMock->serve());
+        self::assertInstanceOf(HttpResponse::class, $tusServerMock->serve());
     }
 
     /**
@@ -459,7 +459,7 @@ class ServerTest extends TestCase
             ->skip(Cors::class, GlobalHeaders::class)
             ->add($corsMock, $headersMock);
 
-        $this->assertNull($this->tusServerMock->applyMiddleware());
+        self::assertNull($this->tusServerMock->applyMiddleware());
     }
 
     /**
@@ -471,8 +471,8 @@ class ServerTest extends TestCase
     {
         $response = $this->tusServer->handleHead();
 
-        $this->assertEquals(400, $response->getStatusCode());
-        $this->assertEmpty($response->getContent());
+        self::assertEquals(400, $response->getStatusCode());
+        self::assertEmpty($response->getContent());
     }
 
     /**
@@ -491,21 +491,21 @@ class ServerTest extends TestCase
         $response = $this->tusServerMock->handleOptions();
         $headers  = $response->headers->all();
 
-        $this->assertArrayNotHasKey('tus-max-size', $headers);
-        $this->assertNull(current($headers['access-control-allow-origin']));
-        $this->assertEquals(implode(',', self::ALLOWED_HTTP_VERBS), current($headers['allow']));
-        $this->assertEquals(implode(',', self::ALLOWED_HTTP_VERBS), current($headers['access-control-allow-methods']));
-        $this->assertEquals(86400, current($headers['access-control-max-age']));
-        $this->assertEquals('1.0.0', current($headers['tus-version']));
-        $this->assertEquals(
+        self::assertArrayNotHasKey('tus-max-size', $headers);
+        self::assertNull(current($headers['access-control-allow-origin']));
+        self::assertEquals(implode(',', self::ALLOWED_HTTP_VERBS), current($headers['allow']));
+        self::assertEquals(implode(',', self::ALLOWED_HTTP_VERBS), current($headers['access-control-allow-methods']));
+        self::assertEquals(86400, current($headers['access-control-max-age']));
+        self::assertEquals('1.0.0', current($headers['tus-version']));
+        self::assertEquals(
             'Origin, X-Requested-With, Content-Type, Content-Length, Upload-Key, Upload-Checksum, Upload-Length, Upload-Offset, Tus-Version, Tus-Resumable, Upload-Metadata',
             current($headers['access-control-allow-headers'])
         );
-        $this->assertEquals(
+        self::assertEquals(
             'Upload-Key, Upload-Checksum, Upload-Length, Upload-Offset, Upload-Metadata, Tus-Version, Tus-Resumable, Tus-Extension, Location',
             current($headers['access-control-expose-headers'])
         );
-        $this->assertEquals(
+        self::assertEquals(
             'creation,termination,checksum,expiration,concatenation',
             current($headers['tus-extension'])
         );
@@ -532,9 +532,9 @@ class ServerTest extends TestCase
         $response = $this->tusServerMock->handleOptions();
         $headers  = $response->headers->all();
 
-        $this->assertArrayHasKey('tus-max-size', $headers);
-        $this->assertEquals(1000, current($headers['tus-max-size']));
-        $this->assertEquals('1.0.0', current($headers['tus-version']));
+        self::assertArrayHasKey('tus-max-size', $headers);
+        self::assertEquals(1000, current($headers['tus-max-size']));
+        self::assertEquals('1.0.0', current($headers['tus-version']));
     }
 
     /**
@@ -574,8 +574,8 @@ class ServerTest extends TestCase
 
         $response = $this->tusServerMock->handleHead();
 
-        $this->assertEquals(404, $response->getStatusCode());
-        $this->assertEmpty($response->getContent());
+        self::assertEquals(404, $response->getStatusCode());
+        self::assertEmpty($response->getContent());
     }
 
     /**
@@ -616,8 +616,8 @@ class ServerTest extends TestCase
 
         $response = $this->tusServerMock->handleHead();
 
-        $this->assertEquals(410, $response->getStatusCode());
-        $this->assertEmpty($response->getContent());
+        self::assertEquals(410, $response->getStatusCode());
+        self::assertEmpty($response->getContent());
     }
 
     /**
@@ -660,12 +660,12 @@ class ServerTest extends TestCase
 
         $response = $this->tusServerMock->handleHead();
 
-        $this->assertEmpty($response->getContent());
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals(49, $response->headers->get('upload-offset'));
-        $this->assertNull($response->headers->get('upload-concat'));
-        $this->assertEquals('1.0.0', $response->headers->get('tus-resumable'));
-        $this->assertEquals('no-store, private', $response->headers->get('cache-control'));
+        self::assertEmpty($response->getContent());
+        self::assertEquals(200, $response->getStatusCode());
+        self::assertEquals(49, $response->headers->get('upload-offset'));
+        self::assertNull($response->headers->get('upload-concat'));
+        self::assertEquals('1.0.0', $response->headers->get('tus-resumable'));
+        self::assertEquals('no-store, private', $response->headers->get('cache-control'));
     }
 
     /**
@@ -708,12 +708,12 @@ class ServerTest extends TestCase
 
         $response = $this->tusServerMock->handleHead();
 
-        $this->assertEmpty($response->getContent());
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals(49, $response->headers->get('upload-offset'));
-        $this->assertEquals('partial', $response->headers->get('upload-concat'));
-        $this->assertEquals('1.0.0', $response->headers->get('tus-resumable'));
-        $this->assertEquals('no-store, private', $response->headers->get('cache-control'));
+        self::assertEmpty($response->getContent());
+        self::assertEquals(200, $response->getStatusCode());
+        self::assertEquals(49, $response->headers->get('upload-offset'));
+        self::assertEquals('partial', $response->headers->get('upload-concat'));
+        self::assertEquals('1.0.0', $response->headers->get('tus-resumable'));
+        self::assertEquals('no-store, private', $response->headers->get('cache-control'));
     }
 
     /**
@@ -756,12 +756,12 @@ class ServerTest extends TestCase
 
         $response = $this->tusServerMock->handleHead();
 
-        $this->assertEmpty($response->getContent());
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertNull($response->headers->get('upload-offset'));
-        $this->assertEquals('final', $response->headers->get('upload-concat'));
-        $this->assertEquals('1.0.0', $response->headers->get('tus-resumable'));
-        $this->assertEquals('no-store, private', $response->headers->get('cache-control'));
+        self::assertEmpty($response->getContent());
+        self::assertEquals(200, $response->getStatusCode());
+        self::assertNull($response->headers->get('upload-offset'));
+        self::assertEquals('final', $response->headers->get('upload-concat'));
+        self::assertEquals('1.0.0', $response->headers->get('tus-resumable'));
+        self::assertEquals('no-store, private', $response->headers->get('cache-control'));
     }
 
     /**
@@ -782,8 +782,8 @@ class ServerTest extends TestCase
 
         $response = $this->tusServerMock->handlePost();
 
-        $this->assertEquals(400, $response->getStatusCode());
-        $this->assertEmpty($response->getContent());
+        self::assertEquals(400, $response->getStatusCode());
+        self::assertEmpty($response->getContent());
     }
 
     /**
@@ -830,8 +830,8 @@ class ServerTest extends TestCase
 
         $response = $this->tusServerMock->handlePost();
 
-        $this->assertEquals(413, $response->getStatusCode());
-        $this->assertEmpty($response->getContent());
+        self::assertEquals(413, $response->getStatusCode());
+        self::assertEmpty($response->getContent());
     }
 
     /**
@@ -886,7 +886,7 @@ class ServerTest extends TestCase
             ->once()
             ->andReturn(new HttpResponse);
 
-        $this->assertInstanceOf(HttpResponse::class, $this->tusServerMock->handlePost());
+        self::assertInstanceOf(HttpResponse::class, $this->tusServerMock->handlePost());
     }
 
     /**
@@ -1010,11 +1010,11 @@ class ServerTest extends TestCase
 
         $response = $this->tusServerMock->handlePost();
 
-        $this->assertEmpty($response->getContent());
-        $this->assertEquals(201, $response->getStatusCode());
-        $this->assertEquals($location, $response->headers->get('location'));
-        $this->assertEquals($expiresAt, $response->headers->get('upload-expires'));
-        $this->assertEquals('1.0.0', $response->headers->get('tus-resumable'));
+        self::assertEmpty($response->getContent());
+        self::assertEquals(201, $response->getStatusCode());
+        self::assertEquals($location, $response->headers->get('location'));
+        self::assertEquals($expiresAt, $response->headers->get('upload-expires'));
+        self::assertEquals('1.0.0', $response->headers->get('tus-resumable'));
     }
 
     /**
@@ -1128,11 +1128,11 @@ class ServerTest extends TestCase
 
         $response = $this->tusServerMock->handlePost();
 
-        $this->assertEmpty($response->getContent());
-        $this->assertEquals(201, $response->getStatusCode());
-        $this->assertEquals($location, $response->headers->get('location'));
-        $this->assertEquals($expiresAt, $response->headers->get('upload-expires'));
-        $this->assertEquals('1.0.0', $response->headers->get('tus-resumable'));
+        self::assertEmpty($response->getContent());
+        self::assertEquals(201, $response->getStatusCode());
+        self::assertEquals($location, $response->headers->get('location'));
+        self::assertEquals($expiresAt, $response->headers->get('upload-expires'));
+        self::assertEquals('1.0.0', $response->headers->get('tus-resumable'));
     }
 
     /**
@@ -1305,9 +1305,9 @@ class ServerTest extends TestCase
 
         $response = $this->tusServerMock->handleConcatenation($fileName, $filePath . $fileName);
 
-        $this->assertEquals(201, $response->getStatusCode());
-        $this->assertEquals($location, $response->headers->get('location'));
-        $this->assertEquals('1.0.0', $response->headers->get('tus-resumable'));
+        self::assertEquals(201, $response->getStatusCode());
+        self::assertEquals($location, $response->headers->get('location'));
+        self::assertEquals('1.0.0', $response->headers->get('tus-resumable'));
     }
 
     /**
@@ -1429,8 +1429,8 @@ class ServerTest extends TestCase
 
         $response = $this->tusServerMock->handleConcatenation($fileName, $filePath . $fileName);
 
-        $this->assertEquals(460, $response->getStatusCode());
-        $this->assertEmpty($response->getContent());
+        self::assertEquals(460, $response->getStatusCode());
+        self::assertEmpty($response->getContent());
     }
 
     /**
@@ -1469,8 +1469,8 @@ class ServerTest extends TestCase
 
         $response = $this->tusServerMock->handlePatch();
 
-        $this->assertEquals(410, $response->getStatusCode());
-        $this->assertEmpty($response->getContent());
+        self::assertEquals(410, $response->getStatusCode());
+        self::assertEmpty($response->getContent());
     }
 
     /**
@@ -1534,8 +1534,8 @@ class ServerTest extends TestCase
 
         $response = $this->tusServerMock->handlePatch();
 
-        $this->assertEquals(409, $response->getStatusCode());
-        $this->assertEmpty($response->getContent());
+        self::assertEquals(409, $response->getStatusCode());
+        self::assertEmpty($response->getContent());
     }
 
     /**
@@ -1637,8 +1637,8 @@ class ServerTest extends TestCase
 
         $response = $this->tusServerMock->handlePatch();
 
-        $this->assertEquals(422, $response->getStatusCode());
-        $this->assertEquals('Unable to open file.', $response->getContent());
+        self::assertEquals(422, $response->getStatusCode());
+        self::assertEquals('Unable to open file.', $response->getContent());
     }
 
     /**
@@ -1740,8 +1740,8 @@ class ServerTest extends TestCase
 
         $response = $this->tusServerMock->handlePatch();
 
-        $this->assertEquals(416, $response->getStatusCode());
-        $this->assertEmpty($response->getContent());
+        self::assertEquals(416, $response->getStatusCode());
+        self::assertEmpty($response->getContent());
     }
 
     /**
@@ -1843,8 +1843,8 @@ class ServerTest extends TestCase
 
         $response = $this->tusServerMock->handlePatch();
 
-        $this->assertEquals(100, $response->getStatusCode());
-        $this->assertEmpty($response->getContent());
+        self::assertEquals(100, $response->getStatusCode());
+        self::assertEmpty($response->getContent());
     }
 
     /**
@@ -1900,8 +1900,8 @@ class ServerTest extends TestCase
 
         $response = $this->tusServerMock->handlePatch();
 
-        $this->assertEquals(403, $response->getStatusCode());
-        $this->assertEmpty($response->getContent());
+        self::assertEquals(403, $response->getStatusCode());
+        self::assertEmpty($response->getContent());
     }
 
     /**
@@ -2003,8 +2003,8 @@ class ServerTest extends TestCase
 
         $response = $this->tusServerMock->handlePatch();
 
-        $this->assertEquals(460, $response->getStatusCode());
-        $this->assertEmpty($response->getContent());
+        self::assertEquals(460, $response->getStatusCode());
+        self::assertEmpty($response->getContent());
     }
 
     /**
@@ -2123,12 +2123,12 @@ class ServerTest extends TestCase
 
         $response = $this->tusServerMock->handlePatch();
 
-        $this->assertEquals(204, $response->getStatusCode());
-        $this->assertEquals($expiresAt, $response->headers->get('upload-expires'));
-        $this->assertEquals($fileSize, $response->headers->get('upload-offset'));
-        $this->assertEquals('1.0.0', $response->headers->get('tus-resumable'));
-        $this->assertEquals('application/offset+octet-stream', $response->headers->get('content-type'));
-        $this->assertEmpty($response->getContent());
+        self::assertEquals(204, $response->getStatusCode());
+        self::assertEquals($expiresAt, $response->headers->get('upload-expires'));
+        self::assertEquals($fileSize, $response->headers->get('upload-offset'));
+        self::assertEquals('1.0.0', $response->headers->get('tus-resumable'));
+        self::assertEquals('application/offset+octet-stream', $response->headers->get('content-type'));
+        self::assertEmpty($response->getContent());
     }
 
     /**
@@ -2242,12 +2242,12 @@ class ServerTest extends TestCase
 
         $response = $this->tusServerMock->handlePatch();
 
-        $this->assertEquals(204, $response->getStatusCode());
-        $this->assertEquals($expiresAt, $response->headers->get('upload-expires'));
-        $this->assertEquals(100, $response->headers->get('upload-offset'));
-        $this->assertEquals('1.0.0', $response->headers->get('tus-resumable'));
-        $this->assertEquals('application/offset+octet-stream', $response->headers->get('content-type'));
-        $this->assertEmpty($response->getContent());
+        self::assertEquals(204, $response->getStatusCode());
+        self::assertEquals($expiresAt, $response->headers->get('upload-expires'));
+        self::assertEquals(100, $response->headers->get('upload-offset'));
+        self::assertEquals('1.0.0', $response->headers->get('tus-resumable'));
+        self::assertEquals('application/offset+octet-stream', $response->headers->get('content-type'));
+        self::assertEmpty($response->getContent());
     }
 
     /**
@@ -2284,7 +2284,7 @@ class ServerTest extends TestCase
 
         $response = $this->tusServerMock->handleGet();
 
-        $this->assertEquals(200, $response->getStatusCode());
+        self::assertEquals(200, $response->getStatusCode());
     }
 
     /**
@@ -2321,7 +2321,7 @@ class ServerTest extends TestCase
 
         $response = $this->tusServerMock->handleGet();
 
-        $this->assertEquals(200, $response->getStatusCode());
+        self::assertEquals(200, $response->getStatusCode());
     }
 
     /**
@@ -2358,8 +2358,8 @@ class ServerTest extends TestCase
 
         $response = $this->tusServerMock->handleGet();
 
-        $this->assertEquals(404, $response->getStatusCode());
-        $this->assertEquals('404 upload not found.', $response->getContent());
+        self::assertEquals(404, $response->getStatusCode());
+        self::assertEquals('404 upload not found.', $response->getContent());
     }
 
     /**
@@ -2398,8 +2398,8 @@ class ServerTest extends TestCase
 
         $response = $this->tusServerMock->handleGet();
 
-        $this->assertEquals(404, $response->getStatusCode());
-        $this->assertEquals('404 upload not found.', $response->getContent());
+        self::assertEquals(404, $response->getStatusCode());
+        self::assertEquals('404 upload not found.', $response->getContent());
     }
 
     /**
@@ -2440,8 +2440,8 @@ class ServerTest extends TestCase
 
         $response = $this->tusServerMock->handleGet();
 
-        $this->assertEquals(404, $response->getStatusCode());
-        $this->assertEquals('404 upload not found.', $response->getContent());
+        self::assertEquals(404, $response->getStatusCode());
+        self::assertEquals('404 upload not found.', $response->getContent());
     }
 
     /**
@@ -2496,8 +2496,8 @@ class ServerTest extends TestCase
 
         $response = $this->tusServerMock->handleGet();
 
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertRegExp(
+        self::assertEquals(200, $response->getStatusCode());
+        self::assertRegExp(
             "/attachment; filename=($fileName|\"$fileName\")/",
             $response->headers->get('content-disposition')
         );
@@ -2538,8 +2538,8 @@ class ServerTest extends TestCase
 
         $response = $this->tusServerMock->handleDelete();
 
-        $this->assertEquals(404, $response->getStatusCode());
-        $this->assertEmpty($response->getContent());
+        self::assertEquals(404, $response->getStatusCode());
+        self::assertEmpty($response->getContent());
     }
 
     /**
@@ -2585,8 +2585,8 @@ class ServerTest extends TestCase
 
         $response = $this->tusServerMock->handleDelete();
 
-        $this->assertEquals(410, $response->getStatusCode());
-        $this->assertEmpty($response->getContent());
+        self::assertEquals(410, $response->getStatusCode());
+        self::assertEmpty($response->getContent());
     }
 
     /**
@@ -2646,10 +2646,10 @@ class ServerTest extends TestCase
 
         $response = $this->tusServerMock->handleDelete();
 
-        $this->assertEmpty($response->getContent());
-        $this->assertEquals(204, $response->getStatusCode());
-        $this->assertEquals('1.0.0', $response->headers->get('tus-resumable'));
-        $this->assertEquals('termination', $response->headers->get('tus-extension'));
+        self::assertEmpty($response->getContent());
+        self::assertEquals(204, $response->getStatusCode());
+        self::assertEquals('1.0.0', $response->headers->get('tus-resumable'));
+        self::assertEquals('termination', $response->headers->get('tus-extension'));
 
         $mock->disable();
     }
@@ -2673,15 +2673,15 @@ class ServerTest extends TestCase
             'Cache-Control' => 'no-store',
         ];
 
-        $this->assertEquals($headers, $this->tusServerMock->getHeadersForHeadRequest($fileMeta));
-        $this->assertEquals(
+        self::assertEquals($headers, $this->tusServerMock->getHeadersForHeadRequest($fileMeta));
+        self::assertEquals(
             $headers + ['Upload-Concat' => 'partial'],
             $this->tusServerMock->getHeadersForHeadRequest(['upload_type' => 'partial'] + $fileMeta)
         );
 
         unset($headers['Upload-Offset']);
 
-        $this->assertEquals(
+        self::assertEquals(
             $headers + ['Upload-Concat' => 'final'],
             $this->tusServerMock->getHeadersForHeadRequest(['upload_type' => 'final'] + $fileMeta)
         );
@@ -2719,14 +2719,14 @@ class ServerTest extends TestCase
 
         $details = $file->details();
 
-        $this->assertInstanceOf(File::class, $file);
-        $this->assertEquals($fileName, $details['name']);
-        $this->assertEquals($fileSize, $details['size']);
-        $this->assertEquals(0, $details['offset']);
-        $this->assertEquals($filePath, $details['file_path']);
-        $this->assertEquals($location, $details['location']);
-        $this->assertEquals($createdAt, $details['created_at']);
-        $this->assertEquals($expiresAt, $details['expires_at']);
+        self::assertInstanceOf(File::class, $file);
+        self::assertEquals($fileName, $details['name']);
+        self::assertEquals($fileSize, $details['size']);
+        self::assertEquals(0, $details['offset']);
+        self::assertEquals($filePath, $details['file_path']);
+        self::assertEquals($location, $details['location']);
+        self::assertEquals($createdAt, $details['created_at']);
+        self::assertEquals($expiresAt, $details['expires_at']);
     }
 
     /**
@@ -2752,7 +2752,7 @@ class ServerTest extends TestCase
 
         $mock->enable();
 
-        $this->assertEquals("md5,sha1,sha256,'haval256,3'", $this->tusServerMock->getSupportedHashAlgorithms());
+        self::assertEquals("md5,sha1,sha256,'haval256,3'", $this->tusServerMock->getSupportedHashAlgorithms());
 
         $mock->disable();
     }
@@ -2766,7 +2766,7 @@ class ServerTest extends TestCase
     {
         $response = $this->tusServerMock->getClientChecksum();
 
-        $this->assertEmpty($response);
+        self::assertEmpty($response);
     }
 
     /**
@@ -2802,8 +2802,8 @@ class ServerTest extends TestCase
 
         $response = $this->tusServerMock->getClientChecksum();
 
-        $this->assertEquals(400, $response->getStatusCode());
-        $this->assertEmpty($response->getContent());
+        self::assertEquals(400, $response->getStatusCode());
+        self::assertEmpty($response->getContent());
 
         $mock->disable();
     }
@@ -2839,8 +2839,8 @@ class ServerTest extends TestCase
 
         $response = $this->tusServerMock->getClientChecksum();
 
-        $this->assertEquals(400, $response->getStatusCode());
-        $this->assertEmpty($response->getContent());
+        self::assertEquals(400, $response->getStatusCode());
+        self::assertEmpty($response->getContent());
 
         $mock->disable();
     }
@@ -2861,7 +2861,7 @@ class ServerTest extends TestCase
             ->headers
             ->set('Upload-Checksum', 'sha1 ' . base64_encode($checksum));
 
-        $this->assertEquals($checksum, $this->tusServerMock->getClientChecksum());
+        self::assertEquals($checksum, $this->tusServerMock->getClientChecksum());
     }
 
     /**
@@ -2879,8 +2879,8 @@ class ServerTest extends TestCase
 
         $response = $this->tusServerMock->getUploadKey();
 
-        $this->assertEquals(400, $response->getStatusCode());
-        $this->assertEmpty($response->getContent());
+        self::assertEquals(400, $response->getStatusCode());
+        self::assertEmpty($response->getContent());
     }
 
     /**
@@ -2892,7 +2892,7 @@ class ServerTest extends TestCase
     {
         $response = $this->tusServerMock->getUploadKey();
 
-        $this->assertNotEmpty($response);
+        self::assertNotEmpty($response);
     }
 
     /**
@@ -2910,7 +2910,7 @@ class ServerTest extends TestCase
             ->headers
             ->set('Upload-Key', $key);
 
-        $this->assertEquals($key, $this->tusServerMock->getUploadKey());
+        self::assertEquals($key, $this->tusServerMock->getUploadKey());
 
         return $key;
     }
@@ -2925,8 +2925,8 @@ class ServerTest extends TestCase
      */
     public function it_gets_upload_key_if_already_set(string $key) : void
     {
-        $this->assertInstanceOf(Server::class, $this->tusServerMock->setUploadKey($key));
-        $this->assertEquals($key, $this->tusServerMock->getUploadKey());
+        self::assertInstanceOf(Server::class, $this->tusServerMock->setUploadKey($key));
+        self::assertEquals($key, $this->tusServerMock->getUploadKey());
     }
 
     /**
@@ -2936,16 +2936,16 @@ class ServerTest extends TestCase
      */
     public function it_checks_expiry_date() : void
     {
-        $this->assertFalse($this->tusServerMock->isExpired(['expires_at' => 'Sat, 09 Dec 2017 00:00:00 GMT']));
+        self::assertFalse($this->tusServerMock->isExpired(['expires_at' => 'Sat, 09 Dec 2017 00:00:00 GMT']));
 
-        $this->assertFalse($this->tusServerMock->isExpired([
+        self::assertFalse($this->tusServerMock->isExpired([
             'expires_at' => 'Thu, 07 Dec 2017 00:00:00 GMT',
             'offset' => 100,
             'size' => 100,
             'file_path' => '/path/to/file.txt',
         ]));
 
-        $this->assertTrue($this->tusServerMock->isExpired([
+        self::assertTrue($this->tusServerMock->isExpired([
             'expires_at' => 'Thu, 07 Dec 2017 00:00:00 GMT',
             'offset' => 100,
             'size' => 1100,
@@ -3015,9 +3015,9 @@ class ServerTest extends TestCase
 
         touch($filePath);
 
-        $this->assertTrue(file_exists($filePath));
+        self::assertTrue(file_exists($filePath));
 
-        $this->assertEquals([
+        self::assertEquals([
             [
                 'expires_at' => 'Thu, 07 Dec 2017 00:00:00 GMT',
                 'offset' => 100,
@@ -3026,7 +3026,7 @@ class ServerTest extends TestCase
             ],
         ], $this->tusServerMock->handleExpiration());
 
-        $this->assertFalse(file_exists($filePath));
+        self::assertFalse(file_exists($filePath));
     }
 
     /**
@@ -3070,7 +3070,7 @@ class ServerTest extends TestCase
 
         $this->tusServerMock->setCache($cacheMock);
 
-        $this->assertEquals([], $this->tusServerMock->handleExpiration());
+        self::assertEquals([], $this->tusServerMock->handleExpiration());
     }
 
     /**
@@ -3086,13 +3086,13 @@ class ServerTest extends TestCase
 
         $this->tusServerMock->setUploadDir($baseDir);
 
-        $this->assertEquals(
+        self::assertEquals(
             $uploadDir,
             $this->tusServerMock->getPathForPartialUpload('checksum_partial')
         );
 
-        $this->assertTrue(file_exists($uploadDir));
-        $this->assertTrue(is_dir($uploadDir));
+        self::assertTrue(file_exists($uploadDir));
+        self::assertTrue(is_dir($uploadDir));
 
         @rmdir($uploadDir);
     }
@@ -3133,7 +3133,7 @@ class ServerTest extends TestCase
 
         $this->tusServerMock->setCache($cacheMock);
 
-        $this->assertEquals($files, $this->tusServerMock->getPartialsMeta($partials));
+        self::assertEquals($files, $this->tusServerMock->getPartialsMeta($partials));
     }
 
     /**
@@ -3144,7 +3144,7 @@ class ServerTest extends TestCase
      */
     public function it_verifies_upload_size() : void
     {
-        $this->assertTrue($this->tusServerMock->verifyUploadSize());
+        self::assertTrue($this->tusServerMock->verifyUploadSize());
 
         $requestMock = m::mock(Request::class, ['file'])->makePartial();
         $requestMock
@@ -3159,8 +3159,8 @@ class ServerTest extends TestCase
             ->twice()
             ->andReturn($requestMock);
 
-        $this->assertInstanceOf(TusServer::class, $this->tusServerMock->setMaxUploadSize(1000));
-        $this->assertTrue($this->tusServerMock->verifyUploadSize());
+        self::assertInstanceOf(TusServer::class, $this->tusServerMock->setMaxUploadSize(1000));
+        self::assertTrue($this->tusServerMock->verifyUploadSize());
 
         $requestMock
             ->getRequest()
@@ -3169,7 +3169,7 @@ class ServerTest extends TestCase
                 'Upload-Length' => 10000,
             ]);
 
-        $this->assertFalse($this->tusServerMock->verifyUploadSize());
+        self::assertFalse($this->tusServerMock->verifyUploadSize());
     }
 
     /**
@@ -3182,9 +3182,9 @@ class ServerTest extends TestCase
         $filePath = __DIR__ . '/../Fixtures/empty.txt';
         $checksum = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
 
-        $this->assertTrue($this->tusServerMock->verifyChecksum('', $filePath));
-        $this->assertFalse($this->tusServerMock->verifyChecksum('invalid', $filePath));
-        $this->assertTrue($this->tusServerMock->verifyChecksum($checksum, $filePath));
+        self::assertTrue($this->tusServerMock->verifyChecksum('', $filePath));
+        self::assertFalse($this->tusServerMock->verifyChecksum('invalid', $filePath));
+        self::assertTrue($this->tusServerMock->verifyChecksum($checksum, $filePath));
     }
 
     /**
@@ -3242,8 +3242,8 @@ class ServerTest extends TestCase
 
         $response = $this->tusServerMock->handlePatch();
 
-        $this->assertEquals(415, $response->getStatusCode());
-        $this->assertEmpty($response->getContent());
+        self::assertEquals(415, $response->getStatusCode());
+        self::assertEmpty($response->getContent());
     }
 
     /**

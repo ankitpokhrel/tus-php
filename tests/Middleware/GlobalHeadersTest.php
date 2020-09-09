@@ -47,7 +47,7 @@ class GlobalHeadersTest extends TestCase
             ])
             ->andReturnSelf();
 
-        $this->assertNull($this->globalHeaders->handle($requestMock, $responseMock));
+        self::assertNull($this->globalHeaders->handle($requestMock, $responseMock));
     }
 
     /**

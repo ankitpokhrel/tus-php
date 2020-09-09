@@ -50,11 +50,11 @@ class FileStoreTest extends TestCase
      */
     public function it_sets_and_gets_ttl() : void
     {
-        $this->assertEquals(86400, $this->fileStore->getTtl());
+        self::assertEquals(86400, $this->fileStore->getTtl());
 
         $this->fileStore->setTtl(10);
 
-        $this->assertEquals(10, $this->fileStore->getTtl());
+        self::assertEquals(10, $this->fileStore->getTtl());
     }
 
     /**
@@ -65,9 +65,9 @@ class FileStoreTest extends TestCase
      */
     public function it_sets_and_gets_file_cache_prefix() : void
     {
-        $this->assertEquals('tus:', $this->fileStore->getPrefix());
-        $this->assertInstanceOf(FileStore::class, $this->fileStore->setPrefix('file:'));
-        $this->assertEquals('file:', $this->fileStore->getPrefix());
+        self::assertEquals('tus:', $this->fileStore->getPrefix());
+        self::assertInstanceOf(FileStore::class, $this->fileStore->setPrefix('file:'));
+        self::assertEquals('file:', $this->fileStore->getPrefix());
     }
 
     /**
@@ -78,7 +78,7 @@ class FileStoreTest extends TestCase
      */
     public function it_sets_default_cache_dir_and_file() : void
     {
-        $this->assertEquals(Config::get('file.dir') . Config::get('file.name'), (new FileStore)->getCacheFile());
+        self::assertEquals(Config::get('file.dir') . Config::get('file.name'), (new FileStore)->getCacheFile());
     }
 
     /**
@@ -95,8 +95,8 @@ class FileStoreTest extends TestCase
         $fileCache = new FileStore($cacheDir);
         $fileStore = new FileStore($cacheDir, $cacheFile);
 
-        $this->assertEquals($cacheDir . 'tus_php.cache', $fileCache->getCacheFile());
-        $this->assertEquals($cacheDir . $cacheFile, $fileStore->getCacheFile());
+        self::assertEquals($cacheDir . 'tus_php.cache', $fileCache->getCacheFile());
+        self::assertEquals($cacheDir . $cacheFile, $fileStore->getCacheFile());
     }
 
     /**
@@ -109,8 +109,8 @@ class FileStoreTest extends TestCase
     {
         $cacheDir = '/path/to/cache/dir';
 
-        $this->assertInstanceOf(FileStore::class, $this->fileStore->setCacheDir($cacheDir));
-        $this->assertEquals($cacheDir, $this->fileStore->getCacheDir());
+        self::assertInstanceOf(FileStore::class, $this->fileStore->setCacheDir($cacheDir));
+        self::assertEquals($cacheDir, $this->fileStore->getCacheDir());
     }
 
     /**
@@ -126,8 +126,8 @@ class FileStoreTest extends TestCase
 
         $fileStore = new FileStore;
 
-        $this->assertInstanceOf(FileStore::class, $fileStore->setCacheFile($cacheFile));
-        $this->assertEquals($defaultCacheDir . $cacheFile, $fileStore->getCacheFile());
+        self::assertInstanceOf(FileStore::class, $fileStore->setCacheFile($cacheFile));
+        self::assertEquals($defaultCacheDir . $cacheFile, $fileStore->getCacheFile());
     }
 
     /**
@@ -142,11 +142,11 @@ class FileStoreTest extends TestCase
     {
         $this->fileStore->set($this->checksum, 'Test');
 
-        $this->assertFileExists($this->cacheDir);
-        $this->assertFileExists($this->cacheDir.$this->cacheFile);
+        self::assertFileExists($this->cacheDir);
+        self::assertFileExists($this->cacheDir.$this->cacheFile);
 
         // Cache is invalid, should return null.
-        $this->assertEquals(null, $this->fileStore->get($this->checksum));
+        self::assertEquals(null, $this->fileStore->get($this->checksum));
     }
 
     /**
@@ -166,9 +166,9 @@ class FileStoreTest extends TestCase
 
         $this->fileStore->set($this->checksum, $cacheContent);
 
-        $this->assertFileExists($this->cacheDir);
-        $this->assertFileExists($this->cacheDir.$this->cacheFile);
-        $this->assertEquals($cacheContent, $this->fileStore->get($this->checksum));
+        self::assertFileExists($this->cacheDir);
+        self::assertFileExists($this->cacheDir.$this->cacheFile);
+        self::assertEquals($cacheContent, $this->fileStore->get($this->checksum));
     }
 
     /**
@@ -184,14 +184,14 @@ class FileStoreTest extends TestCase
 
         $this->fileStore->set($this->checksum, $cacheContent);
 
-        $this->assertEquals($cacheContent, $this->fileStore->get($this->checksum));
+        self::assertEquals($cacheContent, $this->fileStore->get($this->checksum));
 
         $this->fileStore->set($this->checksum, ['offset' => 500]);
 
         $contents = $this->fileStore->get($this->checksum);
 
-        $this->assertEquals(500, $contents['offset']);
-        $this->assertEquals('Sat, 09 Dec 2017 16:25:51 GMT', $contents['expires_at']);
+        self::assertEquals(500, $contents['offset']);
+        self::assertEquals('Sat, 09 Dec 2017 16:25:51 GMT', $contents['expires_at']);
     }
 
     /**
@@ -203,7 +203,7 @@ class FileStoreTest extends TestCase
     {
         $content = $this->fileStore->get($this->checksum);
 
-        $this->assertNull($content);
+        self::assertNull($content);
     }
 
     /**
@@ -218,12 +218,12 @@ class FileStoreTest extends TestCase
 
         $this->fileStore->set($this->checksum, $cacheContent);
 
-        $this->assertNull($this->fileStore->get($this->checksum));
+        self::assertNull($this->fileStore->get($this->checksum));
 
         $cacheContent = ['expires_at' => 'Thu, 07 Dec 2017 16:25:51 GMT'];
         $this->fileStore->set($this->checksum, $cacheContent);
 
-        $this->assertNull($this->fileStore->get($this->checksum));
+        self::assertNull($this->fileStore->get($this->checksum));
     }
 
     /**
@@ -237,8 +237,8 @@ class FileStoreTest extends TestCase
 
         $this->fileStore->set($this->checksum, $cacheContent);
 
-        $this->assertNull($this->fileStore->get($this->checksum));
-        $this->assertEquals($cacheContent, $this->fileStore->get($this->checksum, true));
+        self::assertNull($this->fileStore->get($this->checksum));
+        self::assertEquals($cacheContent, $this->fileStore->get($this->checksum, true));
     }
 
     /**
@@ -253,7 +253,7 @@ class FileStoreTest extends TestCase
 
         $this->fileStore->set($this->checksum, $cacheContent);
 
-        $this->assertEquals($cacheContent, $this->fileStore->get($this->checksum));
+        self::assertEquals($cacheContent, $this->fileStore->get($this->checksum));
     }
 
     /**
@@ -268,12 +268,12 @@ class FileStoreTest extends TestCase
 
         $this->fileStore->set($this->checksum, $cacheContent);
 
-        $this->assertTrue($this->fileStore->isValid($this->checksum));
+        self::assertTrue($this->fileStore->isValid($this->checksum));
 
         $cacheContent = ['expires_at' => 'Thu, 07 Dec 2017 16:25:51 GMT'];
         $this->fileStore->set($this->checksum, $cacheContent);
 
-        $this->assertFalse($this->fileStore->isValid($this->checksum));
+        self::assertFalse($this->fileStore->isValid($this->checksum));
     }
 
     /**
@@ -283,7 +283,7 @@ class FileStoreTest extends TestCase
      */
     public function it_returns_false_if_cache_file_doesnt_exist() : void
     {
-        $this->assertFalse($this->fileStore->getCacheContents());
+        self::assertFalse($this->fileStore->getCacheContents());
     }
 
     /**
@@ -306,7 +306,7 @@ class FileStoreTest extends TestCase
 
         $this->fileStore->set($checksum, $content);
 
-        $this->assertEquals($expected, $this->fileStore->getCacheContents());
+        self::assertEquals($expected, $this->fileStore->getCacheContents());
     }
 
     /**
@@ -324,11 +324,11 @@ class FileStoreTest extends TestCase
 
         $this->fileStore->set($this->checksum, $cacheContent);
 
-        $this->assertEquals(['tus:' . $this->checksum => $cacheContent], $this->fileStore->getCacheContents());
+        self::assertEquals(['tus:' . $this->checksum => $cacheContent], $this->fileStore->getCacheContents());
 
-        $this->assertFalse($this->fileStore->delete('invalid-checksum'));
-        $this->assertTrue($this->fileStore->delete($this->checksum));
-        $this->assertNull($this->fileStore->get($this->checksum));
+        self::assertFalse($this->fileStore->delete('invalid-checksum'));
+        self::assertTrue($this->fileStore->delete($this->checksum));
+        self::assertNull($this->fileStore->get($this->checksum));
     }
 
     /**
@@ -347,10 +347,10 @@ class FileStoreTest extends TestCase
         $this->fileStore->set($checksum1, $cacheContent);
         $this->fileStore->set($checksum2, $cacheContent);
 
-        $this->assertTrue($this->fileStore->deleteAll([$checksum1, $checksum2]));
-        $this->assertFalse($this->fileStore->deleteAll([]));
-        $this->assertNull($this->fileStore->get($checksum1));
-        $this->assertNull($this->fileStore->get($checksum2));
+        self::assertTrue($this->fileStore->deleteAll([$checksum1, $checksum2]));
+        self::assertFalse($this->fileStore->deleteAll([]));
+        self::assertNull($this->fileStore->get($checksum1));
+        self::assertNull($this->fileStore->get($checksum2));
     }
 
     /**
@@ -362,7 +362,7 @@ class FileStoreTest extends TestCase
     {
         $this->fileStore->set($this->checksum, []);
 
-        $this->assertEquals(['tus:' . $this->checksum], $this->fileStore->keys());
+        self::assertEquals(['tus:' . $this->checksum], $this->fileStore->keys());
     }
 
     /**
@@ -374,7 +374,7 @@ class FileStoreTest extends TestCase
     {
         $this->fileStore->setCacheFile('/path/to/invalid/file');
 
-        $this->assertEquals([], $this->fileStore->keys());
+        self::assertEquals([], $this->fileStore->keys());
     }
 
     /**
@@ -385,13 +385,13 @@ class FileStoreTest extends TestCase
      */
     public function it_gets_actual_cache_key() : void
     {
-        $this->assertEquals('tus:cache-key', $this->fileStore->getActualCacheKey('cache-key'));
-        $this->assertEquals('tus:cache-key', $this->fileStore->getActualCacheKey('tus:cache-key'));
+        self::assertEquals('tus:cache-key', $this->fileStore->getActualCacheKey('cache-key'));
+        self::assertEquals('tus:cache-key', $this->fileStore->getActualCacheKey('tus:cache-key'));
 
-        $this->assertInstanceOf(FileStore::class, $this->fileStore->setPrefix('hello:'));
+        self::assertInstanceOf(FileStore::class, $this->fileStore->setPrefix('hello:'));
 
-        $this->assertEquals('hello:cache-key', $this->fileStore->getActualCacheKey('cache-key'));
-        $this->assertEquals('hello:cache-key', $this->fileStore->getActualCacheKey('hello:cache-key'));
+        self::assertEquals('hello:cache-key', $this->fileStore->getActualCacheKey('cache-key'));
+        self::assertEquals('hello:cache-key', $this->fileStore->getActualCacheKey('hello:cache-key'));
     }
 
     /**
@@ -427,7 +427,7 @@ class FileStoreTest extends TestCase
         while (-1 !== pcntl_waitpid(0, $status)) {
             $status = pcntl_wexitstatus($status);
 
-            $this->assertSame($status, 0);
+            self::assertSame($status, 0);
         }
 
         @unlink($filePath);
@@ -440,7 +440,7 @@ class FileStoreTest extends TestCase
      */
     public function it_gets_empty_contents_for_invalid_file_in_shared_get() : void
     {
-        $this->assertEmpty($this->fileStore->sharedGet(__DIR__ . '/.tmp/invalid.file'));
+        self::assertEmpty($this->fileStore->sharedGet(__DIR__ . '/.tmp/invalid.file'));
     }
 
     /**

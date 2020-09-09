@@ -34,13 +34,13 @@ class RequestTest extends TestCase
      */
     public function it_returns_current_request_method() : void
     {
-        $this->assertEquals('GET', $this->request->method());
+        self::assertEquals('GET', $this->request->method());
 
         $request = new Request;
 
         $request->getRequest()->server->set('REQUEST_METHOD', 'POST');
 
-        $this->assertEquals('POST', $request->method());
+        self::assertEquals('POST', $request->method());
     }
 
     /**
@@ -54,7 +54,7 @@ class RequestTest extends TestCase
 
         $this->request->getRequest()->server->set('REQUEST_URI', '/files/' . $checksum);
 
-        $this->assertEquals($checksum, $this->request->key());
+        self::assertEquals($checksum, $this->request->key());
     }
 
     /**
@@ -66,7 +66,7 @@ class RequestTest extends TestCase
     {
         $this->request->getRequest()->server->set('REQUEST_URI', '/tus/files/');
 
-        $this->assertEquals('/tus/files/', $this->request->path());
+        self::assertEquals('/tus/files/', $this->request->path());
     }
 
     /**
@@ -76,7 +76,7 @@ class RequestTest extends TestCase
      */
     public function it_returns_allowed_http_verbs() : void
     {
-        $this->assertEquals([
+        self::assertEquals([
             'GET',
             'POST',
             'PATCH',
@@ -95,7 +95,7 @@ class RequestTest extends TestCase
     {
         $this->request->getRequest()->headers->set('content-length', 100);
 
-        $this->assertEquals(100, $this->request->header('content-length'));
+        self::assertEquals(100, $this->request->header('content-length'));
     }
 
     /**
@@ -110,14 +110,14 @@ class RequestTest extends TestCase
             'SERVER_PORT' => 80,
         ]);
 
-        $this->assertEquals('http://tus.local', $this->request->url());
+        self::assertEquals('http://tus.local', $this->request->url());
 
         $this->request->getRequest()->server->add([
             'REQUEST_URI' => '/tus/files/',
             'QUERY_STRING' => 'token=random&path=root',
         ]);
 
-        $this->assertEquals('http://tus.local', $this->request->url());
+        self::assertEquals('http://tus.local', $this->request->url());
     }
 
     /**
@@ -130,9 +130,9 @@ class RequestTest extends TestCase
         $this->request->getRequest()->headers->set('Upload-Metadata', 'filename dGVzdA==');
         $this->request->getRequest()->headers->set('Upload-Concat', 'final;/files/a /files/b');
 
-        $this->assertEquals([], $this->request->extractFromHeader('Upload-Metadata', 'invalid'));
-        $this->assertEquals(['dGVzdA=='], $this->request->extractFromHeader('Upload-Metadata', 'filename'));
-        $this->assertEquals(['/files/a', '/files/b'], $this->request->extractFromHeader('Upload-Concat', 'final;'));
+        self::assertEquals([], $this->request->extractFromHeader('Upload-Metadata', 'invalid'));
+        self::assertEquals(['dGVzdA=='], $this->request->extractFromHeader('Upload-Metadata', 'filename'));
+        self::assertEquals(['/files/a', '/files/b'], $this->request->extractFromHeader('Upload-Concat', 'final;'));
     }
 
     /**
@@ -160,7 +160,7 @@ class RequestTest extends TestCase
 
         foreach ($validFileNames as $filename) {
             $this->request->getRequest()->headers->set('Upload-Metadata', 'name ' . base64_encode($filename));
-            $this->assertEquals($filename, $this->request->extractFileName());
+            self::assertEquals($filename, $this->request->extractFileName());
         }
     }
 
@@ -186,7 +186,7 @@ class RequestTest extends TestCase
 
         foreach ($badFileNames as $filename) {
             $this->request->getRequest()->headers->set('Upload-Metadata', 'name ' . base64_encode($filename));
-            $this->assertEquals('', $this->request->extractFileName());
+            self::assertEquals('', $this->request->extractFileName());
         }
     }
 
@@ -216,10 +216,10 @@ class RequestTest extends TestCase
                 )
             );
 
-        $this->assertEquals($filename, $this->request->extractFileName());
-        $this->assertEquals($fileType, $this->request->extractMeta('type'));
-        $this->assertEquals($accept, $this->request->extractMeta('accept'));
-        $this->assertEquals(['filename' => $filename, 'type' => $fileType, 'accept' => $accept], $this->request->extractAllMeta());
+        self::assertEquals($filename, $this->request->extractFileName());
+        self::assertEquals($fileType, $this->request->extractMeta('type'));
+        self::assertEquals($accept, $this->request->extractMeta('accept'));
+        self::assertEquals(['filename' => $filename, 'type' => $fileType, 'accept' => $accept], $this->request->extractAllMeta());
     }
 
     /**
@@ -230,15 +230,15 @@ class RequestTest extends TestCase
      */
     public function it_returns_empty_if_upload_metadata_header_not_present() : void
     {
-        $this->assertEmpty($this->request->extractMeta('invalid-key'));
+        self::assertEmpty($this->request->extractMeta('invalid-key'));
 
         $this->request
             ->getRequest()
             ->headers
             ->set('Upload-Metadata', '');
 
-        $this->assertEmpty($this->request->extractMeta('invalid-key'));
-        $this->assertEmpty($this->request->extractAllMeta());
+        self::assertEmpty($this->request->extractMeta('invalid-key'));
+        self::assertEmpty($this->request->extractAllMeta());
     }
 
     /**
@@ -251,7 +251,7 @@ class RequestTest extends TestCase
     {
         $this->request->getRequest()->headers->set('Upload-Concat', 'final;/files/a /files/b');
 
-        $this->assertEquals(['/files/a', '/files/b'], $this->request->extractPartials());
+        self::assertEquals(['/files/a', '/files/b'], $this->request->extractPartials());
     }
 
     /**
@@ -261,11 +261,11 @@ class RequestTest extends TestCase
      */
     public function it_checks_if_a_request_is_partial() : void
     {
-        $this->assertFalse($this->request->isPartial());
+        self::assertFalse($this->request->isPartial());
 
         $this->request->getRequest()->headers->set('Upload-Concat', 'partial');
 
-        $this->assertTrue($this->request->isPartial());
+        self::assertTrue($this->request->isPartial());
     }
 
     /**
@@ -275,11 +275,11 @@ class RequestTest extends TestCase
      */
     public function it_checks_if_a_request_is_final() : void
     {
-        $this->assertFalse($this->request->isFinal());
+        self::assertFalse($this->request->isFinal());
 
         $this->request->getRequest()->headers->set('Upload-Concat', 'final;/files/a /files/b');
 
-        $this->assertTrue($this->request->isFinal());
+        self::assertTrue($this->request->isFinal());
     }
 
     /**
@@ -289,7 +289,7 @@ class RequestTest extends TestCase
      */
     public function it_gets_request() : void
     {
-        $this->assertInstanceOf(HttpRequest::class, $this->request->getRequest());
+        self::assertInstanceOf(HttpRequest::class, $this->request->getRequest());
     }
 
     /**
@@ -300,7 +300,7 @@ class RequestTest extends TestCase
     public function it_extracts_all_metadata() : void
     {
         $this->request->getRequest()->headers->set('Upload-Metadata', '');
-        $this->assertEmpty($this->request->extractAllMeta());
+        self::assertEmpty($this->request->extractAllMeta());
 
         $uploadMetadata = array(
             'filename' => 'file.txt',
@@ -322,6 +322,6 @@ class RequestTest extends TestCase
                 true
             );
 
-        $this->assertEquals($uploadMetadata, $this->request->extractAllMeta());
+        self::assertEquals($uploadMetadata, $this->request->extractAllMeta());
     }
 }

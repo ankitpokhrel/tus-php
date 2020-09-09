@@ -50,7 +50,7 @@ class CorsTest extends TestCase
             ])
             ->andReturnSelf();
 
-        $this->assertNull($this->cors->handle($requestMock, $responseMock));
+        self::assertNull($this->cors->handle($requestMock, $responseMock));
     }
 
     /**
