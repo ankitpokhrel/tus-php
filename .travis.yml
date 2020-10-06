@@ -14,10 +14,6 @@ env:
 
 before_install:
   - echo yes | pecl upgrade apcu
-  - |
-    if [[ ${TRAVIS_PHP_VERSION:0:3} == "7.3" || ${TRAVIS_PHP_VERSION:0:3} == "7.4" ]]; then
-      echo "extension=apcu.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
-    fi
   - echo "apc.enabled=1" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
   - echo "apc.enable_cli=1" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
   - composer self-update && composer update $FLAGS
