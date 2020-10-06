@@ -76,7 +76,7 @@ $ composer require ankitpokhrel/tus-php:^1.2
 |:--:|
 | Basic Tus Architecture |
 
-#### Server
+### Server
 This is how a simple server looks like.
 
 ```php
@@ -92,7 +92,7 @@ exit(0); // Exit from current PHP process.
 
 You need to rewrite your server to respond to a specific endpoint. For example:
 
-###### Nginx
+### Nginx
 ```nginx
 # nginx.conf
 
@@ -119,7 +119,7 @@ location ~ \.php$ {
 
 A sample nginx configuration can be found [here](docker/server/configs/default.conf).
 
-###### Apache
+### Apache
 ```apache
 # .htaccess
 
@@ -145,7 +145,7 @@ $server = new \TusPhp\Tus\Server('redis');
 
 Alternately, you can set `REDIS_HOST`, `REDIS_PORT` and `REDIS_DB` env in your server to override redis settings for both server and client.
 
-#### Client
+### Client
 The client can be used for creating, resuming and/or deleting uploads.
 
 ```php
@@ -192,8 +192,8 @@ using `setChecksumAlgorithm` method. To get the list of supported hash algorithm
 $client->setChecksumAlgorithm('crc32');
 ```
 
-#### Third Party Client Libraries
-##### [Uppy](https://uppy.io/)
+### Third Party Client Libraries
+### [Uppy](https://uppy.io/)
 Uppy is a sleek, modular file uploader plugin developed by same folks behind tus protocol.
 You can use uppy to seamlessly integrate official [tus-js-client](https://github.com/tus/tus-js-client) with tus-php server.
 Check out more details in [uppy docs](https://uppy.io/docs/tus/).
@@ -206,7 +206,7 @@ uppy.use(Tus, {
 })
 ```
 
-##### [Tus-JS-Client](https://github.com/tus/tus-js-client)
+### [Tus-JS-Client](https://github.com/tus/tus-js-client)
 Tus-php server is compatible with the official [tus-js-client](https://github.com/tus/tus-js-client) Javascript library.
 ```js
 var upload = new tus.Upload(file, {
@@ -220,7 +220,7 @@ var upload = new tus.Upload(file, {
 upload.start()
 ```
 
-#### Cloud Providers
+### Cloud Providers
 Many cloud providers implement PHP [streamWrapper](https://www.php.net/manual/en/class.streamwrapper.php) interface that enables us to store and retrieve data from these providers using built-in PHP functions. Since tus-php relies on PHP's built-in filesystem functions, we can easily use it to upload files to the providers like [Amazon S3](https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/s3-stream-wrapper.html) if their API supports writing in append binary mode. An example implementation to upload files directly to S3 bucket is as follows:
 
 ```php
@@ -259,7 +259,7 @@ exit(0);
 - [x] The Expiration extension is implemented, details below.
 - [x] This Concatenation extension is implemented except that the server is not capable of handling unfinished concatenation.
 
-#### Expiration
+### Expiration
 The Server is capable of removing expired but unfinished uploads. You can use the following command manually or in a
 cron job to remove them. Note that this command checks your cache storage to find expired uploads. So, make sure
 to run it before the cache is expired, else it will not find all files that needs to be cleared.
@@ -292,7 +292,7 @@ You can use`--config` option to override default redis or file configuration.
  $ ./vendor/bin/tus tus:expired redis --config=<path to your config file>
  ```
 
-#### Concatenation
+### Concatenation
 The Server is capable of concatenating multiple uploads into a single one enabling Clients to perform parallel uploads and to upload non-contiguous chunks.
 
 ```php
@@ -330,7 +330,7 @@ You can utilize tus events for these operations. Following events are dispatched
 | `tus-server.upload.complete` | after the upload is complete and checksum verification is done. |
 | `tus-server.upload.merged` | after all partial uploads are merged during concatenation request. |
 
-#### Responding to an Event
+### Responding to an Event
 To listen to an event, you can simply attach a listener to the event name. An `TusEvent` instance is created and passed to all of the listeners.
 
 ```php
@@ -366,7 +366,7 @@ $server->event()->addListener('tus-server.upload.complete', [$listener, 'postUpl
 You can manipulate request and response of a server using a middleware. Middleware can be used to run a piece of code before a server calls the actual handle method.
 You can use middleware to authenticate a request, handle CORS, whitelist/blacklist an IP etc.
 
-#### Creating a Middleware
+### Creating a Middleware
 In order to create a middleware, you need to implement `TusMiddleware` interface. The handle method provides request and response object for you to manipulate.
 
 ```php
