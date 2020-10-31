@@ -4,7 +4,7 @@ language: php
 php:
   - '7.2'
   - '7.3'
-  - '7.4snapshot'
+  - '7.4'
 
 env:
   matrix:
@@ -18,7 +18,7 @@ before_install:
   - composer self-update && composer update $FLAGS
 
 services:
-  - redis-server
+  - redis
 
 script: ./vendor/bin/phpunit --coverage-clover=coverage.clover
 
