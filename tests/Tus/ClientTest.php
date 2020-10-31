@@ -4,7 +4,6 @@ namespace TusPhp\Test\Tus;
 
 use Mockery as m;
 use GuzzleHttp\Client;
-use phpmock\MockBuilder;
 use TusPhp\Cache\FileStore;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
@@ -52,39 +51,6 @@ class ClientTest extends TestCase
         $this->expectExceptionMessageMatches('/Cannot read file: [a-zA-Z0-9-\/.]+/');
 
         $this->tusClient->file('/path/to/invalid/file.txt');
-    }
-
-    /**
-     * @test
-     *
-     * @covers ::file
-     *
-     * @runInSeparateProcess
-     */
-    public function it_throws_exception_for_unreadable_file() : void
-    {
-        $this->expectException(FileException::class);
-        $this->expectExceptionMessageMatches('/Cannot read file: [a-zA-Z0-9-\/.]+/');
-
-        $file = __DIR__ . '/../Fixtures/403.txt';
-
-        $mockBuilder = (new MockBuilder)->setNamespace('\TusPhp\Tus');
-
-        $mockBuilder
-            ->setName('is_readable')
-            ->setFunction(
-                function () {
-                    return false;
-                }
-            );
-
-        $mock = $mockBuilder->build();
-
-        $mock->enable();
-
-        $this->tusClient->file($file);
-
-        $mock->disable();
     }
 
     /**

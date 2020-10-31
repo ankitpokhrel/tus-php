@@ -4,13 +4,11 @@ namespace TusPhp\Test;
 
 use TusPhp\File;
 use Mockery as m;
-use phpmock\MockBuilder;
 use TusPhp\Cache\FileStore;
 use TusPhp\Cache\CacheFactory;
 use PHPUnit\Framework\TestCase;
-use TusPhp\Test\Fixtures\FileFixture;
 use TusPhp\Exception\FileException;
-use TusPhp\Exception\ConnectionException;
+use TusPhp\Test\Fixtures\FileFixture;
 use TusPhp\Exception\OutOfRangeException;
 
 /**
@@ -21,9 +19,6 @@ class FileTest extends TestCase
     /** @var File */
     protected $file;
 
-    /** @var MockBuilder */
-    protected $mockBuilder;
-
     /**
      * Prepare vars.
      *
@@ -31,8 +26,7 @@ class FileTest extends TestCase
      */
     public function setUp() : void
     {
-        $this->file        = new File('tus.txt', CacheFactory::make());
-        $this->mockBuilder = (new MockBuilder)->setNamespace('\TusPhp');
+        $this->file = new File('tus.txt', CacheFactory::make());
 
         $this->file->setMeta(100, 1024, '/path/to/file.txt', 'http://tus.local/uploads/file.txt');
 
@@ -275,25 +269,11 @@ class FileTest extends TestCase
         $this->expectException(FileException::class);
         $this->expectExceptionMessage('Cannot move pointer to desired position.');
 
-        $this->mockBuilder
-            ->setName('fseek')
-            ->setFunction(
-                function () {
-                    return -1;
-                }
-            );
-
-        $mock = $this->mockBuilder->build();
-
-        $mock->enable();
-
         $file   = __DIR__ . '/Fixtures/empty.txt';
         $handle = $this->file->open($file, 'r');
 
-        $this->file->seek($handle, 5);
+        $this->file->seek($handle, -1);
         $this->file->close($handle);
-
-        $mock->disable();
     }
 
     /**
@@ -318,47 +298,13 @@ class FileTest extends TestCase
     /**
      * @test
      *
-     * @covers ::read
-     *
-     * @runInSeparateProcess
-     */
-    public function it_throws_exception_if_it_cannot_read() : void
-    {
-        $this->expectException(FileException::class);
-        $this->expectExceptionMessage('Cannot read file.');
-
-        $this->mockBuilder
-            ->setName('fread')
-            ->setFunction(
-                function () {
-                    return false;
-                }
-            );
-
-        $mock = $this->mockBuilder->build();
-
-        $mock->enable();
-
-        $file   = __DIR__ . '/Fixtures/empty.txt';
-        $handle = $this->file->open($file, 'r');
-
-        $this->file->read($handle, 5);
-        $this->file->close($handle);
-
-        $mock->disable();
-    }
-
-    /**
-     * @test
-     *
      * @covers ::seek
      * @covers ::read
      * @covers ::close
      */
     public function it_reads_from_a_file() : void
     {
-        $file = __DIR__ . '/Fixtures/data.txt';
-
+        $file   = __DIR__ . '/Fixtures/data.txt';
         $handle = $this->file->open($file, 'r');
 
         $this->file->seek($handle, 49);
@@ -366,39 +312,6 @@ class FileTest extends TestCase
         $this->assertEquals('Sherlock Holmes', $this->file->read($handle, 15));
 
         $this->file->close($handle);
-    }
-
-    /**
-     * @test
-     *
-     * @covers ::write
-     *
-     * @runInSeparateProcess
-     */
-    public function it_throws_exception_if_it_cannot_write() : void
-    {
-        $this->expectException(FileException::class);
-        $this->expectExceptionMessage('Cannot write to a file.');
-
-        $this->mockBuilder
-            ->setName('fwrite')
-            ->setFunction(
-                function () {
-                    return false;
-                }
-            );
-
-        $mock = $this->mockBuilder->build();
-
-        $mock->enable();
-
-        $file   = __DIR__ . '/Fixtures/empty.txt';
-        $handle = $this->file->open($file, 'r');
-
-        $this->file->write($handle, '');
-        $this->file->close($handle);
-
-        $mock->disable();
     }
 
     /**
@@ -614,52 +527,6 @@ class FileTest extends TestCase
      * @test
      *
      * @covers ::upload
-     * @covers ::open
-     *
-     * @runInSeparateProcess
-     */
-    public function it_throws_connection_exception_if_connection_is_aborted_by_user() : void
-    {
-        $this->expectException(ConnectionException::class);
-        $this->expectExceptionMessage('Connection aborted by user.');
-
-        $file = __DIR__ . '/.tmp/upload.txt';
-        $key  = uniqid();
-
-        $cacheMock = m::mock(FileStore::class);
-        $fileMock  = m::mock(File::class, [null, $cacheMock])->makePartial();
-
-        $fileMock
-            ->shouldReceive('getKey')
-            ->once()
-            ->andReturn($key);
-
-        $this->mockBuilder
-            ->setName('connection_status')
-            ->setFunction(
-                function () use ($key) {
-                    return 1;
-                }
-            );
-
-        $mock = $this->mockBuilder->build();
-
-        $mock->enable();
-
-        $fileMock
-            ->setFilePath($file)
-            ->setOffset(0)
-            ->upload(100);
-
-        $mock->disable();
-
-        @unlink($file);
-    }
-
-    /**
-     * @test
-     *
-     * @covers ::upload
      */
     public function it_throws_exception_if_uploaded_file_is_corrupt() : void
     {
@@ -745,26 +612,12 @@ class FileTest extends TestCase
             ->with($key, ['offset' => $totalBytes])
             ->andReturn(null);
 
-        $this->mockBuilder
-            ->setName('hash_file')
-            ->setFunction(
-                function () use ($checksum) {
-                    return $checksum;
-                }
-            );
-
-        $mock = $this->mockBuilder->build();
-
-        $mock->enable();
-
         $bytesWritten = $fileMock
             ->setFilePath($file)
             ->setOffset(0)
             ->upload($totalBytes);
 
         $this->assertEquals($totalBytes, $bytesWritten);
-
-        $mock->disable();
 
         @unlink($file);
     }
@@ -781,7 +634,6 @@ class FileTest extends TestCase
         $file       = __DIR__ . '/.tmp/upload.txt';
         $data       = file_get_contents(__DIR__ . '/Fixtures/data.txt');
         $key        = uniqid();
-        $checksum   = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
         $totalBytes = \strlen($data);
 
         $cacheMock = m::mock(FileStore::class);
@@ -803,26 +655,12 @@ class FileTest extends TestCase
             ->with($key, ['offset' => $totalBytes])
             ->andReturn(null);
 
-        $this->mockBuilder
-            ->setName('hash_file')
-            ->setFunction(
-                function () use ($checksum) {
-                    return $checksum;
-                }
-            );
-
-        $mock = $this->mockBuilder->build();
-
-        $mock->enable();
-
         $bytesWritten = $fileMock
             ->setFilePath($file)
             ->setOffset(0)
             ->upload($totalBytes);
 
         $this->assertEquals($totalBytes, $bytesWritten);
-
-        $mock->disable();
 
         @unlink($file);
     }
