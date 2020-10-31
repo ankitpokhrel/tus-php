@@ -55,7 +55,6 @@ to pause, or by accident in case of a network issue or server outage.
     * [Skipping a Middleware](#skipping-a-middleware)
 * [Setting up a dev environment and/or running examples locally](#setting-up-a-dev-environment-andor-running-examples-locally)
     * [Docker](#docker)
-    * [Kubernetes with minikube](#kubernetes-with-minikube)
 * [Contributing](#contributing)
 * [Questions about this project?](#questions-about-this-project)
 * [Supporters](#supporters)
@@ -421,7 +420,7 @@ $server->middleware()->skip(Cors::class, AnotherMiddleware::class);
  ```
 
 ### Setting up a dev environment and/or running examples locally
-An ajax based example for this implementation can be found in `examples/` folder. You can either build and run it using docker or use kubernetes locally with minikube.
+An ajax based example for this implementation can be found in `examples/` folder. You can build and run it using docker as described below.
 
 #### Docker
 Make sure that [docker](https://docs.docker.com/engine/installation/) and [docker-compose](https://docs.docker.com/compose/install/)
@@ -444,32 +443,6 @@ to docker configurations, server configurations.
 $ bin/rebuild.sh
 $ bin/docker.sh
 ```
-
-#### Kubernetes with minikube
-Make sure you have [minikube](https://github.com/kubernetes/minikube) and [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
-are installed in your system. Then, build and spin up containers using k8s script from project root.
-```shell
-$ bin/k8s.sh
-```
-
-The script will set minikube docker env, build all required docker images locally, create kubernetes objects and serve client at port `30020`. After successful build,
-the client can be accessed at http://192.168.99.100:30020 and server can be accessed at http://192.168.99.100:30021.
-
-The script will create 1 client replica and 3 server replicas by default. All kubernetes configs can be found inside `k8s/` folder, you can tweak it as required.
-
-You can use another helper script while using minikube to list all uploaded files, login to redis and clear redis cache.
-```shell
-# List all uploads
-$ bin/minikube.sh uploads
-
-# Login to redis
-$ bin/minikube.sh redis
-
-# Clear redis cache
-$ bin/minikube.sh clear-cache
-```
-
-Since the server supports tus expiration extension, a cron job is set to run once a day at midnight to free server resources. You can adjust it as required in `k8s/cron.yml`.
 
 ### Contributing
 1. Install [PHPUnit](https://phpunit.de/) and [composer](https://getcomposer.org/) if you haven't already.
