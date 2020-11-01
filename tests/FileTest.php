@@ -413,7 +413,7 @@ class FileTest extends TestCase
 
         $this->file->delete($files, true);
 
-        $this->assertFileNotExists($path);
+        $this->assertFileDoesNotExist($path);
     }
 
     /**
@@ -460,7 +460,7 @@ class FileTest extends TestCase
         $this->file->delete($files);
 
         foreach ($files as $file) {
-            $this->assertFileNotExists($file);
+            $this->assertFileDoesNotExist($file);
         }
 
         $this->assertFileExists($path);
@@ -496,7 +496,7 @@ class FileTest extends TestCase
     {
         $this->file->delete(["$path/1"], true);
 
-        $this->assertFileNotExists($path);
+        $this->assertFileDoesNotExist($path);
     }
 
     /**
