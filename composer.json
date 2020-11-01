@@ -23,7 +23,6 @@
   },
   "require-dev": {
     "ext-pcntl": "*",
-    "friendsofphp/php-cs-fixer": "^2.9",
     "mockery/mockery": "^1.4.2",
     "phpunit/phpunit": "^9.4"
   },
