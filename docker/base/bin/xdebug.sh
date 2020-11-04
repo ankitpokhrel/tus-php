@@ -1,6 +1,6 @@
 #!/bin/sh
 
-XDEBUG_CONFIG=/etc/php/7.3/conf.d/00_xdebug
+XDEBUG_CONFIG=/etc/php7/conf.d/00_xdebug
 
 enable()
 {
