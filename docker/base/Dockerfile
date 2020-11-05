@@ -37,6 +37,12 @@ RUN apk add --no-cache g++ autoconf && \
 COPY ./bin/xdebug.sh /bin/xdebug
 RUN chmod +x /bin/xdebug
 
+# There are some default configurations from the image that will override
+# our php-fpm settings and we don't want that. To avoid that, we will
+# delete all configurations available by default. Also, we will
+# create a folder for the php-fpm socket.
+RUN mkdir -p /var/run/php-fpm && rm -rf /usr/local/etc/php-fpm.d/*.conf
+
 COPY ./configs/supervisord.conf /etc/supervisord.conf
 COPY ./configs/nginx.conf /etc/nginx/nginx.conf
 COPY ./configs/php.ini $PHP_INI_DIR/php.ini
