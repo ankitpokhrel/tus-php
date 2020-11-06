@@ -426,32 +426,45 @@ An ajax based example for this implementation can be found in `examples/` folder
 Make sure that [docker](https://docs.docker.com/engine/installation/) and [docker-compose](https://docs.docker.com/compose/install/)
 are installed in your system. Then, run docker script from project root.
 ```shell
+$ make dev
+
+# or, without make
+
 $ bin/docker.sh
 ```
 
-Now, the client can be accessed at http://0.0.0.0:8080 and server can be accessed at http://0.0.0.0:8081. Default API endpoint is set to`/files`
+Now, the client can be accessed at http://0.0.0.0:8080 and the server can be accessed at http://0.0.0.0:8081. The default API endpoint is set to`/files`
 and uploaded files can be found inside `uploads` folder. All docker configs can be found in `docker/` folder.
 
-We also have some utility scripts to re-create docker images.
-
-Please note that `bin/rebuild.sh` will delete tus-php related docker containers and images.
-It will also delete `uploads` folder and re-create it. So that when you use `bin/docker.sh`
-it will be like a fresh start. This command is useful when you start to make changes
-to docker configurations, server configurations.
+If you want a fresh start then you can use the following commands. It will delete and recreate all containers, images, and uploads folder.
 
 ```shell
-$ bin/rebuild.sh
-$ bin/docker.sh
+$ make dev-fresh
+
+# or, without make
+
+$ bin/clean.sh && bin/docker.sh
 ```
+
+We also have some utility scripts that will ease your local development experience. See [Makefile](Makefile) for a list of all available commands.
+If you are not using [make](https://www.gnu.org/software/make/manual/make.html#Overview), then you can use shell scripts available [here](bin).
 
 ### Contributing
 1. Install [PHPUnit](https://phpunit.de/) and [composer](https://getcomposer.org/) if you haven't already.
 2. Install dependencies
      ```shell
+     $ make deps
+     
+     # or
+     
      $ composer install
      ```
 3. Run tests with phpunit
     ```shell
+    $ make test
+    
+    # or
+    
     $ composer test
     
     # or
@@ -460,20 +473,16 @@ $ bin/docker.sh
     ```
 4. Validate changes against [PSR2 Coding Standards](http://www.php-fig.org/psr/psr-2/)
     ```shell
+    $ make lint
+    
+    # or
+    
     $ composer cs-fixer
 
     # or
 
     $ ./vendor/bin/php-cs-fixer fix <changes>
     ```
-
-_Note:_ There is an extra command `composer test-coverage` that will generate coverage
-at project root. You can open `coverage/index.html` to checkout coverage report.
-
-```shell
-# Command to Generate Coverage
-$ docker exec tus-php-server composer test-coverage
-```
 
 You can use `xdebug enable` and `xdebug disable` to enable and disable [Xdebug](https://xdebug.org/) inside the container. 
 
