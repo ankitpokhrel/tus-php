@@ -20,8 +20,8 @@ enable()
 
 disable()
 {
-    if [[ -f  "${config}.ini" ]]; then
-        mv "${config}.ini" ${config}.disable;
+    if [[ -f  ${config}.ini ]]; then
+        mv ${config}.ini ${config}.disable;
         echo "Xdebug disabled";
     fi
 }

@@ -9,7 +9,7 @@ pre_build() {
     apk add git g++ autoconf
 }
 
-# APCu: https://www.php.net/manual/en/book.apcu.php
+# APCu: https://php.net/apcu
 apcu() {
     cd /tmp
 
