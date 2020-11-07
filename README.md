@@ -426,24 +426,39 @@ An ajax based example for this implementation can be found in `examples/` folder
 Make sure that [docker](https://docs.docker.com/engine/installation/) and [docker-compose](https://docs.docker.com/compose/install/)
 are installed in your system. Then, run docker script from project root.
 ```shell
+# PHP7
 $ make dev
+
+# PHP8
+$ make dev8
 
 # or, without make
 
+# PHP7
 $ bin/docker.sh
+
+# PHP8
+$ PHP_VERSION=8 bin/docker.sh
 ```
 
 Now, the client can be accessed at http://0.0.0.0:8080 and the server can be accessed at http://0.0.0.0:8081. The default API endpoint is set to`/files`
 and uploaded files can be found inside `uploads` folder. All docker configs can be found in `docker/` folder.
 
 If you want a fresh start then you can use the following commands. It will delete and recreate all containers, images, and uploads folder.
-
 ```shell
+# PHP7
 $ make dev-fresh
+
+# PHP8
+$ make dev8-fresh
 
 # or, without make
 
+# PHP7
 $ bin/clean.sh && bin/docker.sh
+
+# PHP8
+$ bin/clean.sh && PHP_VERSION=8 bin/docker.sh
 ```
 
 We also have some utility scripts that will ease your local development experience. See [Makefile](Makefile) for a list of all available commands.
