@@ -14,9 +14,6 @@ RUN apk update && apk add --no-cache \
   make \
   supervisor \
   nginx \
-  php7-imap \
-  php7-intl \
-  php7-curl \
   composer \
   curl \
   ca-certificates
@@ -24,15 +21,9 @@ RUN apk update && apk add --no-cache \
 # Install required extensions.
 RUN docker-php-ext-install pcntl
 
-# Install pecl extensions.
-#
-# Some dependencies like c-compiler and autoconf are only required
-# to compile pecl extensions. However, these dependencies take a
-# lot of space. Therefore, we will remove these dependencies
-# after installing the required extensions.
-RUN apk add --no-cache g++ autoconf && \
-  pecl upgrade apcu xdebug && \
-  apk del g++ autoconf
+# Install extensions not available with docker-php-ext.
+COPY ./bin/php-ext.sh /bin/php-ext
+RUN chmod +x /bin/php-ext && php-ext
 
 COPY ./bin/xdebug.sh /bin/xdebug
 RUN chmod +x /bin/xdebug
@@ -46,7 +37,8 @@ RUN mkdir -p /var/run/php-fpm && rm -rf /usr/local/etc/php-fpm.d/*.conf
 COPY ./configs/supervisord.conf /etc/supervisord.conf
 COPY ./configs/nginx.conf /etc/nginx/nginx.conf
 COPY ./configs/php.ini $PHP_INI_DIR/php.ini
-COPY ./configs/xdebug.ini $PHP_INI_DIR/conf.d/00_xdebug.disable
+COPY ./configs/xdebug.2.ini $PHP_INI_DIR/conf.d/00_xdebug2.disable
+COPY ./configs/xdebug.3.ini $PHP_INI_DIR/conf.d/00_xdebug3.disable
 COPY ./configs/www.conf /usr/local/etc/php-fpm.d/www.conf
 
 ENTRYPOINT [ "sh" ]
