@@ -1,19 +1,27 @@
 #!/bin/sh
 
-XDEBUG_CONFIG=/etc/php7/conf.d/00_xdebug
+set -e
+
+XDEBUG_CONFIG=/usr/local/etc/php/conf.d/00_xdebug
+PHP_MAJOR_VERSION=$(php -v | head -n 1 | awk '{print $2}' | cut -d. -f1)
+
+config="${XDEBUG_CONFIG}2"
+if [[ ${PHP_MAJOR_VERSION} == "8" ]]; then
+    config="${XDEBUG_CONFIG}3"
+fi
 
 enable()
 {
-    if [[ -f  ${XDEBUG_CONFIG}.disable ]]; then
-        mv ${XDEBUG_CONFIG}.disable ${XDEBUG_CONFIG}.ini;
+    if [[ -f  ${config}.disable ]]; then
+        mv ${config}.disable ${config}.ini;
         echo "Xdebug enabled";
     fi
 }
 
 disable()
 {
-    if [[ -f  ${XDEBUG_CONFIG}.ini ]]; then
-        mv ${XDEBUG_CONFIG}.ini ${XDEBUG_CONFIG}.disable;
+    if [[ -f  "${config}.ini" ]]; then
+        mv "${config}.ini" ${config}.disable;
         echo "Xdebug disabled";
     fi
 }

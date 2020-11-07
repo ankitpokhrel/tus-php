@@ -33,6 +33,9 @@ exec-client:
 exec-redis:
 	@docker exec -it tus-php-redis bash -c "redis-cli"
 
+clean:
+	rm -rf composer.lock vendor/ coverage/ uploads/* .cache
+
 deps:
 	@composer install
 
