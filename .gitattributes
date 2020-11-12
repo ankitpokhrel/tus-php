@@ -11,7 +11,7 @@
 .scrutinizer.yml export-ignore
 .travis.yml export-ignore
 .phpcs export-ignore
-Dockerfile.client.k8s export-ignore
-Dockerfile.server.k8s export-ignore
 phpunit.xml export-ignore
 Makefile export-ignore
+
+*.php linguist-language=PHP
