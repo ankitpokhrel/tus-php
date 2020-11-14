@@ -5,6 +5,7 @@ php:
   - '7.2'
   - '7.3'
   - '7.4'
+  - 'nightly'
 
 env:
   matrix:
@@ -15,7 +16,8 @@ before_install:
   - echo yes | pecl upgrade apcu
   - echo "apc.enabled=1" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
   - echo "apc.enable_cli=1" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
-  - composer self-update && composer update $FLAGS
+  - composer self-update --2
+  - if [[ $TRAVIS_PHP_VERSION != "nightly" ]]; then composer update $FLAGS; else composer update; fi
 
 services:
   - redis

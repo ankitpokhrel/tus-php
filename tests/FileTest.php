@@ -577,7 +577,6 @@ class FileTest extends TestCase
         $file       = __DIR__ . '/.tmp/upload.txt';
         $dataFile   = __DIR__ . '/Fixtures/large.txt';
         $key        = uniqid();
-        $checksum   = '74f02d6da32082463e382f2274e85fd8eae3e81f739f8959abc91865656e3b3a';
         $chunkSize  = 8192;
         $totalBytes = 17548;
 

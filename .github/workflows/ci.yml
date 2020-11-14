@@ -21,5 +21,7 @@ jobs:
       - name: Update dependencies with composer
         run: composer update --no-interaction --no-ansi --no-progress --no-suggest
 
-      - name: Run friendsofphp/php-cs-fixer
-        run: php7.3 ./vendor/bin/php-cs-fixer fix --diff-format=udiff --dry-run --show-progress=dots --using-cache=no --verbose
+      - name: Install and run friendsofphp/php-cs-fixer
+        run: |
+          wget https://cs.symfony.com/download/php-cs-fixer-v2.phar -O php-cs-fixer && sudo chmod a+x php-cs-fixer
+          php7.3 ./php-cs-fixer fix --diff-format=udiff --dry-run --show-progress=dots --using-cache=no --verbose

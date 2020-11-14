@@ -144,7 +144,10 @@ class ResponseTest extends TestCase
         $response = $this->response->createOnly(true)->download($file, $name);
 
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertRegExp("/attachment; filename=($name|\"$name\")/", $response->headers->get('content-disposition'));
+        $this->assertRegExp(
+            "/attachment; filename=($name|\"$name\")/",
+            $response->headers->get('content-disposition')
+        );
     }
 
     /**
