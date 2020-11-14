@@ -1,4 +1,4 @@
-FROM php:7.3-fpm-alpine
+FROM php:7.2-fpm-alpine
 
 LABEL maintainer="hello@ankit.pl,samundra@msn.com" \
   description="This builds tus-php-base image"
