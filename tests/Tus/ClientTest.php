@@ -1367,6 +1367,12 @@ class ClientTest extends TestCase
 
         $this->tusClientMock->file($filePath, $fileName);
 
+        $clientExceptionMock = m::mock(ClientException::class);
+        $clientExceptionMock
+            ->shouldReceive('getResponse')
+            ->once()
+            ->andReturn($responseMock);
+
         $guzzleMock
             ->shouldReceive('post')
             ->once()
@@ -1378,7 +1384,7 @@ class ClientTest extends TestCase
                     'Upload-Metadata' => 'filename ' . base64_encode($fileName),
                 ],
             ])
-            ->andReturn($responseMock);
+            ->andThrow($clientExceptionMock);
 
         $this->tusClientMock->create($key);
     }

@@ -437,9 +437,13 @@ class Client extends AbstractTus
             $headers += ['Upload-Concat' => 'partial'];
         }
 
-        $response = $this->getClient()->post($this->apiPath, [
-            'headers' => $headers,
-        ]);
+        try {
+            $response = $this->getClient()->post($this->apiPath, [
+                'headers' => $headers,
+            ]);
+        } catch (ClientException $e) {
+            $response = $e->getResponse();
+        }
 
         $statusCode = $response->getStatusCode();
 
