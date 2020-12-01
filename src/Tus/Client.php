@@ -426,6 +426,26 @@ class Client extends AbstractTus
      */
     public function create(string $key) : string
     {
+        return $this->createWithUpload($key, 0)['location'];
+    }
+
+    /**
+     * Create resource with POST request and upload data using the creation-with-upload extension
+     *
+     * @see https://tus.io/protocols/resumable-upload.html#creation-with-upload
+     *
+     * @param string $key
+     * @param int $bytes -1 => all data; 0 => no data
+     * @return array ['location' => $uploadLocation, 'offset' => $offset]
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function createWithUpload(string $key, int $bytes = -1) : array
+    {
+        $bytes  = $bytes < 0 ? $this->fileSize : $bytes;
+        $data   = '';
+        if ($bytes > 0) {
+            $data = $this->getData(0, $bytes);
+        }
         $headers = $this->headers + [
             'Upload-Length' => $this->fileSize,
             'Upload-Key' => $key,
@@ -433,12 +453,17 @@ class Client extends AbstractTus
             'Upload-Metadata' => $this->getUploadMetadataHeader(),
         ];
 
+        if ($bytes > 0) {
+            $headers += ['Content-Type' => self::HEADER_CONTENT_TYPE];
+            $headers += ['Content-Length' => \strlen($data)];
+        }
         if ($this->isPartial()) {
             $headers += ['Upload-Concat' => 'partial'];
         }
 
         try {
             $response = $this->getClient()->post($this->apiPath, [
+                'body' => $data,
                 'headers' => $headers,
             ]);
         } catch (ClientException $e) {
@@ -452,13 +477,17 @@ class Client extends AbstractTus
         }
 
         $uploadLocation = current($response->getHeader('location'));
+        $offset         = null;
+        if ($bytes > 0) {
+            $offset = current($response->getHeader('upload-offset'));
+        }
 
         $this->getCache()->set($this->getKey(), [
             'location' => $uploadLocation,
             'expires_at' => Carbon::now()->addSeconds($this->getCache()->getTtl())->format($this->getCache()::RFC_7231),
         ]);
 
-        return $uploadLocation;
+        return ['location' => $uploadLocation, 'offset' => $offset];
     }
 
     /**
