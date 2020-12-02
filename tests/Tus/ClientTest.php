@@ -1175,6 +1175,7 @@ class ClientTest extends TestCase
      * @test
      *
      * @covers ::create
+     * @covers ::createWithUpload
      */
     public function it_creates_a_resource_with_post_request() : void
     {
@@ -1254,6 +1255,7 @@ class ClientTest extends TestCase
      * @test
      *
      * @covers ::create
+     * @covers ::createWithUpload
      */
     public function it_creates_a_partial_resource_with_post_request() : void
     {
@@ -1450,6 +1452,7 @@ class ClientTest extends TestCase
      * @test
      *
      * @covers ::create
+     * @covers ::createWithUpload
      */
     public function it_throws_exception_when_unable_to_create_resource() : void
     {
