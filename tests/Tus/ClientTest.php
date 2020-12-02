@@ -1175,6 +1175,7 @@ class ClientTest extends TestCase
      * @test
      *
      * @covers ::create
+     * @covers ::createWithUpload
      */
     public function it_creates_a_resource_with_post_request() : void
     {
@@ -1237,6 +1238,7 @@ class ClientTest extends TestCase
             ->shouldReceive('post')
             ->once()
             ->with('/files', [
+                'body' => '',
                 'headers' => [
                     'Upload-Length' => filesize($filePath),
                     'Upload-Key' => $key,
@@ -1253,6 +1255,7 @@ class ClientTest extends TestCase
      * @test
      *
      * @covers ::create
+     * @covers ::createWithUpload
      */
     public function it_creates_a_partial_resource_with_post_request() : void
     {
@@ -1320,6 +1323,7 @@ class ClientTest extends TestCase
             ->shouldReceive('post')
             ->once()
             ->with('/files', [
+                'body' => '',
                 'headers' => [
                     'Upload-Length' => filesize($filePath),
                     'Upload-Key' => $key,
@@ -1333,10 +1337,122 @@ class ClientTest extends TestCase
         $this->assertEquals('http://tus-server/files/' . $key, $this->tusClientMock->create($key));
     }
 
+    public function createWithUploadDataProvider()
+    {
+        return [
+            [-1],
+            [10],
+        ];
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::createWithUpload
+     * @dataProvider createWithUploadDataProvider
+     * @param int $bytes
+     */
+    public function it_uploads_a_resource_with_post_request(int $bytes) : void
+    {
+        $key          = uniqid();
+        $filePath     = __DIR__ . '/../Fixtures/data.txt';
+        $fileName     = 'file.txt';
+        $guzzleMock   = m::mock(Client::class);
+        $responseMock = m::mock(Response::class);
+        $cacheMock    = m::mock(FileStore::class);
+        $checksum     = hash_file('sha256', $filePath);
+        if ($bytes === -1) {
+            $data = file_get_contents($filePath);
+        } else {
+            $data = file_get_contents($filePath, false, null, 0, $bytes);
+        }
+
+        $cacheMock
+            ->shouldReceive('set')
+            ->once()
+            ->with($key, [
+                'location' => 'http://tus-server/files/' . $key,
+                'expires_at' => 'Sat, 09 Dec 2017 00:00:00 GMT',
+            ])
+            ->andReturnNull();
+
+        $cacheMock
+            ->shouldReceive('getTtl')
+            ->once()
+            ->andReturn(86400);
+
+        $responseMock
+            ->shouldReceive('getStatusCode')
+            ->once()
+            ->andReturn(201);
+
+        $responseMock
+            ->shouldReceive('getHeader')
+            ->once()
+            ->with('upload-offset')
+            ->andReturn([\strlen($data)]);
+
+        $responseMock
+            ->shouldReceive('getHeader')
+            ->once()
+            ->with('location')
+            ->andReturn(['http://tus-server/files/' . $key]);
+
+        $this->tusClientMock
+            ->shouldReceive('getChecksum')
+            ->once()
+            ->andReturn($checksum);
+
+        $this->tusClientMock
+            ->shouldReceive('getClient')
+            ->once()
+            ->andReturn($guzzleMock);
+
+        $this->tusClientMock
+            ->shouldReceive('getCache')
+            ->times(3)
+            ->andReturn($cacheMock);
+
+        $this->tusClientMock
+            ->shouldReceive('getKey')
+            ->once()
+            ->andReturn($key);
+
+        $this->tusClientMock
+            ->shouldReceive('getData')
+            ->once()
+            ->with(0, \strlen($data))
+            ->andReturn($data);
+
+        $this->tusClientMock->file($filePath, $fileName);
+
+        $guzzleMock
+            ->shouldReceive('post')
+            ->once()
+            ->with('/files', [
+                'body' => $data,
+                'headers' => [
+                    'Upload-Length' => filesize($filePath),
+                    'Upload-Key' => $key,
+                    'Upload-Checksum' => 'sha256 ' . base64_encode($checksum),
+                    'Upload-Metadata' => 'filename ' . base64_encode($fileName),
+                    'Content-Type' => 'application/offset+octet-stream',
+                    'Content-Length' => \strlen($data),
+                ],
+            ])
+            ->andReturn($responseMock);
+
+        $this->assertEquals(
+            ['location' => 'http://tus-server/files/' . $key, 'offset' => \strlen($data)],
+            ($bytes === -1) ? $this->tusClientMock->createWithUpload($key) : $this->tusClientMock->createWithUpload($key, $bytes)
+        );
+    }
+
     /**
      * @test
      *
      * @covers ::create
+     * @covers ::createWithUpload
      */
     public function it_throws_exception_when_unable_to_create_resource() : void
     {
@@ -1377,6 +1493,7 @@ class ClientTest extends TestCase
             ->shouldReceive('post')
             ->once()
             ->with('/files', [
+                'body' => '',
                 'headers' => [
                     'Upload-Length' => filesize($filePath),
                     'Upload-Key' => $key,
