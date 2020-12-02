@@ -477,7 +477,7 @@ class Client extends AbstractTus
         }
 
         $uploadLocation = current($response->getHeader('location'));
-        $offset         = null;
+        $offset         = 0;
         if ($bytes > 0) {
             $offset = current($response->getHeader('upload-offset'));
         }
