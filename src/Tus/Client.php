@@ -441,11 +441,7 @@ class Client extends AbstractTus
      */
     public function createWithUpload(string $key, int $bytes = -1) : array
     {
-        $bytes  = $bytes < 0 ? $this->fileSize : $bytes;
-        $data   = '';
-        if ($bytes > 0) {
-            $data = $this->getData(0, $bytes);
-        }
+        $bytes   = $bytes < 0 ? $this->fileSize : $bytes;
         $headers = $this->headers + [
             'Upload-Length' => $this->fileSize,
             'Upload-Key' => $key,
@@ -453,7 +449,9 @@ class Client extends AbstractTus
             'Upload-Metadata' => $this->getUploadMetadataHeader(),
         ];
 
+        $data   = '';
         if ($bytes > 0) {
+            $data = $this->getData(0, $bytes);
             $headers += ['Content-Type' => self::HEADER_CONTENT_TYPE];
             $headers += ['Content-Length' => \strlen($data)];
         }
