@@ -1339,10 +1339,10 @@ class ClientTest extends TestCase
 
     public function createWithUploadDataProvider()
     {
-        return array(
+        return [
             [-1],
             [10],
-        );
+        ];
     }
 
     /**
