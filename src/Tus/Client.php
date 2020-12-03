@@ -11,6 +11,7 @@ use TusPhp\Exception\FileException;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\ClientException;
 use TusPhp\Exception\ConnectionException;
+use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\ConnectException;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
@@ -371,6 +372,7 @@ class Client extends AbstractTus
      * @param int $bytes Bytes to upload
      *
      * @throws TusException
+     * @throws GuzzleException
      * @throws ConnectionException
      *
      * @return int
@@ -402,6 +404,8 @@ class Client extends AbstractTus
     /**
      * Returns offset if file is partially uploaded.
      *
+     * @throws GuzzleException
+     *
      * @return bool|int
      */
     public function getOffset()
@@ -421,6 +425,7 @@ class Client extends AbstractTus
      * @param string $key
      *
      * @throws FileException
+     * @throws GuzzleException
      *
      * @return string
      */
@@ -430,18 +435,24 @@ class Client extends AbstractTus
     }
 
     /**
-     * Create resource with POST request and upload data using the creation-with-upload extension
+     * Create resource with POST request and upload data using the creation-with-upload extension.
      *
      * @see https://tus.io/protocols/resumable-upload.html#creation-with-upload
      *
      * @param string $key
-     * @param int $bytes -1 => all data; 0 => no data
-     * @return array ['location' => $uploadLocation, 'offset' => $offset]
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @param int    $bytes -1 => all data; 0 => no data
+     *
+     * @throws GuzzleException
+     *
+     * @return array [
+     *     'location' => string,
+     *     'offset' => int
+     * ]
      */
     public function createWithUpload(string $key, int $bytes = -1) : array
     {
-        $bytes   = $bytes < 0 ? $this->fileSize : $bytes;
+        $bytes = $bytes < 0 ? $this->fileSize : $bytes;
+
         $headers = $this->headers + [
             'Upload-Length' => $this->fileSize,
             'Upload-Key' => $key,
@@ -449,12 +460,16 @@ class Client extends AbstractTus
             'Upload-Metadata' => $this->getUploadMetadataHeader(),
         ];
 
-        $data   = '';
+        $data = '';
         if ($bytes > 0) {
             $data = $this->getData(0, $bytes);
-            $headers += ['Content-Type' => self::HEADER_CONTENT_TYPE];
-            $headers += ['Content-Length' => \strlen($data)];
+
+            $headers += [
+                'Content-Type' => self::HEADER_CONTENT_TYPE,
+                'Content-Length' => \strlen($data),
+            ];
         }
+
         if ($this->isPartial()) {
             $headers += ['Upload-Concat' => 'partial'];
         }
@@ -474,18 +489,18 @@ class Client extends AbstractTus
             throw new FileException('Unable to create resource.');
         }
 
+        $uploadOffset   = $bytes > 0 ? current($response->getHeader('upload-offset')) : 0;
         $uploadLocation = current($response->getHeader('location'));
-        $offset         = 0;
-        if ($bytes > 0) {
-            $offset = current($response->getHeader('upload-offset'));
-        }
 
         $this->getCache()->set($this->getKey(), [
             'location' => $uploadLocation,
             'expires_at' => Carbon::now()->addSeconds($this->getCache()->getTtl())->format($this->getCache()::RFC_7231),
         ]);
 
-        return ['location' => $uploadLocation, 'offset' => $offset];
+        return [
+            'location' => $uploadLocation,
+            'offset' => $uploadOffset,
+        ];
     }
 
     /**
@@ -493,6 +508,8 @@ class Client extends AbstractTus
      *
      * @param string $key
      * @param mixed  $partials
+     *
+     * @throws GuzzleException
      *
      * @return string
      */
@@ -523,6 +540,7 @@ class Client extends AbstractTus
      * Send DELETE request.
      *
      * @throws FileException
+     * @throws GuzzleException
      *
      * @return void
      */
@@ -567,6 +585,7 @@ class Client extends AbstractTus
      * Send HEAD request.
      *
      * @throws FileException
+     * @throws GuzzleException
      *
      * @return int
      */
@@ -590,6 +609,7 @@ class Client extends AbstractTus
      *
      * @throws TusException
      * @throws FileException
+     * @throws GuzzleException
      * @throws ConnectionException
      *
      * @return int

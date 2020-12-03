@@ -1361,6 +1361,7 @@ class ClientTest extends TestCase
         $responseMock = m::mock(Response::class);
         $cacheMock    = m::mock(FileStore::class);
         $checksum     = hash_file('sha256', $filePath);
+
         if ($bytes === -1) {
             $data = file_get_contents($filePath);
         } else {
