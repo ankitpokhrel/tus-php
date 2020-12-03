@@ -42,9 +42,7 @@
   },
   "scripts": {
     "test": "xdebug disable && vendor/bin/phpunit",
-    "test-coverage": "xdebug enable && vendor/bin/phpunit --coverage-html ./coverage",
-    "cs-fixer": "vendor/bin/php-cs-fixer fix",
-    "lint": "vendor/bin/php-cs-fixer fix --diff --dry-run"
+    "test-coverage": "xdebug enable && vendor/bin/phpunit --coverage-html ./coverage"
   },
   "bin": [
     "bin/tus"
