@@ -1,5 +1,5 @@
 .PHONY: explain docker-build-base docker-build-base-php8 docker-build-server docker-build-client docker-build docker-build-php8 \
-		dev dev8 dev-clean dev-fresh dev8-fresh exec-server exec-client exec-redis deps lint test test-coverage
+		dev dev8 dev-clean dev-fresh dev8-fresh exec-server exec-client exec-redis deps lint lint-dry test test-coverage
 
 ROOT_DIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 
@@ -55,7 +55,10 @@ deps:
 	@composer install
 
 lint:
-	@composer lint
+	@bin/lint.sh
+
+lint-dry:
+	@bin/lint.sh dry
 
 test:
 	@composer test

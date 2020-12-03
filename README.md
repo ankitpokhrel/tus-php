@@ -488,15 +488,11 @@ If you are not using [make](https://www.gnu.org/software/make/manual/make.html#O
     ```
 4. Validate changes against [PSR2 Coding Standards](http://www.php-fig.org/psr/psr-2/)
     ```shell
+    # fix lint issues
     $ make lint
     
-    # or
-    
-    $ composer cs-fixer
-
-    # or
-
-    $ ./vendor/bin/php-cs-fixer fix <changes>
+    # dry run
+    $ make lint-dry
     ```
 
 You can use `xdebug enable` and `xdebug disable` to enable and disable [Xdebug](https://xdebug.org/) inside the container. 
