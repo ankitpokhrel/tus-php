@@ -22,7 +22,7 @@ before_install:
 services:
   - redis
 
-script: ./vendor/bin/phpunit --coverage-clover=coverage.clover
+script: XDEBUG_MODE=coverage ./vendor/bin/phpunit --coverage-clover=coverage.clover
 
 after_script:
   - wget https://scrutinizer-ci.com/ocular.phar
