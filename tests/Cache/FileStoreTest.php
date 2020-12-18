@@ -158,7 +158,9 @@ class FileStoreTest extends TestCase
      * @covers ::isValid
      * @covers ::set
      * @covers ::get
-     * @covers ::put
+     * @covers ::acquireLock
+     * @covers ::lockedGet
+     * @covers ::lockedSet
      */
     public function it_sets_cache_contents() : void
     {
@@ -169,6 +171,31 @@ class FileStoreTest extends TestCase
         $this->assertFileExists($this->cacheDir);
         $this->assertFileExists($this->cacheDir.$this->cacheFile);
         $this->assertEquals($cacheContent, $this->fileStore->get($this->checksum));
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::getCacheFile
+     * @covers ::createCacheFile
+     * @covers ::createCacheDir
+     * @covers ::isValid
+     * @covers ::get
+     * @covers ::put
+     * @covers ::acquireLock
+     * @covers ::lockedGet
+     */
+    public function it_put_cache_contents() : void
+    {
+        $cacheContent = ['expires_at' => 'Fri, 08 Dec 2017 16:25:51 GMT', 'offset' => 0];
+
+        $this->fileStore->put($this->fileStore->getCacheFile(), json_encode([
+            $this->fileStore->getActualCacheKey('test') => $cacheContent
+        ]));
+
+        $this->assertFileExists($this->cacheDir);
+        $this->assertFileExists($this->cacheDir.$this->cacheFile);
+        $this->assertEquals($cacheContent, $this->fileStore->get('test'));
     }
 
     /**
