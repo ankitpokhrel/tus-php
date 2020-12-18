@@ -397,8 +397,8 @@ class FileStoreTest extends TestCase
     /**
      * @test
      *
-     * @covers ::put
-     * @covers ::sharedGet
+     * @covers ::lockedGet
+     * @covers ::lockedSet
      */
     public function it_gets_data_with_shared_lock() : void
     {
@@ -418,9 +418,15 @@ class FileStoreTest extends TestCase
             if ( ! $pid) { // Child process.
                 usleep($i);
 
-                $fileStore->put($filePath, $contents);
+                $fileStore->lockedSet($filePath, function ($data) use ($i, $contents) {
+                    $data[$i] = $contents;
 
-                exit($fileStore->sharedGet($filePath) === $contents ? 0 : 1);
+                    return $data;
+                });
+
+                $retrievedContents = $fileStore->lockedGet($filePath, false)[$i] ?? null;
+
+                exit($retrievedContents === $contents ? 0 : 1);
             }
         }
 
@@ -436,11 +442,11 @@ class FileStoreTest extends TestCase
     /**
      * @test
      *
-     * @covers ::sharedGet
+     * @covers ::lockedGet
      */
     public function it_gets_empty_contents_for_invalid_file_in_shared_get() : void
     {
-        $this->assertEmpty($this->fileStore->sharedGet(__DIR__ . '/.tmp/invalid.file'));
+        $this->assertEmpty($this->fileStore->lockedGet(__DIR__ . '/.tmp/invalid.file'));
     }
 
     /**
