@@ -143,14 +143,12 @@ class FileStore extends AbstractCache
      * @see LockedFileStore::lockedSet
      *
      * @deprecated It is not recommended to use this method, use `lockedSet` instead.
-     *
-
      */
-    public function put(string $path, string $contents): int
+    public function put(string $path, string $contents)
     {
         return $this->lockedSet(
             $path,
-            function ($data) use ($contents) {
+            function () use ($contents) {
                 return $contents;
             }
         );

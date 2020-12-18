@@ -319,7 +319,8 @@ class FileStoreTest extends TestCase
      * @covers ::set
      * @covers ::get
      * @covers ::getCacheContents
-     * @covers ::sharedGet
+     * @covers ::lockedGet
+     * @covers ::acquireLock
      */
     public function it_gets_all_cache_contents() : void
     {
@@ -342,8 +343,10 @@ class FileStoreTest extends TestCase
      * @covers ::set
      * @covers ::get
      * @covers ::delete
-     * @covers ::put
      * @covers ::getCacheContents
+     * @covers ::lockedGet
+     * @covers ::lockedSet
+     * @covers ::acquireLock
      */
     public function it_deletes_cache_content() : void
     {
