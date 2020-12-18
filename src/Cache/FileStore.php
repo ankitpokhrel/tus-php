@@ -190,13 +190,13 @@ class FileStore extends AbstractCache
         return $this->lockedSet(
             $this->getCacheFile(),
             function ($data) use ($cacheKey, &$deletion) {
-                    if (isset($data[$cacheKey])) {
-                        unset($data[$cacheKey]);
-                        $deletion = true;
-                    }
-
-                    return $data;
+                if (isset($data[$cacheKey])) {
+                    unset($data[$cacheKey]);
+                    $deletion = true;
                 }
+
+                return $data;
+            }
         ) !== false && $deletion;
     }
 
