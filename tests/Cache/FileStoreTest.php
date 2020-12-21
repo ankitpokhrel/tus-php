@@ -472,6 +472,29 @@ class FileStoreTest extends TestCase
     /**
      * @test
      *
+     * @covers ::acquireLock
+     */
+    public function it_file_is_locked()
+    {
+        $filePath  = __DIR__ . '/../.tmp/locked.json';
+        $fileStore = new FileStore(__DIR__ . '/../.tmp/', 'locked.json');
+        touch($filePath);
+
+        $handle = @fopen($filePath, 'r+b');
+        flock($handle, LOCK_EX);
+
+
+        $secondHandle = @fopen($filePath, 'r+b');
+        $this->assertFalse($fileStore->acquireLock($secondHandle, LOCK_EX | LOCK_NB));
+
+        flock($handle, LOCK_UN);
+        fclose($handle);
+        fclose($secondHandle);
+    }
+
+    /**
+     * @test
+     *
      * @covers ::lockedGet
      */
     public function it_gets_empty_contents_for_invalid_file_in_shared_get() : void

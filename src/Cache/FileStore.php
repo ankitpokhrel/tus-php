@@ -139,7 +139,7 @@ class FileStore extends AbstractCache
      * @param string $path
      * @param string $contents
      *
-     * @return int|bool
+     * @return int|bool The amount of bytes that were written, or false if the write failed
      * @see LockedFileStore::lockedSet
      *
      * @deprecated It is not recommended to use this method, use `lockedSet` instead.
@@ -156,6 +156,8 @@ class FileStore extends AbstractCache
 
     /**
      * {@inheritDoc}
+     *
+     * @return int|bool The amount of bytes that were written, or false if the write failed
      */
     public function set(string $key, $value)
     {
@@ -166,7 +168,7 @@ class FileStore extends AbstractCache
             $this->createCacheFile();
         }
 
-        $this->lockedSet($cacheFile, function (array $data) use ($value, $cacheKey) {
+        return $this->lockedSet($cacheFile, function (array $data) use ($value, $cacheKey) {
             if ( ! empty($data[$cacheKey]) && \is_array($value)) {
                 $data[$cacheKey] = $value + $data[$cacheKey];
             } else {
@@ -280,7 +282,7 @@ class FileStore extends AbstractCache
      * @see LOCK_EX
      * @see LOCK_UN
      */
-    protected function acquireLock($handle, int $lock, int $attempts = 5): bool
+    public function acquireLock($handle, int $lock, int $attempts = 5): bool
     {
         for ($i = 0; $i < $attempts; $i++) {
             if (flock($handle, $lock)) {
@@ -308,9 +310,9 @@ class FileStore extends AbstractCache
      * @param string $path
      * @param bool $exclusive Whether we should use an exclusive or shared lock. If you are writing to the file, an
      *  exclusive lock is recommended
-     * @param callable|null $callback The callable to call when we have locked the file. The first argument is the handle,
-     *  the second is an array with the cache contents. If left empty, a default callable will be used that returns the
-     *  data of the file
+     * @param callable|null $callback The callable to call when we have locked the file. The first argument is the
+     *  handle, the second is an array with the cache contents. If left empty, a default callable will be used that
+     *  returns the data of the file. The callable will not be called if reading the cache fails.
      * @return mixed The output of the callable
      */
     public function lockedGet(string $path, bool $exclusive = false, ?callable $callback = null)
@@ -328,15 +330,11 @@ class FileStore extends AbstractCache
         $handle = @fopen($path, 'r+b');
         $lock   = $exclusive ? LOCK_EX : LOCK_SH;
 
-        if ($handle === false) {
+        if ($handle === false || ! $this->acquireLock($handle, $lock)) {
             return null;
         }
 
         try {
-            if ( ! $this->acquireLock($handle, $lock)) {
-                return null;
-            }
-
             clearstatcache(true, $path);
 
             $contents = fread($handle, filesize($path) ?: 1);
@@ -375,7 +373,7 @@ class FileStore extends AbstractCache
      */
     public function lockedSet(string $path, callable $callback)
     {
-        return $this->lockedGet($path, true, function ($handle, array $data) use ($callback) {
+        $output = $this->lockedGet($path, true, function ($handle, array $data) use ($callback) {
             $data = $callback($data) ?? [];
 
             ftruncate($handle, 0);
@@ -388,6 +386,8 @@ class FileStore extends AbstractCache
 
             return $write;
         });
+
+        return $output === null ? false : $output;
     }
     //endregion
 }
