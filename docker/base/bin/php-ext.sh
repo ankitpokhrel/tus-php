@@ -29,8 +29,8 @@ xdebug() {
     cd /tmp
 
     branch="2.9.8"
-    if [[ ${PHP_MAJOR_VERSION} == "8" ]]; then
-        branch="3.0.0beta1"
+    if [ "${PHP_MAJOR_VERSION}" = "8" ]; then
+        branch="3.0.3"
     fi
 
     git clone --depth 1 --branch ${branch} https://github.com/xdebug/xdebug && cd xdebug
