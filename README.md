@@ -4,8 +4,8 @@
     <a href="https://packagist.org/packages/ankitpokhrel/tus-php">
         <img alt="PHP Version" src="https://img.shields.io/badge/php-7.2.5%2B-brightgreen.svg?style=flat-square" />
     </a>
-    <a href="https://travis-ci.org/ankitpokhrel/tus-php">
-        <img alt="Build Status" src="https://img.shields.io/travis/ankitpokhrel/tus-php/master.svg?style=flat-square" />
+    <a href="https://github.com/ankitpokhrel/tus-php/actions/workflows/ci.yml?query=branch%3Amaster+is%3Acompleted">
+        <img alt="Build Status" src="https://img.shields.io/github/workflow/status/ankitpokhrel/tus-php/CI?style=flat-square" />
     </a>
     <a href="https://scrutinizer-ci.com/g/ankitpokhrel/tus-php">
         <img alt="Code Coverage" src="https://img.shields.io/scrutinizer/coverage/g/ankitpokhrel/tus-php.svg?style=flat-square" />
