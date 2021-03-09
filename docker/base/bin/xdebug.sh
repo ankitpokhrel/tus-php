@@ -6,7 +6,7 @@ XDEBUG_CONFIG=/usr/local/etc/php/conf.d/00_xdebug
 
 enable()
 {
-    if [[ -f  ${XDEBUG_CONFIG}.disable ]]; then
+    if [ -f  ${XDEBUG_CONFIG}.disable ]; then
         mv ${XDEBUG_CONFIG}.disable ${XDEBUG_CONFIG}.ini;
         echo "Xdebug enabled";
     fi
@@ -14,7 +14,7 @@ enable()
 
 disable()
 {
-    if [[ -f  ${XDEBUG_CONFIG}.ini ]]; then
+    if [ -f  ${XDEBUG_CONFIG}.ini ]; then
         mv ${XDEBUG_CONFIG}.ini ${XDEBUG_CONFIG}.disable;
         echo "Xdebug disabled";
     fi
