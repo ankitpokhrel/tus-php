@@ -18,6 +18,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@master
 
+      - name: Install PHP7.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 7.3
+
       - name: Update dependencies with composer
         run: composer update --no-interaction --no-ansi --no-progress
 
