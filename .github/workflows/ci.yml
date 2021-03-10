@@ -19,7 +19,57 @@ jobs:
         uses: actions/checkout@master
 
       - name: Update dependencies with composer
-        run: composer update --no-interaction --no-ansi --no-progress --no-suggest
+        run: composer update --no-interaction --no-ansi --no-progress
 
       - name: Run friendsofphp/php-cs-fixer
         run: php7.3 ./vendor/bin/php-cs-fixer fix --diff-format=udiff --dry-run --show-progress=dots --using-cache=no --verbose
+
+  tests:
+    name: Tests - PHP${{ matrix.php }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: ['7.2', '7.3', '7.4', '8.0']
+      fail-fast: false
+    services:
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Install PHP${{ matrix.php }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: apcu
+          coverage: xdebug
+          ini-values: apc.enabled=1,apc.enable_cli=1
+
+      - name: Checkout
+        uses: actions/checkout@master
+
+      - name: Update dependencies with composer
+        run: |
+          if ${{ startsWith(matrix.php, '7') }}; then
+            composer update --no-interaction --no-ansi --no-progress --prefer-lowest --prefer-stable
+          else
+            composer update --no-interaction --no-ansi --no-progress
+          fi
+
+      - name: Run tests
+        env:
+          REDIS_HOST: localhost
+          REDIS_PORT: ${{ job.services.redis.ports[6379] }}
+        run: XDEBUG_MODE=coverage ./vendor/bin/phpunit --coverage-clover=coverage.clover
+
+      - name: Upload coverage report to codecov
+        if: matrix.php == '7.3'
+        run: |
+          wget https://scrutinizer-ci.com/ocular.phar
+          php ocular.phar code-coverage:upload --format=php-clover coverage.clover
+          bash <(curl -s https://codecov.io/bash)

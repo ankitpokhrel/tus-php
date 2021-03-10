@@ -4,8 +4,8 @@
     <a href="https://packagist.org/packages/ankitpokhrel/tus-php">
         <img alt="PHP Version" src="https://img.shields.io/badge/php-7.1.3%2B-brightgreen.svg?style=flat-square" />
     </a>
-    <a href="https://travis-ci.org/ankitpokhrel/tus-php">
-        <img alt="Build Status" src="https://img.shields.io/travis/ankitpokhrel/tus-php/v1.svg?style=flat-square" />
+    <a href="https://github.com/ankitpokhrel/tus-php/actions/workflows/ci.yml?query=branch%3Amaster+is%3Acompleted">
+        <img alt="Build Status" src="https://img.shields.io/github/workflow/status/ankitpokhrel/tus-php/CI?style=flat-square" />
     </a>
     <a href="https://scrutinizer-ci.com/g/ankitpokhrel/tus-php">
         <img alt="Code Coverage" src="https://img.shields.io/scrutinizer/coverage/g/ankitpokhrel/tus-php.svg?style=flat-square" />
@@ -65,10 +65,6 @@ to pause, or by accident in case of a network issue or server outage.
 Pull the package via composer.
 ```shell
 $ composer require ankitpokhrel/tus-php
-
-// Use symfony-5 branch for Symfony 5+
-
-$ composer require ankitpokhrel/tus-php:dev-symfony-5
 ```
 
 ### Usage

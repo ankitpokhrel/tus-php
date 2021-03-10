@@ -10,6 +10,5 @@ checks:
     code_rating: true
 
 tools:
-  external_code_coverage:
-    timeout: 300
+  external_code_coverage: false
   php_code_coverage: false
