@@ -64,7 +64,7 @@ to pause, or by accident in case of a network issue or server outage.
 
 Pull the package via composer.
 ```shell
-$ composer require ankitpokhrel/tus-php
+$ composer require ankitpokhrel/tus-php:^1.3
 ```
 
 ### Usage
