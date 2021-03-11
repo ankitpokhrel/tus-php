@@ -29,7 +29,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php: ['7.2', '7.3', '7.4', '8.0']
+        php-version: ['7.2', '7.3', '7.4', '8.0']
+        composer-flags: ["--prefer-lowest --prefer-stable", ""]
       fail-fast: false
     services:
       redis:
@@ -42,10 +43,10 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     steps:
-      - name: Install PHP${{ matrix.php }}
+      - name: Install PHP${{ matrix.php-version }}
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php }}
+          php-version: ${{ matrix.php-version }}
           extensions: apcu
           coverage: xdebug
           ini-values: apc.enabled=1,apc.enable_cli=1
@@ -55,10 +56,10 @@ jobs:
 
       - name: Update dependencies with composer
         run: |
-          if ${{ startsWith(matrix.php, '7') }}; then
-            composer update --no-interaction --no-ansi --no-progress --prefer-lowest --prefer-stable
-          else
+          if ${{ startsWith(matrix.php-version, '8') }}; then
             composer update --no-interaction --no-ansi --no-progress
+          else
+            composer update --no-interaction --no-ansi --no-progress ${{ matrix.composer-flags }}
           fi
 
       - name: Run tests
@@ -68,7 +69,7 @@ jobs:
         run: XDEBUG_MODE=coverage ./vendor/bin/phpunit --coverage-clover=coverage.clover
 
       - name: Upload coverage report to codecov
-        if: matrix.php == '7.3'
+        if: matrix.php-version == '7.3'
         run: |
           wget https://scrutinizer-ci.com/ocular.phar
           php ocular.phar code-coverage:upload --format=php-clover coverage.clover
