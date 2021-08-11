@@ -667,7 +667,7 @@ class Client extends AbstractTus
             return new TusException('Unsupported media types.');
         }
 
-        return new TusException($response->getBody(), $statusCode);
+        return new TusException((string) $response->getBody(), $statusCode);
     }
 
     /**
