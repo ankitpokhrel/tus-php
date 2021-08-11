@@ -1449,8 +1449,9 @@ class ClientTest extends TestCase
 
         $this->assertEquals(
             ['location' => 'http://tus-server/files/' . $key, 'offset' => \strlen($data)],
-            ($bytes === -1) ? $this->tusClientMock->createWithUpload($key) : $this->tusClientMock->createWithUpload($key,
-                $bytes)
+            ($bytes === -1) ?
+                $this->tusClientMock->createWithUpload($key) :
+                $this->tusClientMock->createWithUpload($key, $bytes)
         );
     }
 
