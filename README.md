@@ -472,7 +472,7 @@ If you are not using [make](https://www.gnu.org/software/make/manual/make.html#O
 1. Install [PHPUnit](https://phpunit.de/) and [composer](https://getcomposer.org/) if you haven't already.
 2. Install dependencies
      ```shell
-     $ make deps
+     $ make vendor
      
      # or
      
