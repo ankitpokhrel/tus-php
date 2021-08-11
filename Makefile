@@ -1,4 +1,3 @@
-SHELL := bash
 .PHONY: explain docker-build-base docker-build-base-php8 docker-build-server docker-build-client docker-build docker-build-php8 \
 		dev dev8 dev-clean dev-fresh dev8-fresh exec-server exec-client exec-redis lint lint-dry test test-coverage
 
