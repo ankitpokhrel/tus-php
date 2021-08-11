@@ -4,15 +4,16 @@ namespace TusPhp\Test\Tus;
 
 use Mockery as m;
 use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\Utils;
 use TusPhp\Cache\FileStore;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
+use TusPhp\Exception\TusException;
 use TusPhp\Tus\Client as TusClient;
 use TusPhp\Exception\FileException;
 use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Exception\ConnectException;
-use TusPhp\Exception\TusException;
 use TusPhp\Exception\ConnectionException;
+use GuzzleHttp\Exception\ConnectException;
 
 /**
  * @coversDefaultClass \TusPhp\Tus\Client
@@ -959,10 +960,12 @@ class ClientTest extends TestCase
             ->once()
             ->andReturn($responseMock);
 
+        $msg  = 'Unable to open file.';
+        $body = class_exists(Utils::class) ? Utils::streamFor($msg) : $msg;
         $responseMock
             ->shouldReceive('getBody')
             ->once()
-            ->andReturn('Unable to open file.');
+            ->andReturn($body);
 
         $responseMock
             ->shouldReceive('getStatusCode')
@@ -1350,6 +1353,7 @@ class ClientTest extends TestCase
      *
      * @covers ::createWithUpload
      * @dataProvider createWithUploadDataProvider
+     *
      * @param int $bytes
      */
     public function it_uploads_a_resource_with_post_request(int $bytes) : void
@@ -1445,7 +1449,9 @@ class ClientTest extends TestCase
 
         $this->assertEquals(
             ['location' => 'http://tus-server/files/' . $key, 'offset' => \strlen($data)],
-            ($bytes === -1) ? $this->tusClientMock->createWithUpload($key) : $this->tusClientMock->createWithUpload($key, $bytes)
+            ($bytes === -1) ?
+                $this->tusClientMock->createWithUpload($key) :
+                $this->tusClientMock->createWithUpload($key, $bytes)
         );
     }
 
@@ -1527,14 +1533,12 @@ class ClientTest extends TestCase
             ->once()
             ->andReturn(201);
 
+        $msg  = json_encode(['data' => ['checksum' => $checksum]]);
+        $body = class_exists(Utils::class) ? Utils::streamFor($msg) : $msg;
         $responseMock
             ->shouldReceive('getBody')
             ->once()
-            ->andReturn(json_encode([
-                'data' => [
-                    'checksum' => $checksum,
-                ],
-            ]));
+            ->andReturn($body);
 
         $this->tusClientMock
             ->shouldReceive('getChecksum')
@@ -1586,10 +1590,11 @@ class ClientTest extends TestCase
         $responseMock = m::mock(Response::class);
         $partials     = ['/files/a', '/files/b', 'files/c'];
 
+        $body = class_exists(Utils::class) ? Utils::streamFor(null) : null;
         $responseMock
             ->shouldReceive('getBody')
             ->once()
-            ->andReturn(null);
+            ->andReturn($body);
 
         $responseMock
             ->shouldReceive('getStatusCode')
@@ -1641,10 +1646,11 @@ class ClientTest extends TestCase
         $responseMock = m::mock(Response::class);
         $partials     = ['/files/a', '/files/b', 'files/c'];
 
+        $body = class_exists(Utils::class) ? Utils::streamFor(null) : null;
         $responseMock
             ->shouldReceive('getBody')
             ->once()
-            ->andReturn(null);
+            ->andReturn($body);
 
         $responseMock
             ->shouldReceive('getStatusCode')
