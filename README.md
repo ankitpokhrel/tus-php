@@ -4,7 +4,7 @@
     <a href="https://packagist.org/packages/ankitpokhrel/tus-php">
         <img alt="PHP Version" src="https://img.shields.io/badge/php-7.2.5%2B-brightgreen.svg?style=flat-square" />
     </a>
-    <a href="https://github.com/ankitpokhrel/tus-php/actions/workflows/ci.yml?query=branch%3Amaster+is%3Acompleted">
+    <a href="https://github.com/ankitpokhrel/tus-php/actions/workflows/ci.yml?query=branch%3Amain+is%3Acompleted">
         <img alt="Build Status" src="https://img.shields.io/github/workflow/status/ankitpokhrel/tus-php/CI?style=flat-square" />
     </a>
     <a href="https://scrutinizer-ci.com/g/ankitpokhrel/tus-php">
@@ -16,7 +16,7 @@
     <a href="https://packagist.org/packages/ankitpokhrel/tus-php">
         <img alt="Downloads" src="https://img.shields.io/packagist/dm/ankitpokhrel/tus-php.svg?style=flat-square" />
     </a>
-    <a href="https://github.com/ankitpokhrel/tus-php/blob/master/LICENSE">
+    <a href="https://github.com/ankitpokhrel/tus-php/blob/main/LICENSE">
         <img alt="Software License" src="https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square" />
     </a>
 </p>
@@ -26,7 +26,7 @@
 </p>
 
 <p align="center">
-    <img alt="TusPHP Demo" src="https://github.com/ankitpokhrel/tus-php/blob/master/example/demo.gif" /><br/><br/>
+    <img alt="TusPHP Demo" src="https://github.com/ankitpokhrel/tus-php/blob/main/example/demo.gif" /><br/><br/>
     <a href="https://medium.com/@ankitpokhrel/resumable-file-upload-in-php-handle-large-file-uploads-in-an-elegant-way-e6c6dfdeaedb">Medium Article</a>&nbsp;⚡&nbsp;<a href="https://github.com/ankitpokhrel/tus-php/wiki/Laravel-&-Lumen-Integration">Laravel & Lumen Integration</a>&nbsp;⚡&nbsp;<a href="https://github.com/ankitpokhrel/tus-php/wiki/Symfony-Integration">Symfony Integration</a>&nbsp;⚡&nbsp;<a href="https://github.com/ankitpokhrel/tus-php/wiki/CakePHP-Integration">CakePHP Integration</a>&nbsp;⚡&nbsp;<a href="https://github.com/ankitpokhrel/tus-php/wiki/WordPress-Integration">WordPress Integration</a>
 </p>
 
