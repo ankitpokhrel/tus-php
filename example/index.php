@@ -11,7 +11,7 @@
     <style>
         body {
             background: #eee;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
             line-height: 1.5em;
             font-family: Lato, Helvetica Neue, Helvetica, Arial, sans-serif;
             margin-top: 40px;

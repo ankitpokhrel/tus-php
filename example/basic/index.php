@@ -17,7 +17,7 @@
     <style>
         body {
             background: #eee;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
             line-height: 1.5em;
             font-family: Lato, Helvetica Neue, Helvetica, Arial, sans-serif;
             margin-top: 40px;
@@ -178,7 +178,7 @@
                 <div class="progress">
                     <div class="progress-bar progress-bar-striped progress-bar-success active" role="progressbar"
                          aria-valuenow="0" aria-valuemin="0"
-                         aria-valuemax="100" style="width: 0%;"><span>0%</span></div>
+                         aria-valuemax="100" style="width: 0"><span>0%</span></div>
                 </div>
 
                 <hr/>
@@ -197,12 +197,12 @@
 </div>
 <script type="text/javascript">
   jQuery(document).ready(function ($) {
-    var uploadButton = $('#upload'),
+    let uploadButton = $('#upload'),
       tusFile = $('#tus-file'),
       selectedFile = $('#selected-file');
 
     $('.file-input').on('change', function (e) {
-      var name = e.target.value.split('\\').reverse()[0];
+      let name = e.target.value.split('\\').reverse()[0];
 
       if (name) {
         selectedFile.val(name);
@@ -214,7 +214,7 @@
     });
 
     uploadButton.on('click', function (e) {
-      var formData = new FormData,
+      let formData = new FormData,
         fileMeta = tusFile[0].files[0],
         fileSize = fileMeta.size,
         bytesUploaded = 0;
@@ -288,7 +288,7 @@
           return;
         }
 
-        var bytesUploaded = response.bytes_uploaded;
+        let bytesUploaded = response.bytes_uploaded;
 
         cb(bytesUploaded);
 
@@ -304,7 +304,7 @@
     });
   }
 
-  var cleanUp = function () {
+  let cleanUp = function () {
     $('#selected-file').val('');
 
     $('.progress').hide(100, function () {
@@ -317,8 +317,8 @@
     $('#tus-file').attr('disabled', false);
   };
 
-  var listUploadedFiles = function (fileMeta, uploadKey) {
-    var completedUploads = $('div.completed-uploads');
+  let listUploadedFiles = function (fileMeta, uploadKey) {
+    let completedUploads = $('div.completed-uploads');
 
     completedUploads.find('p.info').remove();
     completedUploads.append(
@@ -327,8 +327,8 @@
     );
   };
 
-  var renderProgressBar = function (bytesUploaded, fileSize) {
-    var percent = (bytesUploaded / fileSize * 100).toFixed(2);
+  let renderProgressBar = function (bytesUploaded, fileSize) {
+    let percent = (bytesUploaded / fileSize * 100).toFixed(2);
 
     $('.progress-bar')
       .attr('style', 'width: ' + percent + '%')

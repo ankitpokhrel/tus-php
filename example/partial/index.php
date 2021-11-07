@@ -17,7 +17,7 @@
     <style>
         body {
             background: #eee;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
             line-height: 1.5em;
             font-family: Lato, Helvetica Neue, Helvetica, Arial, sans-serif;
             margin-top: 40px;
@@ -191,11 +191,11 @@
 
 <script type="text/javascript">
   jQuery(document).ready(function ($) {
-    var uploadButton = $('#upload'),
+    let uploadButton = $('#upload'),
       selectedFile = $('#selected-file');
 
     $('.file-input').on('change', function (e) {
-      var name = e.target.value.split('\\').reverse()[0];
+      let name = e.target.value.split('\\').reverse()[0];
 
       if (name) {
         selectedFile.html(name);
