@@ -161,9 +161,9 @@ class FileStore extends AbstractCache
      * @param string $path
      * @param string $contents
      *
-     * @return int
+     * @return int|false
      */
-    public function put(string $path, string $contents): int
+    public function put(string $path, string $contents)
     {
         return file_put_contents($path, $contents, LOCK_EX);
     }

@@ -80,8 +80,8 @@ class Client extends AbstractTus
     /**
      * Set file properties.
      *
-     * @param string $file File path.
-     * @param string $name File name.
+     * @param string      $file File path.
+     * @param string|null $name File name.
      *
      * @return Client
      */
@@ -648,7 +648,7 @@ class Client extends AbstractTus
      *
      * @param ClientException $e
      *
-     * @return mixed
+     * @return \Exception
      */
     protected function handleClientException(ClientException $e)
     {

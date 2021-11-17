@@ -51,7 +51,7 @@ class Middleware
     /**
      * Skip middleware.
      *
-     * @param array ...$middleware
+     * @param array $middleware
      *
      * @return Middleware
      */
