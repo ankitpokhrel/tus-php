@@ -128,7 +128,7 @@ class Request
     }
 
     /**
-     * Extracts the meta data from the request header.
+     * Extracts the metadata from the request header.
      *
      * @param string $requestedKey
      *

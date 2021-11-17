@@ -64,10 +64,10 @@ class File
     /**
      * Set file meta.
      *
-     * @param int    $offset
-     * @param int    $fileSize
-     * @param string $filePath
-     * @param string $location
+     * @param int         $offset
+     * @param int         $fileSize
+     * @param string      $filePath
+     * @param string|null $location
      *
      * @return File
      */
@@ -429,7 +429,7 @@ class File
             throw new FileException('Cannot read file.');
         }
 
-        return (string) $data;
+        return $data;
     }
 
     /**

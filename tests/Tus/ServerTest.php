@@ -2840,6 +2840,7 @@ class ServerTest extends TestCase
      */
     public function it_checks_expiry_date(): void
     {
+        $this->assertTrue($this->tusServerMock->isExpired(null));
         $this->assertFalse($this->tusServerMock->isExpired(['expires_at' => 'Sat, 09 Dec 2017 00:00:00 GMT']));
 
         $this->assertFalse($this->tusServerMock->isExpired([

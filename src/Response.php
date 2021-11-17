@@ -106,7 +106,7 @@ class Response
      * Create a new file download response.
      *
      * @param \SplFileInfo|string $file
-     * @param string              $name
+     * @param string|null         $name
      * @param array               $headers
      * @param string|null         $disposition
      *
