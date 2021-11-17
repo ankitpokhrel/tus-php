@@ -18,7 +18,7 @@ class CacheFactoryTest extends TestCase
      *
      * @covers ::make
      */
-    public function it_makes_cache_store_object() : void
+    public function it_makes_cache_store_object(): void
     {
         $this->assertInstanceOf(FileStore::class, CacheFactory::make());
         $this->assertInstanceOf(RedisStore::class, CacheFactory::make('redis'));

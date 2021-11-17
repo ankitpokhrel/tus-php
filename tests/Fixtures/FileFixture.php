@@ -12,7 +12,7 @@ class FileFixture
      *
      * @return void
      */
-    public static function makeFilesAndFolder(string $path, array $files) : void
+    public static function makeFilesAndFolder(string $path, array $files): void
     {
         if ( ! file_exists($path)) {
             mkdir($path);

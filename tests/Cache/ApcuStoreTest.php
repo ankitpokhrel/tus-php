@@ -24,7 +24,7 @@ class ApcuStoreTest extends TestCase
      *
      * @return void
      */
-    public static function setUpBeforeClass() : void
+    public static function setUpBeforeClass(): void
     {
         self::$extensionLoaded = \extension_loaded('apcu');
 
@@ -38,7 +38,7 @@ class ApcuStoreTest extends TestCase
      *
      * @return void
      */
-    protected function setUp() : void
+    protected function setUp(): void
     {
         if ( ! self::$extensionLoaded) {
             $this->markTestSkipped('APCU extension not loaded.');
@@ -53,7 +53,7 @@ class ApcuStoreTest extends TestCase
      * @covers ::setPrefix
      * @covers ::getPrefix
      */
-    public function it_sets_and_gets_apcu_cache_prefix() : void
+    public function it_sets_and_gets_apcu_cache_prefix(): void
     {
         $this->assertEquals('tus:', static::$store->getPrefix());
         $this->assertInstanceOf(ApcuStore::class, static::$store->setPrefix('apcu:'));
@@ -69,7 +69,7 @@ class ApcuStoreTest extends TestCase
      * @covers ::setTtl
      * @covers ::delete
      */
-    public function it_sets_and_gets_cache_contents() : void
+    public function it_sets_and_gets_cache_contents(): void
     {
         $cacheContent = ['expires_at' => 'Sat, 09 Dec 2017 16:25:51 GMT', 'offset' => 100];
 
@@ -99,7 +99,7 @@ class ApcuStoreTest extends TestCase
      *
      * @depends it_sets_and_gets_cache_contents
      */
-    public function it_doesnt_replace_cache_key_in_set() : void
+    public function it_doesnt_replace_cache_key_in_set(): void
     {
         $this->assertTrue(static::$store->set($this->checksum, ['offset' => 500]));
 
@@ -115,7 +115,7 @@ class ApcuStoreTest extends TestCase
      * @covers ::get
      * @covers ::getActualCacheKey
      */
-    public function it_returns_contents_if_not_expired() : void
+    public function it_returns_contents_if_not_expired(): void
     {
         $cacheContent = ['expires_at' => 'Sat, 09 Dec 2017 16:25:51 GMT', 'offset' => 500];
 
@@ -128,7 +128,7 @@ class ApcuStoreTest extends TestCase
      * @covers ::get
      * @covers ::getActualCacheKey
      */
-    public function it_returns_null_if_cache_is_expired() : void
+    public function it_returns_null_if_cache_is_expired(): void
     {
         $cacheContent = ['expires_at' => 'Thu, 07 Dec 2017 16:25:51 GMT', 'offset' => 100];
 
@@ -142,7 +142,7 @@ class ApcuStoreTest extends TestCase
      * @covers ::get
      * @covers ::getActualCacheKey
      */
-    public function it_returns_expired_contents_if_with_expired_is_true() : void
+    public function it_returns_expired_contents_if_with_expired_is_true(): void
     {
         $cacheContent = ['expires_at' => 'Thu, 07 Dec 2017 16:25:51 GMT', 'offset' => 100];
 
@@ -159,7 +159,7 @@ class ApcuStoreTest extends TestCase
      * @covers ::getActualCacheKey
      * @covers ::delete
      */
-    public function it_deletes_cache_content() : void
+    public function it_deletes_cache_content(): void
     {
         $cacheContent = ['expires_at' => 'Fri, 08 Dec 2017 16:25:51 GMT', 'offset' => 100];
 
@@ -178,7 +178,7 @@ class ApcuStoreTest extends TestCase
      * @covers ::getActualCacheKey
      * @covers ::deleteAll
      */
-    public function it_deletes_all_cache_keys() : void
+    public function it_deletes_all_cache_keys(): void
     {
         $checksum1    = 'checksum-1';
         $checksum2    = 'checksum-2';
@@ -197,7 +197,7 @@ class ApcuStoreTest extends TestCase
      *
      * @covers ::keys
      */
-    public function it_gets_cache_keys() : void
+    public function it_gets_cache_keys(): void
     {
         $this->assertTrue(static::$store->set($this->checksum, []));
         $this->assertEquals([static::$store->getPrefix() . $this->checksum], static::$store->keys());

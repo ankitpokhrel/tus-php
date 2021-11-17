@@ -18,7 +18,7 @@ class ConfigTest extends TestCase
      *
      * @return void
      */
-    public function setUp() : void
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -31,7 +31,7 @@ class ConfigTest extends TestCase
      * @covers ::set
      * @covers ::get
      */
-    public function it_loads_config_from_array() : void
+    public function it_loads_config_from_array(): void
     {
         $config = [
             'redis' => [
@@ -56,7 +56,7 @@ class ConfigTest extends TestCase
      * @covers ::set
      * @covers ::get
      */
-    public function it_loads_config_from_file() : void
+    public function it_loads_config_from_file(): void
     {
         Config::set(__DIR__ . '/Fixtures/config.php', true);
 
@@ -69,7 +69,7 @@ class ConfigTest extends TestCase
      * @covers ::set
      * @covers ::get
      */
-    public function it_should_not_load_config_if_config_is_set() : void
+    public function it_should_not_load_config_if_config_is_set(): void
     {
         Config::set([]);
 
@@ -82,7 +82,7 @@ class ConfigTest extends TestCase
      *
      * @covers ::get
      */
-    public function it_gets_value_for_a_key() : void
+    public function it_gets_value_for_a_key(): void
     {
         $this->assertEquals($this->config['redis'], Config::get('redis'));
         $this->assertEquals($this->config['redis']['host'], Config::get('redis.host'));
@@ -94,7 +94,7 @@ class ConfigTest extends TestCase
      *
      * @covers ::get
      */
-    public function it_returns_null_for_invalid_key() : void
+    public function it_returns_null_for_invalid_key(): void
     {
         $this->assertNull(Config::get('redis.invalid'));
     }
