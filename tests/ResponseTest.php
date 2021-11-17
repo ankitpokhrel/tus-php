@@ -19,9 +19,9 @@ class ResponseTest extends TestCase
      *
      * @return void
      */
-    public function setUp() : void
+    public function setUp(): void
     {
-        $this->response = new Response;
+        $this->response = new Response();
 
         parent::setUp();
     }
@@ -32,7 +32,7 @@ class ResponseTest extends TestCase
      * @covers ::createOnly
      * @covers ::getCreateOnly
      */
-    public function it_sets_and_gets_create_only() : void
+    public function it_sets_and_gets_create_only(): void
     {
         $this->assertTrue($this->response->getCreateOnly());
 
@@ -47,7 +47,7 @@ class ResponseTest extends TestCase
      * @covers ::setHeaders
      * @covers ::getHeaders
      */
-    public function it_sets_and_gets_headers() : void
+    public function it_sets_and_gets_headers(): void
     {
         $this->assertEquals([], $this->response->getHeaders());
 
@@ -71,7 +71,7 @@ class ResponseTest extends TestCase
      * @covers ::replaceHeaders
      * @covers ::getHeaders
      */
-    public function it_replaces_headers() : void
+    public function it_replaces_headers(): void
     {
         $this->assertEquals([], $this->response->getHeaders());
         $this->assertInstanceOf(Response::class, $this->response->setHeaders(['Access-Control-Max-Age' => 86400]));
@@ -87,7 +87,7 @@ class ResponseTest extends TestCase
      *
      * @covers ::send
      */
-    public function it_sends_a_response() : void
+    public function it_sends_a_response(): void
     {
         $content  = '204 No Content';
         $response = $this->response
@@ -106,7 +106,7 @@ class ResponseTest extends TestCase
      *
      * @covers ::send
      */
-    public function it_sends_array_response() : void
+    public function it_sends_array_response(): void
     {
         $content  = ['status' => '204 No Content'];
         $response = $this->response
@@ -123,7 +123,7 @@ class ResponseTest extends TestCase
      *
      * @covers ::download
      */
-    public function it_returns_file_not_found_exception() : void
+    public function it_returns_file_not_found_exception(): void
     {
         $this->expectException(FileNotFoundException::class);
         $file = __DIR__ . '/Fixtures/404.txt';
@@ -136,7 +136,7 @@ class ResponseTest extends TestCase
      *
      * @covers ::download
      */
-    public function it_sends_binary_response() : void
+    public function it_sends_binary_response(): void
     {
         $file = __DIR__ . '/Fixtures/empty.txt';
         $name = 'file.txt';
@@ -155,7 +155,7 @@ class ResponseTest extends TestCase
      *
      * @covers ::download
      */
-    public function it_sends_binary_response_when_name_is_null() : void
+    public function it_sends_binary_response_when_name_is_null(): void
     {
         $file = __DIR__ . '/Fixtures/empty.txt';
 
