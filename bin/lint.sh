@@ -4,11 +4,11 @@ FIXER="php-cs-fixer"
 bin=/usr/local/bin/${FIXER}
 
 if ! command -v php-cs-fixer &>/dev/null; then
-    wget https://cs.symfony.com/download/php-cs-fixer-v2.phar -O ${bin} && chmod a+x ${bin}
+    wget https://cs.symfony.com/download/php-cs-fixer-v3.phar -O ${bin} && chmod a+x ${bin}
 fi
 
 if [[ "$1" == "dry" ]]; then
-    ${FIXER} fix --diff-format=udiff --dry-run --show-progress=dots --using-cache=no --verbose
+    ${FIXER} fix --dry-run --show-progress=dots --using-cache=no --verbose
 else
     ${FIXER} fix
 fi
