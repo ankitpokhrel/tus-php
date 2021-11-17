@@ -36,7 +36,7 @@ class FileStore extends AbstractCache
      *
      * @return self
      */
-    public function setCacheDir(string $path) : self
+    public function setCacheDir(string $path): self
     {
         $this->cacheDir = $path;
 
@@ -48,7 +48,7 @@ class FileStore extends AbstractCache
      *
      * @return string
      */
-    public function getCacheDir() : string
+    public function getCacheDir(): string
     {
         return $this->cacheDir;
     }
@@ -60,7 +60,7 @@ class FileStore extends AbstractCache
      *
      * @return self
      */
-    public function setCacheFile(string $file) : self
+    public function setCacheFile(string $file): self
     {
         $this->cacheFile = $file;
 
@@ -72,7 +72,7 @@ class FileStore extends AbstractCache
      *
      * @return string
      */
-    public function getCacheFile() : string
+    public function getCacheFile(): string
     {
         return $this->cacheDir . $this->cacheFile;
     }
@@ -131,7 +131,7 @@ class FileStore extends AbstractCache
      *
      * @return string
      */
-    public function sharedGet(string $path) : string
+    public function sharedGet(string $path): string
     {
         $contents = '';
         $handle   = @fopen($path, File::READ_BINARY);
@@ -163,7 +163,7 @@ class FileStore extends AbstractCache
      *
      * @return int
      */
-    public function put(string $path, string $contents) : int
+    public function put(string $path, string $contents): int
     {
         return file_put_contents($path, $contents, LOCK_EX);
     }
@@ -194,7 +194,7 @@ class FileStore extends AbstractCache
     /**
      * {@inheritDoc}
      */
-    public function delete(string $key) : bool
+    public function delete(string $key): bool
     {
         $cacheKey = $this->getActualCacheKey($key);
         $contents = $this->getCacheContents();
@@ -211,7 +211,7 @@ class FileStore extends AbstractCache
     /**
      * {@inheritDoc}
      */
-    public function keys() : array
+    public function keys(): array
     {
         $contents = $this->getCacheContents();
 
@@ -229,7 +229,7 @@ class FileStore extends AbstractCache
      *
      * @return bool
      */
-    public function isValid(string $key) : bool
+    public function isValid(string $key): bool
     {
         $key  = $this->getActualCacheKey($key);
         $meta = $this->getCacheContents()[$key] ?? [];
@@ -264,7 +264,7 @@ class FileStore extends AbstractCache
      *
      * @return string
      */
-    public function getActualCacheKey(string $key) : string
+    public function getActualCacheKey(string $key): string
     {
         $prefix = $this->getPrefix();
 

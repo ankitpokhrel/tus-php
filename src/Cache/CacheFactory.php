@@ -4,7 +4,6 @@ namespace TusPhp\Cache;
 
 class CacheFactory
 {
-
     /**
      * Make cache.
      *
@@ -18,10 +17,10 @@ class CacheFactory
     {
         switch ($type) {
             case 'redis':
-                return new RedisStore;
+                return new RedisStore();
             case 'apcu':
-                return new ApcuStore;
+                return new ApcuStore();
         }
-        return new FileStore;
+        return new FileStore();
     }
 }

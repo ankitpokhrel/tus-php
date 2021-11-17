@@ -13,8 +13,8 @@ class Middleware
     public function __construct()
     {
         $this->globalMiddleware = [
-            GlobalHeaders::class => new GlobalHeaders,
-            Cors::class => new Cors,
+            GlobalHeaders::class => new GlobalHeaders(),
+            Cors::class => new Cors(),
         ];
     }
 
@@ -23,7 +23,7 @@ class Middleware
      *
      * @return array
      */
-    public function list() : array
+    public function list(): array
     {
         return $this->globalMiddleware;
     }
@@ -35,13 +35,13 @@ class Middleware
      *
      * @return Middleware
      */
-    public function add(...$middleware) : self
+    public function add(...$middleware): self
     {
         foreach ($middleware as $m) {
             if ($m instanceof TusMiddleware) {
                 $this->globalMiddleware[\get_class($m)] = $m;
             } elseif (\is_string($m)) {
-                $this->globalMiddleware[$m] = new $m;
+                $this->globalMiddleware[$m] = new $m();
             }
         }
 
@@ -55,7 +55,7 @@ class Middleware
      *
      * @return Middleware
      */
-    public function skip(...$middleware) : self
+    public function skip(...$middleware): self
     {
         foreach ($middleware as $m) {
             unset($this->globalMiddleware[$m]);

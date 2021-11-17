@@ -85,7 +85,7 @@ class Client extends AbstractTus
      *
      * @return Client
      */
-    public function file(string $file, string $name = null) : self
+    public function file(string $file, string $name = null): self
     {
         $this->filePath = $file;
 
@@ -106,7 +106,7 @@ class Client extends AbstractTus
      *
      * @return string|null
      */
-    public function getFilePath() : ?string
+    public function getFilePath(): ?string
     {
         return $this->filePath;
     }
@@ -118,7 +118,7 @@ class Client extends AbstractTus
      *
      * @return Client
      */
-    public function setFileName(string $name) : self
+    public function setFileName(string $name): self
     {
         $this->addMetadata('filename', $this->fileName = $name);
 
@@ -130,7 +130,7 @@ class Client extends AbstractTus
      *
      * @return string|null
      */
-    public function getFileName() : ?string
+    public function getFileName(): ?string
     {
         return $this->fileName;
     }
@@ -140,7 +140,7 @@ class Client extends AbstractTus
      *
      * @return int
      */
-    public function getFileSize() : int
+    public function getFileSize(): int
     {
         return $this->fileSize;
     }
@@ -150,7 +150,7 @@ class Client extends AbstractTus
      *
      * @return GuzzleClient
      */
-    public function getClient() : GuzzleClient
+    public function getClient(): GuzzleClient
     {
         return $this->client;
     }
@@ -162,7 +162,7 @@ class Client extends AbstractTus
      *
      * @return Client
      */
-    public function setChecksum(string $checksum) : self
+    public function setChecksum(string $checksum): self
     {
         $this->checksum = $checksum;
 
@@ -174,7 +174,7 @@ class Client extends AbstractTus
      *
      * @return string
      */
-    public function getChecksum() : string
+    public function getChecksum(): string
     {
         if (empty($this->checksum)) {
             $this->setChecksum(hash_file($this->getChecksumAlgorithm(), $this->getFilePath()));
@@ -191,7 +191,7 @@ class Client extends AbstractTus
      *
      * @return Client
      */
-    public function addMetadata(string $key, string $value) : self
+    public function addMetadata(string $key, string $value): self
     {
         $this->metadata[$key] = base64_encode($value);
 
@@ -205,7 +205,7 @@ class Client extends AbstractTus
      *
      * @return Client
      */
-    public function removeMetadata(string $key) : self
+    public function removeMetadata(string $key): self
     {
         unset($this->metadata[$key]);
 
@@ -219,7 +219,7 @@ class Client extends AbstractTus
      *
      * @return Client
      */
-    public function setMetadata(array $items) : self
+    public function setMetadata(array $items): self
     {
         $items = array_map('base64_encode', $items);
 
@@ -233,7 +233,7 @@ class Client extends AbstractTus
      *
      * @return array
      */
-    public function getMetadata() : array
+    public function getMetadata(): array
     {
         return $this->metadata;
     }
@@ -243,7 +243,7 @@ class Client extends AbstractTus
      *
      * @return string
      */
-    protected function getUploadMetadataHeader() : string
+    protected function getUploadMetadataHeader(): string
     {
         $metadata = [];
 
@@ -261,7 +261,7 @@ class Client extends AbstractTus
      *
      * @return Client
      */
-    public function setKey(string $key) : self
+    public function setKey(string $key): self
     {
         $this->key = $key;
 
@@ -273,7 +273,7 @@ class Client extends AbstractTus
      *
      * @return string
      */
-    public function getKey() : string
+    public function getKey(): string
     {
         return $this->key;
     }
@@ -283,7 +283,7 @@ class Client extends AbstractTus
      *
      * @return string|null
      */
-    public function getUrl() : ?string
+    public function getUrl(): ?string
     {
         $this->url = $this->getCache()->get($this->getKey())['location'] ?? null;
 
@@ -301,7 +301,7 @@ class Client extends AbstractTus
      *
      * @return Client
      */
-    public function setChecksumAlgorithm(string $algorithm) : self
+    public function setChecksumAlgorithm(string $algorithm): self
     {
         $this->checksumAlgorithm = $algorithm;
 
@@ -313,7 +313,7 @@ class Client extends AbstractTus
      *
      * @return string
      */
-    public function getChecksumAlgorithm() : string
+    public function getChecksumAlgorithm(): string
     {
         return $this->checksumAlgorithm;
     }
@@ -323,7 +323,7 @@ class Client extends AbstractTus
      *
      * @return bool
      */
-    public function isExpired() : bool
+    public function isExpired(): bool
     {
         $expiresAt = $this->getCache()->get($this->getKey())['expires_at'] ?? null;
 
@@ -335,7 +335,7 @@ class Client extends AbstractTus
      *
      * @return bool
      */
-    public function isPartial() : bool
+    public function isPartial(): bool
     {
         return $this->partial;
     }
@@ -345,7 +345,7 @@ class Client extends AbstractTus
      *
      * @return int
      */
-    public function getPartialOffset() : int
+    public function getPartialOffset(): int
     {
         return $this->partialOffset;
     }
@@ -357,7 +357,7 @@ class Client extends AbstractTus
      *
      * @return self
      */
-    public function seek(int $offset) : self
+    public function seek(int $offset): self
     {
         $this->partialOffset = $offset;
 
@@ -377,7 +377,7 @@ class Client extends AbstractTus
      *
      * @return int
      */
-    public function upload(int $bytes = -1) : int
+    public function upload(int $bytes = -1): int
     {
         $bytes  = $bytes < 0 ? $this->getFileSize() : $bytes;
         $offset = $this->partialOffset < 0 ? 0 : $this->partialOffset;
@@ -429,7 +429,7 @@ class Client extends AbstractTus
      *
      * @return string
      */
-    public function create(string $key) : string
+    public function create(string $key): string
     {
         return $this->createWithUpload($key, 0)['location'];
     }
@@ -449,7 +449,7 @@ class Client extends AbstractTus
      *     'offset' => int
      * ]
      */
-    public function createWithUpload(string $key, int $bytes = -1) : array
+    public function createWithUpload(string $key, int $bytes = -1): array
     {
         $bytes = $bytes < 0 ? $this->fileSize : $bytes;
 
@@ -513,7 +513,7 @@ class Client extends AbstractTus
      *
      * @return string
      */
-    public function concat(string $key, ...$partials) : string
+    public function concat(string $key, ...$partials): string
     {
         $response = $this->getClient()->post($this->apiPath, [
             'headers' => $this->headers + [
@@ -589,7 +589,7 @@ class Client extends AbstractTus
      *
      * @return int
      */
-    protected function sendHeadRequest() : int
+    protected function sendHeadRequest(): int
     {
         $response   = $this->getClient()->head($this->getUrl());
         $statusCode = $response->getStatusCode();
@@ -614,7 +614,7 @@ class Client extends AbstractTus
      *
      * @return int
      */
-    protected function sendPatchRequest(int $bytes, int $offset) : int
+    protected function sendPatchRequest(int $bytes, int $offset): int
     {
         $data    = $this->getData($offset, $bytes);
         $headers = $this->headers + [
@@ -678,9 +678,9 @@ class Client extends AbstractTus
      *
      * @return string
      */
-    protected function getData(int $offset, int $bytes) : string
+    protected function getData(int $offset, int $bytes): string
     {
-        $file   = new File;
+        $file   = new File();
         $handle = $file->open($this->getFilePath(), $file::READ_BINARY);
 
         $file->seek($handle, $offset);
@@ -697,7 +697,7 @@ class Client extends AbstractTus
      *
      * @return string
      */
-    protected function getUploadChecksumHeader() : string
+    protected function getUploadChecksumHeader(): string
     {
         return $this->getChecksumAlgorithm() . ' ' . base64_encode($this->getChecksum());
     }
