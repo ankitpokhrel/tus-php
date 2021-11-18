@@ -290,9 +290,9 @@ class FileStoreTest extends TestCase
      * @test
      *
      * @covers ::set
-     * @covers ::get
+     * @covers ::put
+     * @covers ::lock
      * @covers ::getCacheContents
-     * @covers ::sharedGet
      */
     public function it_gets_all_cache_contents(): void
     {
@@ -398,6 +398,7 @@ class FileStoreTest extends TestCase
      * @test
      *
      * @covers ::put
+     * @covers ::lock
      * @covers ::sharedGet
      */
     public function it_gets_data_with_shared_lock(): void
@@ -436,11 +437,21 @@ class FileStoreTest extends TestCase
     /**
      * @test
      *
+     * @covers ::lock
      * @covers ::sharedGet
      */
-    public function it_gets_empty_contents_for_invalid_file_in_shared_get(): void
+    public function it_gets_contents_in_shared_get(): void
     {
         $this->assertEmpty($this->fileStore->sharedGet(__DIR__ . '/.tmp/invalid.file'));
+
+        $file  = __DIR__ . '/.tmp/shared.txt';
+        $text  = 'lorem ipsum';
+
+        file_put_contents($file, $text);
+
+        $this->assertEquals($text, $this->fileStore->sharedGet($file));
+
+        @unlink($file);
     }
 
     /**
