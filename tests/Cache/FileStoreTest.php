@@ -444,7 +444,7 @@ class FileStoreTest extends TestCase
     {
         $this->assertEmpty($this->fileStore->sharedGet(__DIR__ . '/.tmp/invalid.file'));
 
-        $file  = __DIR__ . '/.tmp/shared.txt';
+        $file  = __DIR__ . '/../.tmp/shared.txt';
         $text  = 'lorem ipsum';
 
         file_put_contents($file, $text);
