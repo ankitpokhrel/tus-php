@@ -2,6 +2,9 @@
 
 namespace TusPhp\Test;
 
+use Carbon\Carbon;
+use TusPhp\Cache\RedisStore;
+use TusPhp\Config;
 use TusPhp\File;
 use Mockery as m;
 use TusPhp\Cache\FileStore;
@@ -538,8 +541,9 @@ class FileTest extends TestCase
         $key   = uniqid();
         $bytes = \strlen($data);
 
-        $cacheMock = m::mock(FileStore::class);
-        $fileMock  = m::mock(File::class, [null, $cacheMock])->makePartial();
+        $cacheMock    = m::mock(FileStore::class);
+        $fileMock     = m::mock(File::class, [null, $cacheMock])->makePartial();
+        $cacheContent = ['expires_at' => 'Fri, 08 Dec 2020 16:22:51 GMT', 'offset' => 0];
 
         $fileMock
             ->shouldReceive('read')
@@ -552,9 +556,15 @@ class FileTest extends TestCase
             ->andReturn($key);
 
         $cacheMock
+            ->shouldReceive('get')
+            ->once()
+            ->with($key, true)
+            ->andReturn($cacheContent);
+
+        $cacheMock
             ->shouldReceive('set')
             ->once()
-            ->with($key, ['offset' => $bytes])
+            ->with($key, ['expires_at' => 'Fri, 08 Dec 2020 16:22:51 GMT', 'offset' => $bytes])
             ->andReturn(null);
 
         $fileMock
@@ -563,6 +573,57 @@ class FileTest extends TestCase
             ->upload($bytes - 1);
 
         @unlink($file);
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::upload
+     */
+    public function it_should_not_override_metadata_in_redis(): void
+    {
+        # this test requires real test time. Even date parsing is affected by this?!
+        $testNow = Carbon::getTestNow();
+        Carbon::setTestNow(null);
+
+        $file  = __DIR__ . '/.tmp/upload.txt';
+        $data  = file_get_contents(__DIR__ . '/Fixtures/data.txt');
+        $key   = uniqid();
+        $bytes = \strlen($data);
+
+        $redisStore = new RedisStore([
+            'host' => getenv('REDIS_HOST'),
+            'port' => getenv('REDIS_PORT'),
+            'timeout' => getenv('REDIS_TIMEOUT'),
+            'database' => getenv('REDIS_DATABASE'),
+        ]);
+
+        $cacheContent = ['expires_at' => 'Fri, 07 Dec 2020 16:22:51 GMT', 'foo' => 'bar', 'offset' => 0];
+        $redisStore->set($key, $cacheContent);
+
+        $fileMock  = m::mock(File::class, [null, $redisStore])->makePartial();
+
+        $fileMock
+            ->shouldReceive('read')
+            ->once()
+            ->andReturn($data);
+
+        $fileMock
+            ->shouldReceive('getKey')
+            ->once()
+            ->andReturn($key);
+
+        $fileMock
+            ->setFilePath($file)
+            ->setOffset(0)
+            ->upload($bytes);
+
+        $this->assertEquals(['offset' => 92] + $cacheContent, $redisStore->get($key, true));
+
+        @unlink($file);
+
+        # reset mocked time
+        Carbon::setTestNow($testNow);
     }
 
     /**
@@ -580,8 +641,9 @@ class FileTest extends TestCase
         $chunkSize  = 8192;
         $totalBytes = 17548;
 
-        $cacheMock = m::mock(FileStore::class);
-        $fileMock  = m::mock(File::class, [null, $cacheMock])->makePartial();
+        $cacheMock    = m::mock(FileStore::class);
+        $fileMock     = m::mock(File::class, [null, $cacheMock])->makePartial();
+        $cacheContent = ['expires_at' => 'Fri, 08 Dec 2020 16:22:51 GMT', 'offset' => 0];
 
         $fileMock
             ->shouldReceive('getInputStream')
@@ -594,21 +656,39 @@ class FileTest extends TestCase
             ->andReturn($key);
 
         $cacheMock
-            ->shouldReceive('set')
+            ->shouldReceive('get')
             ->once()
-            ->with($key, ['offset' => $chunkSize])
-            ->andReturn(null);
+            ->with($key, true)
+            ->andReturn($cacheContent);
 
         $cacheMock
             ->shouldReceive('set')
             ->once()
-            ->with($key, ['offset' => $chunkSize * 2])
+            ->with($key, $cacheContent = ['expires_at' => 'Fri, 08 Dec 2020 16:22:51 GMT', 'offset' => $chunkSize])
             ->andReturn(null);
+
+        $cacheMock
+            ->shouldReceive('get')
+            ->once()
+            ->with($key, true)
+            ->andReturn($cacheContent);
 
         $cacheMock
             ->shouldReceive('set')
             ->once()
-            ->with($key, ['offset' => $totalBytes])
+            ->with($key, $cacheContent = ['expires_at' => 'Fri, 08 Dec 2020 16:22:51 GMT', 'offset' => $chunkSize * 2])
+            ->andReturn(null);
+
+        $cacheMock
+            ->shouldReceive('get')
+            ->once()
+            ->with($key, true)
+            ->andReturn($cacheContent);
+
+        $cacheMock
+            ->shouldReceive('set')
+            ->once()
+            ->with($key, ['expires_at' => 'Fri, 08 Dec 2020 16:22:51 GMT', 'offset' => $totalBytes])
             ->andReturn(null);
 
         $bytesWritten = $fileMock
@@ -635,8 +715,9 @@ class FileTest extends TestCase
         $key        = uniqid();
         $totalBytes = \strlen($data);
 
-        $cacheMock = m::mock(FileStore::class);
-        $fileMock  = m::mock(File::class, [null, $cacheMock])->makePartial();
+        $cacheMock    = m::mock(FileStore::class);
+        $fileMock     = m::mock(File::class, [null, $cacheMock])->makePartial();
+        $cacheContent = ['expires_at' => 'Fri, 08 Dec 2020 16:22:51 GMT', 'offset' => 0];
 
         $fileMock
             ->shouldReceive('read')
@@ -649,9 +730,15 @@ class FileTest extends TestCase
             ->andReturn($key);
 
         $cacheMock
+            ->shouldReceive('get')
+            ->once()
+            ->with($key, true)
+            ->andReturn($cacheContent);
+
+        $cacheMock
             ->shouldReceive('set')
             ->once()
-            ->with($key, ['offset' => $totalBytes])
+            ->with($key, ['expires_at' => 'Fri, 08 Dec 2020 16:22:51 GMT', 'offset' => $totalBytes])
             ->andReturn(null);
 
         $bytesWritten = $fileMock
