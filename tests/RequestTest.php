@@ -2,9 +2,9 @@
 
 namespace TusPhp\Test;
 
-use TusPhp\Request;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request as HttpRequest;
+use TusPhp\Request;
 
 /**
  * @coversDefaultClass \TusPhp\Request
@@ -209,7 +209,7 @@ class RequestTest extends TestCase
             ->set(
                 'Upload-Metadata',
                 sprintf(
-                    'filename %s,type %s,accept %s',
+                    'filename %s,type %s,noval, accept %s',
                     base64_encode($filename),
                     base64_encode($fileType),
                     base64_encode($accept)
@@ -219,7 +219,8 @@ class RequestTest extends TestCase
         $this->assertEquals($filename, $this->request->extractFileName());
         $this->assertEquals($fileType, $this->request->extractMeta('type'));
         $this->assertEquals($accept, $this->request->extractMeta('accept'));
-        $this->assertEquals(['filename' => $filename, 'type' => $fileType, 'accept' => $accept], $this->request->extractAllMeta());
+        $this->assertEquals('', $this->request->extractMeta('noval'));
+        $this->assertEquals(['filename' => $filename, 'type' => $fileType, 'noval' => '', 'accept' => $accept], $this->request->extractAllMeta());
     }
 
     /**
