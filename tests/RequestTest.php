@@ -2,9 +2,9 @@
 
 namespace TusPhp\Test;
 
+use TusPhp\Request;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request as HttpRequest;
-use TusPhp\Request;
 
 /**
  * @coversDefaultClass \TusPhp\Request
