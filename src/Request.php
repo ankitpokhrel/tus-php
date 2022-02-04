@@ -145,7 +145,10 @@ class Request
         $uploadMetaDataChunks = explode(',', $uploadMetaData);
 
         foreach ($uploadMetaDataChunks as $chunk) {
-            [$key, $value] = explode(' ', $chunk);
+            $pieces = explode(' ', trim($chunk));
+
+            $key   = $pieces[0];
+            $value = $pieces[1] ?? '';
 
             if ($key === $requestedKey) {
                 return base64_decode($value);
@@ -172,7 +175,10 @@ class Request
 
         $result = [];
         foreach ($uploadMetaDataChunks as $chunk) {
-            [$key, $value] = explode(' ', $chunk);
+            $pieces = explode(' ', trim($chunk));
+
+            $key   = $pieces[0];
+            $value = $pieces[1] ?? '';
 
             $result[$key] = base64_decode($value);
         }
