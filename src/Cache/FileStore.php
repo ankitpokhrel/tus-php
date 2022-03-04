@@ -167,7 +167,8 @@ class FileStore extends AbstractCache
     public function sharedGet(string $path): string
     {
         return $this->lock($path, LOCK_SH, function ($handle) use ($path) {
-            $size = fstat($handle)['size'];
+            $stat = fstat($handle);
+            $size = $stat ? $stat['size'] : 1;
             $contents = fread($handle, $size ?: 1);
 
             if (false === $contents) {
