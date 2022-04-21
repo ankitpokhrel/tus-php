@@ -213,7 +213,7 @@ class Request
      */
     public function isFinal(): bool
     {
-        return false !== strpos($this->header('Upload-Concat'), Server::UPLOAD_TYPE_FINAL . ';');
+        return null !== ($header = $this->header('Upload-Concat')) && false !== strpos($header, Server::UPLOAD_TYPE_FINAL . ';');
     }
 
     /**

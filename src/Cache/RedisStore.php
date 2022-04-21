@@ -45,7 +45,9 @@ class RedisStore extends AbstractCache
         }
 
         $contents = $this->redis->get($key);
-        $contents = json_decode($contents, true);
+        if (null !== $contents) {
+            $contents = json_decode($contents, true);
+        }
 
         if ($withExpired) {
             return $contents;
