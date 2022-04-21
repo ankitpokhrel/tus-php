@@ -496,9 +496,13 @@ class Server extends AbstractTus
             return $this->response->send(null, HttpResponse::HTTP_CONTINUE);
         }
 
+        if ( ! $meta = $this->cache->get($uploadKey)) {
+            return $this->response->send(null, HttpResponse::HTTP_GONE);
+        }
+
         return $this->response->send(null, HttpResponse::HTTP_NO_CONTENT, [
             'Content-Type' => self::HEADER_CONTENT_TYPE,
-            'Upload-Expires' => $this->cache->get($uploadKey)['expires_at'],
+            'Upload-Expires' => $meta['expires_at'],
             'Upload-Offset' => $offset,
         ]);
     }

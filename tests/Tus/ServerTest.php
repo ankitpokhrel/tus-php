@@ -2136,6 +2136,131 @@ class ServerTest extends TestCase
      *
      * @covers ::handlePatch
      * @covers ::verifyPatchRequest
+     */
+    public function it_returns_410_if_cache_expires_for_inflight_requests_in_patch_request(): void
+    {
+        $key       = uniqid();
+        $fileName  = 'file.txt';
+        $fileSize  = 1024;
+        $checksum  = 'invalid';
+        $location  = 'http://tus.local/uploads/file.txt';
+        $expiresAt = 'Sat, 09 Dec 2017 00:00:00 GMT';
+        $fileMeta  = [
+            'name' => $fileName,
+            'size' => $fileSize,
+            'offset' => 0,
+            'checksum' => $checksum,
+            'file_path' => __DIR__ . '/../Fixtures/empty.txt',
+            'metadata' => [
+                'filename' => $fileName,
+            ],
+            'location' => $location,
+            'created_at' => 'Fri, 08 Dec 2017 00:00:00 GMT',
+            'expires_at' => $expiresAt,
+            'upload_type' => 'normal',
+        ];
+
+        $this->tusServerMock
+            ->getRequest()
+            ->getRequest()
+            ->headers
+            ->set('Content-Type', 'application/offset+octet-stream');
+
+        $this->tusServerMock
+            ->getRequest()
+            ->getRequest()
+            ->server
+            ->add([
+                'REQUEST_METHOD' => 'PATCH',
+                'REQUEST_URI' => '/files/' . $key,
+            ]);
+
+        $fileMock = m::mock(File::class);
+        $fileMock
+            ->shouldReceive('setKey')
+            ->once()
+            ->with($key)
+            ->andReturnSelf();
+
+        $fileMock
+            ->shouldReceive('setChecksum')
+            ->once()
+            ->with($checksum)
+            ->andReturnSelf();
+
+        $fileMock
+            ->shouldReceive('setUploadMetadata')
+            ->once()
+            ->with([
+                'filename' => $fileName,
+            ])
+            ->andReturnSelf();
+
+        $fileMock
+            ->shouldReceive('getFileSize')
+            ->once()
+            ->andReturn($fileSize);
+
+        $fileMock
+            ->shouldReceive('upload')
+            ->once()
+            ->with($fileSize)
+            ->andReturn($fileSize);
+
+        $this->tusServerMock
+            ->shouldReceive('buildFile')
+            ->once()
+            ->with($fileMeta)
+            ->andReturn($fileMock);
+
+        $this->tusServerMock
+            ->shouldReceive('verifyChecksum')
+            ->with($checksum, $fileMeta['file_path'])
+            ->andReturn(true);
+
+        $eventDispatcherMock = m::mock(EventDispatcher::class);
+        $eventDispatcherMock
+            ->shouldReceive('dispatch')
+            ->once()
+            ->with(m::type(UploadComplete::class), 'tus-server.upload.complete');
+
+        $this->tusServerMock
+            ->shouldReceive('event')
+            ->once()
+            ->andReturn($eventDispatcherMock);
+
+        $cacheMock = m::mock(FileStore::class);
+        $cacheMock
+            ->shouldReceive('get')
+            ->once()
+            ->with($key)
+            ->andReturn($fileMeta);
+
+        $cacheMock
+            ->shouldReceive('get')
+            ->once()
+            ->with($key)
+            ->andReturn(null);
+
+        $cacheMock
+            ->shouldReceive('setPrefix')
+            ->once()
+            ->with('tus:' . strtolower(\get_class($this->tusServerMock)) . ':')
+            ->andReturnSelf();
+
+        $this->tusServerMock->setCache($cacheMock);
+
+        $response = $this->tusServerMock->handlePatch();
+
+        $this->assertEquals(410, $response->getStatusCode());
+        $this->assertEmpty($response->getContent());
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::handlePatch
+     * @covers ::verifyPatchRequest
      * @covers \TusPhp\Events\UploadProgress::__construct
      */
     public function it_handles_patch_request(): void
