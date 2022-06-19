@@ -11,6 +11,26 @@ class Config
     protected static $config = [];
 
     /**
+     * Get path to the base cache directory.
+     *
+     * @return string
+     */
+    public static function getCacheHome(): string
+    {
+        if (($cacheDir = getenv('TUS_CACHE_HOME')) !== false) {
+            return $cacheDir;
+        }
+
+        // See https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
+        if (($cacheDir = getenv('XDG_CACHE_HOME')) !== false) {
+            return $cacheDir;
+        }
+
+        return \dirname(__DIR__);
+    }
+
+
+    /**
      * Load default application configs.
      *
      * @param string|array $config
