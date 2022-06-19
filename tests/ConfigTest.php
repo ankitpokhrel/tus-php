@@ -55,6 +55,42 @@ class ConfigTest extends TestCase
      *
      * @covers ::set
      * @covers ::get
+     * @covers ::getCacheHome
+     */
+    public function it_gets_path_from_tus_cache_home_env(): void
+    {
+        putenv('TUS_CACHE_HOME=/tmp');
+
+        Config::set(__DIR__ . '/Fixtures/config.php', true);
+
+        $this->assertEquals('/tmp/.cache/', Config::get('file.dir'));
+
+        putenv('TUS_CACHE_HOME');
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::set
+     * @covers ::get
+     * @covers ::getCacheHome
+     */
+    public function it_gets_path_from_xdg_cache_home_env(): void
+    {
+        putenv('XDG_CACHE_HOME=/tmp');
+
+        Config::set(__DIR__ . '/Fixtures/config.php', true);
+
+        $this->assertEquals('/tmp/.cache/', Config::get('file.dir'));
+
+        putenv('XDG_CACHE_HOME');
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::set
+     * @covers ::get
      */
     public function it_loads_config_from_file(): void
     {

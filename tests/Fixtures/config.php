@@ -15,10 +15,10 @@ return [
      * File cache configs.
      */
     'file' => [
-        'dir' => \dirname(__DIR__) . DS . '.cache' . DS,
+        'dir' => \TusPhp\Config::getCacheHome() . DIRECTORY_SEPARATOR . '.cache' . DIRECTORY_SEPARATOR,
         'name' => 'tus_php.cache',
         'meta' => [
-            'name' => 'test'
-        ]
+            'name' => 'test',
+        ],
     ],
 ];
