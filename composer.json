@@ -14,7 +14,7 @@
     "ext-json": "*",
     "guzzlehttp/guzzle": "^6.3 || ^7.0",
     "nesbot/carbon": "^1.26.3 || ^2.0",
-    "predis/predis": "^1.1",
+    "predis/predis": "^1.1 || ^2.0",
     "ramsey/uuid": "^3.7 || ^4.0",
     "symfony/console": "^5.0 || ^6.0",
     "symfony/event-dispatcher": "^5.0 || ^6.0",
