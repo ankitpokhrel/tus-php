@@ -546,12 +546,7 @@ class Server extends AbstractTus
      */
     protected function handleGet()
     {
-        // We will treat '/files/<key>/get' as a download request.
-        if ('get' === $this->request->key()) {
-            return $this->handleDownload();
-        }
-
-        return $this->handleHead();
+        return $this->handleDownload();
     }
 
     /**
@@ -561,7 +556,7 @@ class Server extends AbstractTus
      */
     protected function handleDownload()
     {
-        $path = explode('/', str_replace('/get', '', $this->request->path()));
+        $path = explode('/', $this->request->path());
         $key  = end($path);
 
         if ( ! $fileMeta = $this->cache->get($key)) {
