@@ -1,4 +1,4 @@
-﻿<h1 align="center">TusPHP</h1>
+<h1 align="center">TusPHP</h1>
 
 <p align="center">
     <a href="https://packagist.org/packages/ankitpokhrel/tus-php">
@@ -85,13 +85,16 @@ This is how a simple server looks like.
 ```php
 // server.php
 
-$server   = new \TusPhp\Tus\Server('redis'); // Either redis, file or apcu. Leave empty for file based cache.
+// Either redis, file or apcu. Leave empty for file based cache.
+$server   = new \TusPhp\Tus\Server('redis');
 $response = $server->serve();
 
 $response->send();
 
 exit(0); // Exit from current PHP process.
 ```
+
+> :bangbang: File based cache is not recommended for production use.
 
 You need to rewrite your server to respond to a specific endpoint. For example:
 
@@ -503,6 +506,3 @@ You can use `xdebug enable` and `xdebug disable` to enable and disable [Xdebug](
 
 ### Questions about this project?
 Please feel free to report any bug found. Pull requests, issues, and project recommendations are more than welcome!
-
-### Supporters
-[![JET BRAINS](.github/jetbrains.png)](https://www.jetbrains.com/?from=ankitpokhrel/tus-php)
