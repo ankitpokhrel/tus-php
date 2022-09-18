@@ -167,8 +167,8 @@ class FileStore extends AbstractCache
     public function sharedGet(string $path): string
     {
         return $this->lock($path, LOCK_SH, function ($handle) use ($path) {
-            $fstat = fstat($handle);
-            $size = $fstat ? $fstat['size'] : 1;
+            $fstat    = fstat($handle);
+            $size     = $fstat ? $fstat['size'] : 1;
             $contents = fread($handle, $size ?: 1);
 
             if (false === $contents) {
@@ -206,7 +206,7 @@ class FileStore extends AbstractCache
         }
 
         return $this->lock($cacheFile, LOCK_EX, function ($handle) use ($cacheKey, $cacheFile, $value) {
-            $size = fstat($handle)['size'];
+            $size     = fstat($handle)['size'];
             $contents = fread($handle, $size ?: 1) ?? '';
             $contents = json_decode($contents, true) ?? [];
 
