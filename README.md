@@ -1,4 +1,4 @@
-<h1 align="center">TusPHP</h1>
+<h1 align="center">Tus_PHP</h1>
 
 <p align="center">
     <a href="https://packagist.org/packages/ankitpokhrel/tus-php">
@@ -26,7 +26,7 @@
 </p>
 
 <p align="center">
-    <img alt="TusPHP Demo" src="https://github.com/ankitpokhrel/tus-php/blob/main/example/demo.gif" /><br/><br/>
+    <img alt="Tus_PHP Demo" src="https://github.com/ankitpokhrel/tus-php/blob/main/example/demo.gif" /><br/><br/>
     <a href="https://medium.com/@ankitpokhrel/resumable-file-upload-in-php-handle-large-file-uploads-in-an-elegant-way-e6c6dfdeaedb">Medium Article</a>&nbsp;⚡&nbsp;<a href="https://github.com/ankitpokhrel/tus-php/wiki/Laravel-&-Lumen-Integration">Laravel & Lumen Integration</a>&nbsp;⚡&nbsp;<a href="https://github.com/ankitpokhrel/tus-php/wiki/Symfony-Integration">Symfony Integration</a>&nbsp;⚡&nbsp;<a href="https://github.com/ankitpokhrel/tus-php/wiki/CakePHP-Integration">CakePHP Integration</a>&nbsp;⚡&nbsp;<a href="https://github.com/ankitpokhrel/tus-php/wiki/WordPress-Integration">WordPress Integration</a>
 </p>
 
@@ -38,7 +38,7 @@
 re-uploading whole data again in case of any interruptions. An interruption may happen willingly if the user wants
 to pause, or by accident in case of a network issue or server outage.
 
-### Table of Contents
+### Table of Contents ##
 
 * [Installation](#installation)
 * [Usage](#usage)
