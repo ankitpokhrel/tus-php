@@ -17,13 +17,11 @@ class Config
      */
     public static function getCacheHome(): string
     {
-        if (($cacheDir = getenv('TUS_CACHE_HOME')) !== false) {
-            return $cacheDir;
-        }
-
-        // See https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
-        if (($cacheDir = getenv('XDG_CACHE_HOME')) !== false) {
-            return $cacheDir;
+        if (
+            ($cacheDir = getenv('TUS_CACHE_HOME')) !== false ||
+            ($cacheDir = getenv('XDG_CACHE_HOME')) !== false // See https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
+        ) {
+            return rtrim($cacheDir, '/');
         }
 
         return \dirname(__DIR__);
