@@ -17,6 +17,6 @@ return [
      */
     'file' => [
         'dir' => \TusPhp\Config::getCacheHome() . DIRECTORY_SEPARATOR . '.cache' . DIRECTORY_SEPARATOR,
-        'name' => getenv('TUS_CACHE_FILE') !== false ? getenv('TUS_CACHE_FILE') : 'tus_php.server.cache',
+        'name' => getenv('TUS_CLIENT_CACHE_FILE') !== false ? getenv('TUS_CLIENT_CACHE_FILE') : 'tus_php.client.cache',
     ],
 ];

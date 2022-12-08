@@ -85,7 +85,7 @@ This is how a simple server looks like.
 ```php
 // server.php
 
-// Either redis, file or apcu. Leave empty for file based cache.
+// Either redis, file or apcu. Leave empty for file based cache. (File path and name for .env keys; ; `TUS_CACHE_HOME`, `TUS_CACHE_FILE`, `TUS_CLIENT_CACHE_FILE`)
 $server   = new \TusPhp\Tus\Server('redis');
 $response = $server->serve();
 
@@ -149,7 +149,7 @@ To override default config you can simply copy the file to your preferred locati
 $server = new \TusPhp\Tus\Server('redis');
 ```
 
-Alternately, you can set `REDIS_HOST`, `REDIS_PORT` and `REDIS_DB` env in your server to override redis settings for both server and client.
+Alternately, you can set `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD` and `REDIS_DB` env in your server to override redis settings for both server and client.
 
 #### Client
 The client can be used for creating, resuming and/or deleting uploads.
