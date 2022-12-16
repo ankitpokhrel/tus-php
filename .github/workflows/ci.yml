@@ -6,7 +6,7 @@ on:
   release:
     types: [published]
   push:
-    branches: [master]
+    branches: [main]
 
 name: CI
 
