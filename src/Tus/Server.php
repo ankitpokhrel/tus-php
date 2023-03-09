@@ -16,6 +16,7 @@ use TusPhp\Middleware\Middleware;
 use TusPhp\Exception\FileException;
 use TusPhp\Exception\ConnectionException;
 use TusPhp\Exception\OutOfRangeException;
+use TusPhp\Exception\MiddlewareException;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request as HttpRequest;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
@@ -255,7 +256,11 @@ class Server extends AbstractTus
      */
     public function serve()
     {
-        $this->applyMiddleware();
+        try {
+            $this->applyMiddleware();
+        } catch (MiddlewareException $e) {
+            return $this->response->send($e->getMessage(), $e->getCode());    
+        }
 
         $requestMethod = $this->getRequest()->method();
 
