@@ -13,7 +13,7 @@ pre_build() {
 apcu() {
     cd /tmp
 
-    git clone --depth 1 --branch v5.1.19 https://github.com/krakjoe/apcu && cd apcu
+    git clone --depth 1 --branch v5.1.23 https://github.com/krakjoe/apcu && cd apcu
 
     phpize
     ./configure --with-php-config=/usr/local/bin/php-config
@@ -30,7 +30,7 @@ xdebug() {
 
     branch="2.9.8"
     if [ "${PHP_MAJOR_VERSION}" = "8" ]; then
-        branch="3.0.3"
+        branch="3.3.0"
     fi
 
     git clone --depth 1 --branch ${branch} https://github.com/xdebug/xdebug && cd xdebug
