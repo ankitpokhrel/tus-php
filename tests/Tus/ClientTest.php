@@ -1340,7 +1340,7 @@ class ClientTest extends TestCase
         $this->assertEquals('http://tus-server/files/' . $key, $this->tusClientMock->create($key));
     }
 
-    public function createWithUploadDataProvider()
+    public static function createWithUploadDataProvider()
     {
         return [
             [-1],
