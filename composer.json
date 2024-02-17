@@ -39,10 +39,7 @@
   },
   "config": {
     "optimize-autoloader": true,
-    "sort-packages": true,
-    "allow-plugins": {
-      "kylekatarnls/update-helper": true
-    }
+    "sort-packages": true
   },
   "scripts": {
     "test": "xdebug disable && vendor/bin/phpunit",

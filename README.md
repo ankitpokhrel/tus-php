@@ -2,7 +2,7 @@
 
 <p align="center">
     <a href="https://packagist.org/packages/ankitpokhrel/tus-php">
-        <img alt="PHP Version" src="https://img.shields.io/badge/php-7.2.5%2B-brightgreen.svg?style=flat-square" />
+        <img alt="PHP Version" src="https://img.shields.io/badge/php-8.1%2B-brightgreen.svg?style=flat-square" />
     </a>
     <a href="https://github.com/ankitpokhrel/tus-php/actions/workflows/ci.yml?query=branch%3Amain+is%3Acompleted">
         <img alt="Build Status" src="https://img.shields.io/github/actions/workflow/status/ankitpokhrel/tus-php/ci.yml?branch=main&style=flat-square" />
@@ -118,7 +118,7 @@ location ~ \.php$ {
     # ...
 
     fastcgi_request_buffering off; # Disable request buffering
-    
+
     # ...
 }
 ```
@@ -476,33 +476,33 @@ If you are not using [make](https://www.gnu.org/software/make/manual/make.html#O
 2. Install dependencies
      ```shell
      $ make vendor
-     
+
      # or
-     
+
      $ composer install
      ```
 3. Run tests with phpunit
     ```shell
     $ make test
-    
+
     # or
-    
+
     $ composer test
-    
+
     # or
-    
+
     $ ./vendor/bin/phpunit
     ```
 4. Validate changes against [PSR2 Coding Standards](http://www.php-fig.org/psr/psr-2/)
     ```shell
     # fix lint issues
     $ make lint
-    
+
     # dry run
     $ make lint-dry
     ```
 
-You can use `xdebug enable` and `xdebug disable` to enable and disable [Xdebug](https://xdebug.org/) inside the container. 
+You can use `xdebug enable` and `xdebug disable` to enable and disable [Xdebug](https://xdebug.org/) inside the container.
 
 ### Questions about this project?
 Please feel free to report any bug found. Pull requests, issues, and project recommendations are more than welcome!
