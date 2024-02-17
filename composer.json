@@ -15,7 +15,7 @@
     "guzzlehttp/guzzle": "^7.2",
     "nesbot/carbon": "^2.67 || ^3.0",
     "predis/predis": "^2.0.3",
-    "ramsey/uuid": "^3.7 || ^4.0",
+    "ramsey/uuid": "^4.0",
     "symfony/console": "^6.0 || ^7.0",
     "symfony/event-dispatcher": "^6.0 || ^7.0",
     "symfony/http-foundation": "^6.0 || ^7.0",
