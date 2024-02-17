@@ -205,7 +205,7 @@ class FileTest extends TestCase
     public function it_throws_exception_for_file_with_no_permission(): void
     {
         $this->expectException(FileException::class);
-        $this->expectErrorMessageMatches('/Unable to open [a-zA-Z0-9-\/.]+/');
+        $this->expectExceptionMessageMatches('/Unable to open [a-zA-Z0-9-\/.]+/');
 
         $file = __DIR__ . '/Fixtures/403.txt';
 
@@ -413,7 +413,7 @@ class FileTest extends TestCase
 
         $this->file->delete($files, true);
 
-        $this->assertFileNotExists($path);
+        $this->assertFileDoesNotExist($path);
     }
 
     /**
@@ -460,7 +460,7 @@ class FileTest extends TestCase
         $this->file->delete($files);
 
         foreach ($files as $file) {
-            $this->assertFileNotExists($file);
+            $this->assertFileDoesNotExist($file);
         }
 
         $this->assertFileExists($path);
@@ -496,7 +496,7 @@ class FileTest extends TestCase
     {
         $this->file->delete(["$path/1"], true);
 
-        $this->assertFileNotExists($path);
+        $this->assertFileDoesNotExist($path);
     }
 
     /**

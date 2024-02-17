@@ -144,7 +144,7 @@ class ResponseTest extends TestCase
         $response = $this->response->createOnly(true)->download($file, $name);
 
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertRegExp(
+        $this->assertMatchesRegularExpression(
             "/attachment; filename=($name|\"$name\")/",
             $response->headers->get('content-disposition')
         );
@@ -162,7 +162,7 @@ class ResponseTest extends TestCase
         $response = $this->response->createOnly(true)->download($file, null, [], 'inline');
 
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertRegExp(
+        $this->assertMatchesRegularExpression(
             '/inline; filename=(empty.txt|"empty.txt")/',
             $response->headers->get('content-disposition')
         );

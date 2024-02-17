@@ -2622,7 +2622,7 @@ class ServerTest extends TestCase
         $response = $this->tusServerMock->handleGet();
 
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertRegExp(
+        $this->assertMatchesRegularExpression(
             "/attachment; filename=($fileName|\"$fileName\")/",
             $response->headers->get('content-disposition')
         );
