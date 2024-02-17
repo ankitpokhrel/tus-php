@@ -65,8 +65,10 @@ jobs:
         run: XDEBUG_MODE=coverage ./vendor/bin/phpunit --coverage-clover=coverage.clover
 
       - name: Upload coverage report to codecov
+        uses: codecov/codecov-action@v4
+        with:
+          fail_ci_if_error: true
+          files: coverage.clover
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true
         if: matrix.php-version == '8.3'
-        run: |
-          wget https://scrutinizer-ci.com/ocular.phar
-          php ocular.phar code-coverage:upload --format=php-clover coverage.clover
-          bash <(curl -s https://codecov.io/bash)
