@@ -20,6 +20,8 @@ class CacheFactory
                 return new RedisStore();
             case 'apcu':
                 return new ApcuStore();
+            case 'sentinel':
+                return new RedisSentinelStore();
         }
         return new FileStore();
     }
