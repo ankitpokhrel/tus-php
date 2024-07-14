@@ -80,9 +80,9 @@ class Server extends AbstractTus
      *
      * @throws \ReflectionException
      */
-    public function __construct($cacheAdapter = 'file')
+    public function __construct($cacheAdapter = 'file', HttpRequest $request = null)
     {
-        $this->request    = new Request();
+        $this->request    = new Request($request);
         $this->response   = new Response();
         $this->middleware = new Middleware();
         $this->uploadDir  = \dirname(__DIR__, 2) . '/' . 'uploads';

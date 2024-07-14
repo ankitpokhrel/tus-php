@@ -2,6 +2,7 @@
 
 namespace TusPhp\Test;
 
+use Mockery as m;
 use TusPhp\Request;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request as HttpRequest;
@@ -24,6 +25,32 @@ class RequestTest extends TestCase
         $this->request = new Request();
 
         parent::setUp();
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::__construct
+     */
+    public function it_sets_and_gets_the_same_http_request(): void
+    {
+        $httpRequestMock = m::mock(HttpRequest::class);
+
+        $request = new Request($httpRequestMock);
+
+        $this->assertSame($httpRequestMock, $request->getRequest());
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::__construct
+     */
+    public function it_creates_the_http_request_when_passing_null(): void
+    {
+        $request = new Request(null);
+
+        $this->assertInstanceOf(HttpRequest::class, $request->getRequest());
     }
 
     /**

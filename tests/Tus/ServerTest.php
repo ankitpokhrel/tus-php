@@ -21,6 +21,7 @@ use TusPhp\Middleware\GlobalHeaders;
 use TusPhp\Exception\ConnectionException;
 use TusPhp\Exception\OutOfRangeException;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\HttpFoundation\Request as HttpRequest;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 /**
@@ -106,6 +107,22 @@ class ServerTest extends TestCase
     public function it_gets_a_request(): void
     {
         $this->assertInstanceOf(Request::class, $this->tusServer->getRequest());
+    }
+
+    /**
+     * @test
+     *
+     * @covers ::__construct
+     * @covers ::getRequest
+     */
+    public function it_sets_and_gets_the_same_http_request(): void
+    {
+        $httpRequestMock = m::mock(HttpRequest::class);
+
+        $tusServer = new TusServer('file', $httpRequestMock);
+
+        $this->assertInstanceOf(HttpRequest::class, $tusServer->getRequest()->getRequest());
+        $this->assertSame($httpRequestMock, $tusServer->getRequest()->getRequest());
     }
 
     /**
@@ -226,7 +243,7 @@ class ServerTest extends TestCase
             ->server
             ->set('REQUEST_METHOD', 'HEAD');
 
-        $requestMock = m::mock(Request::class, ['file'])->makePartial();
+        $requestMock = m::mock(Request::class, [null])->makePartial();
         $requestMock
             ->getRequest()
             ->headers
@@ -274,7 +291,7 @@ class ServerTest extends TestCase
             ->server
             ->set('REQUEST_METHOD', 'HEAD');
 
-        $requestMock = m::mock(Request::class, ['file'])->makePartial();
+        $requestMock = m::mock(Request::class, [null])->makePartial();
         $requestMock
             ->getRequest()
             ->headers
@@ -402,7 +419,7 @@ class ServerTest extends TestCase
 
         $tusServerMock->__construct('file');
 
-        $requestMock = m::mock(Request::class, ['file'])->makePartial();
+        $requestMock = m::mock(Request::class, [null])->makePartial();
         $requestMock
             ->getRequest()
             ->headers
@@ -804,7 +821,7 @@ class ServerTest extends TestCase
                 'REQUEST_URI' => '/files',
             ]);
 
-        $requestMock = m::mock(Request::class, ['file'])->makePartial();
+        $requestMock = m::mock(Request::class, [null])->makePartial();
         $requestMock
             ->getRequest()
             ->headers
@@ -854,7 +871,7 @@ class ServerTest extends TestCase
                 'REQUEST_URI' => '/files',
             ]);
 
-        $requestMock = m::mock(Request::class, ['file'])->makePartial();
+        $requestMock = m::mock(Request::class, [null])->makePartial();
         $requestMock
             ->getRequest()
             ->headers
@@ -916,7 +933,7 @@ class ServerTest extends TestCase
                 'REQUEST_URI' => '/files',
             ]);
 
-        $requestMock = m::mock(Request::class, ['file'])->makePartial();
+        $requestMock = m::mock(Request::class, [null])->makePartial();
         $requestMock
             ->getRequest()
             ->headers
@@ -1040,7 +1057,7 @@ class ServerTest extends TestCase
                 'REQUEST_URI' => '/files',
             ]);
 
-        $requestMock = m::mock(Request::class, ['file'])->makePartial();
+        $requestMock = m::mock(Request::class, [null])->makePartial();
         $requestMock
             ->getRequest()
             ->headers
@@ -1163,7 +1180,7 @@ class ServerTest extends TestCase
             'location' => $location,
         ];
 
-        $requestMock = m::mock(Request::class, ['file'])->makePartial();
+        $requestMock = m::mock(Request::class, [null])->makePartial();
         $requestMock
             ->getRequest()
             ->headers
@@ -1328,7 +1345,7 @@ class ServerTest extends TestCase
             ['file_path' => $filePath . 'file_b', 'offset' => 20],
         ];
 
-        $requestMock = m::mock(Request::class, ['file'])->makePartial();
+        $requestMock = m::mock(Request::class, [null])->makePartial();
         $requestMock
             ->getRequest()
             ->headers
@@ -3176,7 +3193,7 @@ class ServerTest extends TestCase
     {
         $this->assertTrue($this->tusServerMock->verifyUploadSize());
 
-        $requestMock = m::mock(Request::class, ['file'])->makePartial();
+        $requestMock = m::mock(Request::class, [null])->makePartial();
         $requestMock
             ->getRequest()
             ->headers
