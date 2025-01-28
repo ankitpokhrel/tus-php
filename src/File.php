@@ -305,13 +305,13 @@ class File
      *
      * @return int
      */
-    public function upload(int $totalBytes): int
+    public function upload(int $totalBytes, ?string $inputFilePath = null): int
     {
         if ($this->offset === $totalBytes) {
             return $this->offset;
         }
 
-        $input  = $this->open($this->getInputStream(), self::READ_BINARY);
+        $input  = $this->open($inputFilePath ?? $this->getInputStream(), self::READ_BINARY);
         $output = $this->open($this->getFilePath(), self::APPEND_BINARY);
         $key    = $this->getKey();
 
