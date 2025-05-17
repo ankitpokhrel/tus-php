@@ -594,7 +594,7 @@ class Client extends AbstractTus
         $response   = $this->getClient()->head($this->getUrl());
         $statusCode = $response->getStatusCode();
 
-        if (HttpResponse::HTTP_OK !== $statusCode) {
+        if (HttpResponse::HTTP_OK !== $statusCode || HttpResponse::HTTP_NO_CONTENT !== $statusCode) {
             throw new FileException('File not found.');
         }
 
