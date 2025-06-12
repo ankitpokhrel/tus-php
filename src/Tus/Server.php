@@ -376,11 +376,12 @@ class Server extends AbstractTus
             'location' => $location,
         ])->setKey($uploadKey)->setChecksum($checksum)->setUploadMetadata($this->getRequest()->extractAllMeta());
 
-        $this->cache->set($uploadKey, $file->details() + ['upload_type' => $uploadType]);
+        $cacheMetadata = $file->details() + ['upload_type' => $uploadType];
+        $this->cache->set($uploadKey, $cacheMetadata);
 
         $headers = [
             'Location' => $location,
-            'Upload-Expires' => $this->cache->get($uploadKey)['expires_at'],
+            'Upload-Expires' => $cacheMetadata['expires_at'],
         ];
 
         $this->event()->dispatch(
