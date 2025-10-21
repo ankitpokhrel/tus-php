@@ -30,10 +30,6 @@
     <a href="https://medium.com/@ankitpokhrel/resumable-file-upload-in-php-handle-large-file-uploads-in-an-elegant-way-e6c6dfdeaedb">Medium Article</a>&nbsp;⚡&nbsp;<a href="https://github.com/ankitpokhrel/tus-php/wiki/Laravel-&-Lumen-Integration">Laravel & Lumen Integration</a>&nbsp;⚡&nbsp;<a href="https://github.com/ankitpokhrel/tus-php/wiki/Symfony-Integration">Symfony Integration</a>&nbsp;⚡&nbsp;<a href="https://github.com/ankitpokhrel/tus-php/wiki/CakePHP-Integration">CakePHP Integration</a>&nbsp;⚡&nbsp;<a href="https://github.com/ankitpokhrel/tus-php/wiki/WordPress-Integration">WordPress Integration</a>
 </p>
 
-<p align="center">
-    <a href="https://opencollective.com/tus-php#backers" target="_blank" align="center"><img src="https://opencollective.com/tus-php/backers.svg"></a>
-</p>
-
 **tus** is a HTTP based protocol for resumable file uploads. Resumable means you can carry on where you left off without
 re-uploading whole data again in case of any interruptions. An interruption may happen willingly if the user wants
 to pause, or by accident in case of a network issue or server outage.
