@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php-version: ['8.1', '8.2', '8.3']
+        php-version: ['8.1', '8.2', '8.3', '8.4']
         composer-flags: ["--prefer-lowest --prefer-stable", ""]
       fail-fast: false
     services:
@@ -71,4 +71,4 @@ jobs:
           files: coverage.clover
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true
-        if: matrix.php-version == '8.3'
+        if: matrix.php-version == '8.4'
