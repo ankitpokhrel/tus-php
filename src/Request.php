@@ -235,7 +235,7 @@ class Request
      */
     protected function isValidFilename(string $filename): bool
     {
-        $forbidden = ['../', '"', "'", '&', '/', '\\', '?', '#', ':'];
+        $forbidden = Config::get('file.forbidden_characters') ?? ['../', '"', "'", '&', '/', '\\', '?', '#', ':'];
 
         foreach ($forbidden as $char) {
             if (false !== strpos($filename, $char)) {
