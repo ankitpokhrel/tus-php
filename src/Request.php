@@ -11,6 +11,15 @@ class Request
     protected $request;
 
     /**
+     * Input-stream path
+     *
+     * Useful for php-http-servers (e.g. Swoole) that do not support php://input
+     *
+     * @var string|null
+     */
+    protected $requestStreamPath = null;
+
+    /**
      * Request constructor.
      */
     public function __construct()
@@ -224,6 +233,11 @@ class Request
     public function getRequest(): HttpRequest
     {
         return $this->request;
+    }
+
+    public function getStreamPath () : ?string
+    {
+        return $this->requestStreamPath;
     }
 
     /**
