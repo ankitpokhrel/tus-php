@@ -366,7 +366,7 @@ class Server extends AbstractTus
         }
 
         $checksum = $this->getClientChecksum();
-        $location = $this->getRequest()->url() . $this->getApiPath() . '/' . $uploadKey;
+        $location = $this->getApiPath() . '/' . $uploadKey;
 
         $file = $this->buildFile([
             'name' => $fileName,
