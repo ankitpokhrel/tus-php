@@ -187,6 +187,37 @@ class Request
     }
 
     /**
+     * Set the new value for given key in the metadata from the request header.
+     * This function will be useful to change metadata on the fly say in the middleware. 
+     *
+     * @param string $requestedKey
+     * @param string $newValue
+     *
+     * @return string
+     */
+    public function setMeta(string $requestedKey, string $newValue): string
+    {
+        $uploadMetaData = $this->request->headers->get('Upload-Metadata');
+
+        if (empty($uploadMetaData)) {
+            return '';
+        }
+
+        $uploadMetaDataChunks = explode(',', $uploadMetaData);
+
+        foreach ($uploadMetaDataChunks as $key => $chunk) {
+            $pieces = explode(' ', trim($chunk));
+            if ($pieces[0] === $requestedKey) {
+                $pieces[1] = base64_encode($newValue);
+                $uploadMetaDataChunks[$key] = implode(' ', $pieces);
+                break;
+            }
+        }
+
+        return implode(',', $uploadMetaDataChunks);
+    }
+    
+    /**
      * Extract partials from header.
      *
      * @return array
