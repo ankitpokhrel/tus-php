@@ -1,5 +1,4 @@
 ---
-version: '3.7'
 
 services:
   tus-server:
@@ -45,5 +44,5 @@ services:
 
 networks:
   default:
-    external:
-      name: tus-php-network
+    name: tus-php-network
+    external: true
