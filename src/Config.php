@@ -33,12 +33,12 @@ class Config
     /**
      * Load default application configs.
      *
-     * @param string|array $config
+     * @param array|string|null $config
      * @param bool         $force
      *
      * @return void
      */
-    public static function set($config = null, bool $force = false)
+    public static function set(array|string|null $config = null, bool $force = false): void
     {
         if ( ! $force && ! empty(self::$config)) {
             return;
@@ -58,7 +58,7 @@ class Config
      *
      * @return mixed
      */
-    public static function get(string $key = null)
+    public static function get(?string $key = null): mixed
     {
         self::set();
 
