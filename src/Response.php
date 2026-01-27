@@ -114,7 +114,7 @@ class Response
      */
     public function download(
         $file,
-        string $name = null,
+        ?string $name = null,
         array $headers = [],
         string $disposition = ResponseHeaderBag::DISPOSITION_ATTACHMENT
     ): BinaryFileResponse {

@@ -85,7 +85,7 @@ class Client extends AbstractTus
      *
      * @return Client
      */
-    public function file(string $file, string $name = null): self
+    public function file(string $file, ?string $name = null): self
     {
         $this->filePath = $file;
 

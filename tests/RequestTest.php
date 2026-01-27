@@ -208,7 +208,7 @@ class RequestTest extends TestCase
             ->headers
             ->set(
                 'Upload-Metadata',
-                sprintf(
+                \sprintf(
                     'filename %s,type %s,noval, accept %s',
                     base64_encode($filename),
                     base64_encode($fileType),
@@ -314,7 +314,7 @@ class RequestTest extends TestCase
             ->headers
             ->set(
                 'Upload-Metadata',
-                sprintf(
+                \sprintf(
                     'filename %s,type %s,accept %s',
                     base64_encode($uploadMetadata['filename']),
                     base64_encode($uploadMetadata['type']),
