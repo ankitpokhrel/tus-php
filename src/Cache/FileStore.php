@@ -23,7 +23,7 @@ class FileStore extends AbstractCache
      * @param string|null $cacheDir
      * @param string|null $cacheFile
      */
-    public function __construct(string $cacheDir = null, string $cacheFile = null)
+    public function __construct(?string $cacheDir = null, ?string $cacheFile = null)
     {
         $cacheDir  = $cacheDir ?? Config::get('file.dir');
         $cacheFile = $cacheFile ?? Config::get('file.name');
