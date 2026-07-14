@@ -58,7 +58,7 @@ class File
      * @param string|null    $name
      * @param Cacheable|null $cache
      */
-    public function __construct(string $name = null, Cacheable $cache = null)
+    public function __construct(?string $name = null, ?Cacheable $cache = null)
     {
         $this->name  = $name;
         $this->cache = $cache;
@@ -74,7 +74,7 @@ class File
      *
      * @return File
      */
-    public function setMeta(int $offset, int $fileSize, string $filePath, string $location = null): self
+    public function setMeta(int $offset, int $fileSize, string $filePath, ?string $location = null): self
     {
         $this->offset   = $offset;
         $this->fileSize = $fileSize;
