@@ -134,7 +134,7 @@ class FileStore extends AbstractCache
      *
      * @return mixed
      */
-    protected function lock(string $path, int $type = LOCK_SH, callable $cb = null, $fopenType = FILE::READ_BINARY)
+    protected function lock(string $path, int $type = LOCK_SH, ?callable $cb = null, $fopenType = FILE::READ_BINARY)
     {
         $out    = false;
         $handle = @fopen($path, $fopenType);
