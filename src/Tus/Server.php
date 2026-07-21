@@ -455,6 +455,35 @@ class Server extends AbstractTus
     {
         $uploadKey = $this->request->key();
 
+        // --- Chunk-race fix, see doHandlePatch()/acquireUploadLock() for the full story. ---
+        // We wrap the whole PATCH handling in a per-uploadKey exclusive lock. Without this,
+        // a client-side retry (or two pods racing on the same shared upload volume) can send
+        // two PATCH requests for the *same* upload key before the first one has finished
+        // writing and has updated the cached offset. Both requests then read the same stale
+        // offset from the cache, both pass verifyPatchRequest()'s offset check, and both
+        // proceed to write their chunk. This is exactly how we lost 8192 bytes' worth of
+        // bookkeeping in a real uploaded .mov file: the file's `mdat` box ended up 8192 bytes
+        // (one CHUNK_SIZE, see File::CHUNK_SIZE) short of where the trailing `moov` atom
+        // actually started, because a duplicated chunk write got appended into the stream
+        // without the offset accounting ever knowing about it. Serializing PATCH handling per
+        // uploadKey turns a duplicate/retried request into a strictly sequential one: by the
+        // time it acquires the lock, it re-reads the (now up to date) cached offset, and
+        // verifyPatchRequest() correctly rejects it with 409 Conflict instead of letting it
+        // silently corrupt the file.
+        return $this->acquireUploadLock($uploadKey, function () use ($uploadKey) {
+            return $this->doHandlePatch($uploadKey);
+        });
+    }
+
+    /**
+     * Actual PATCH handling, run while holding the per-uploadKey lock acquired in handlePatch().
+     *
+     * @param string $uploadKey
+     *
+     * @return HttpResponse
+     */
+    protected function doHandlePatch(string $uploadKey): HttpResponse
+    {
         if ( ! $meta = $this->cache->get($uploadKey)) {
             return $this->response->send(null, HttpResponse::HTTP_GONE);
         }
@@ -505,6 +534,53 @@ class Server extends AbstractTus
             'Upload-Expires' => $meta['expires_at'],
             'Upload-Offset' => $offset,
         ]);
+    }
+
+    /**
+     * Run $callback while holding an exclusive, filesystem-based lock scoped to $uploadKey.
+     *
+     * Why this exists: tus-php ships with no coordination between concurrent PATCH requests
+     * for the same upload (see the history of this method for the corrupted-.mov incident that
+     * exposed it). $this->uploadDir is a volume shared between all app pods/containers on
+     * purpose (so any pod can serve any chunk of any upload), so a plain flock() on a lock file
+     * in that same shared directory is enough to serialize PATCH handling across processes *and*
+     * across pods - we don't need a separate distributed-lock backend (e.g. Redis) for this.
+     *
+     * @param string   $uploadKey
+     * @param callable $callback
+     *
+     * @return HttpResponse
+     */
+    protected function acquireUploadLock(string $uploadKey, callable $callback): HttpResponse
+    {
+        // Upload keys are normally uuid4 strings (see getUploadKey()), but they can also come
+        // straight from a client-supplied Upload-Key header, so we don't trust them as a
+        // filename as-is. Kept a single, flat lock directory (not one per uploadKey) so cleanup
+        // is trivial and we don't have to worry about the lock directory itself racing.
+        $lockFile = $this->uploadDir . '/.patch-lock-' . preg_replace('/[^A-Za-z0-9\-]/', '_', $uploadKey);
+
+        // Suppressed like File::open()'s fopen() call: a missing uploadDir (e.g. an upload that
+        // was never actually configured to write anywhere - some unit tests never set one) is
+        // handled explicitly right below, not something we want surfaced as a PHP warning.
+        $handle = @fopen($lockFile, 'c');
+
+        if (false === $handle) {
+            // If we can't even open a lock file, fail open rather than blocking uploads entirely -
+            // this mirrors the pre-fix behaviour (no locking) instead of introducing a new outage mode.
+            return $callback();
+        }
+
+        try {
+            // Blocking (LOCK_EX without LOCK_NB): a racing/retried request simply waits its turn
+            // instead of writing concurrently, which is exactly what turns the race into a safe,
+            // sequential retry (see the big comment in handlePatch() for why that matters).
+            flock($handle, LOCK_EX);
+
+            return $callback();
+        } finally {
+            flock($handle, LOCK_UN);
+            fclose($handle);
+        }
     }
 
     /**

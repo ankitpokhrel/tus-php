@@ -58,7 +58,7 @@ class Config
      *
      * @return mixed
      */
-    public static function get(string $key = null)
+    public static function get(?string $key = null)
     {
         self::set();
 
