@@ -22,6 +22,36 @@ class File
     /** @const Append binary mode */
     public const APPEND_BINARY = 'ab';
 
+    /**
+     * @const Open-for-read/write-without-truncating binary mode ('c+b'), used by upload() to
+     *        write chunks at a specific offset.
+     *
+     * This is NOT interchangeable with APPEND_BINARY. A file opened in append mode ('a'/'ab')
+     * ignores fseek() entirely - POSIX (and PHP, which just wraps the underlying C stdio append
+     * semantics) always writes appended data at the file's *current* end-of-file, no matter
+     * where the pointer was moved to. upload() used to open its destination with APPEND_BINARY
+     * and then call fseek($output, $this->offset) to resume a chunked upload at the right byte
+     * position - that seek was a silent no-op, and the code got away with it as long as chunks
+     * always arrived in order and exactly once.
+     *
+     * 'c+b' creates the file if it's missing (same as 'ab' would) and does not truncate an
+     * existing one, but it DOES honor fseek(), so a chunk actually lands at $this->offset
+     * instead of wherever the OS thinks the file currently ends.
+     *
+     * Why this mattered in practice: without a real seek, a stale/duplicate PATCH request for an
+     * upload (e.g. a client retry after a dropped response, racing with the original request that
+     * already went through - see Server::acquireUploadLock() for how that race is now also closed
+     * at the source) would get its bytes appended a second time *after* the legitimate data
+     * instead of overwriting the same offset. That is precisely how we found an extra, unaccounted
+     * for 8192-byte block (one File::CHUNK_SIZE) spliced into a real uploaded .mov file: the
+     * file's `mdat` box ended up declaring a size 8192 bytes short of where the trailing `moov`
+     * atom (the video's index/metadata) actually started on disk, so every parser (ffmpeg,
+     * ImageMagick, ...) read garbage where it expected the next box and reported the file as
+     * corrupt / missing its moov atom - even though the real moov data was still there, just
+     * offset by one duplicated chunk.
+     */
+    public const WRITE_BINARY = 'c+b';
+
     /** @const Read and write mode */
     public const APPEND_WRITE = 'a+';
 
@@ -312,7 +342,10 @@ class File
         }
 
         $input  = $this->open($this->getInputStream(), self::READ_BINARY);
-        $output = $this->open($this->getFilePath(), self::APPEND_BINARY);
+        // WRITE_BINARY (not APPEND_BINARY!) so the seek() below actually resumes at $this->offset
+        // instead of silently appending at the OS-reported end-of-file - see the WRITE_BINARY
+        // doc comment for the full story of the corruption this used to cause.
+        $output = $this->open($this->getFilePath(), self::WRITE_BINARY);
         $key    = $this->getKey();
 
         try {

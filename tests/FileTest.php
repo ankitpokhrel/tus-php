@@ -344,6 +344,48 @@ class FileTest extends TestCase
     /**
      * @test
      *
+     * @covers ::open
+     * @covers ::seek
+     * @covers ::write
+     *
+     * Regression test for a real-world incident: an uploaded .mov file came out with an extra,
+     * unaccounted-for 8192-byte block spliced into its byte stream, right where a chunk boundary
+     * fell, which pushed its `moov` atom 8192 bytes further than the file's `mdat` box declared
+     * size accounted for - so every parser (ffmpeg, ImageMagick, ...) treated the file as
+     * corrupt / missing its moov atom. Root cause: upload() used to open its destination file in
+     * append mode (File::APPEND_BINARY = 'ab'), under which fseek() is a documented no-op - every
+     * write lands at the true end-of-file no matter where the pointer was moved to. So when a
+     * chunk PATCH got duplicated (client retry racing the original request, no locking in
+     * Server::handlePatch() at the time), both copies of the chunk got appended one after the
+     * other instead of the second one overwriting the first at the same offset.
+     *
+     * File::WRITE_BINARY ('c+b') fixes this: fseek() is honored, so writing to an offset that
+     * was already written just overwrites those bytes instead of growing the file. This test
+     * pins that behaviour down directly, independent of the write() retry logic itself.
+     */
+    public function it_overwrites_instead_of_appending_when_seeking_back_to_an_earlier_offset(): void
+    {
+        $file = __DIR__ . '/.tmp/upload.txt';
+
+        $handle = $this->file->open($file, File::WRITE_BINARY);
+        $this->file->write($handle, 'AAAAABBBBBBBBBBBBBBB'); // 5 + 15 = 20 bytes total.
+        $this->file->close($handle);
+
+        // Simulate a duplicated/retried PATCH for the chunk covering bytes [5, 10).
+        $handle = $this->file->open($file, File::WRITE_BINARY);
+        $this->file->seek($handle, 5);
+        $this->file->write($handle, 'XXXXX');
+        $this->file->close($handle);
+
+        $this->assertEquals(20, filesize($file));
+        $this->assertEquals('AAAAAXXXXXBBBBBBBBBB', file_get_contents($file));
+
+        @unlink($file);
+    }
+
+    /**
+     * @test
+     *
      * @covers ::merge
      */
     public function it_throws_file_exception_if_file_to_merge_doesnt_exist(): void
