@@ -87,8 +87,9 @@ class FileStore extends AbstractCache
      */
     protected function createCacheDir()
     {
-        if ( ! file_exists($this->cacheDir)) {
-            mkdir($this->cacheDir);
+        if ( ! is_dir($this->cacheDir)) {
+            // Suppress "File exists" warning when a concurrent request wins the race.
+            @mkdir($this->cacheDir, 0777, true);
         }
     }
 

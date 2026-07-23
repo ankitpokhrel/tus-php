@@ -152,6 +152,28 @@ class FileStoreTest extends TestCase
     /**
      * @test
      *
+     * @covers ::createCacheFile
+     * @covers ::createCacheDir
+     */
+    public function it_creates_nested_cache_dir_recursively(): void
+    {
+        $nestedDir = Config::get('file.dir') . 'nested' . DS . 'cache' . DS;
+        $cacheFile = Config::get('file.name');
+        $fileStore = new FileStore($nestedDir, $cacheFile);
+
+        $fileStore->set($this->checksum, 'Test');
+
+        $this->assertDirectoryExists($nestedDir);
+        $this->assertFileExists($nestedDir . $cacheFile);
+
+        unlink($nestedDir . $cacheFile);
+        rmdir($nestedDir);
+        rmdir(\dirname($nestedDir));
+    }
+
+    /**
+     * @test
+     *
      * @covers ::getCacheFile
      * @covers ::createCacheFile
      * @covers ::createCacheDir
