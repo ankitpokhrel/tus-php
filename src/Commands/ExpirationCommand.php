@@ -18,7 +18,7 @@ class ExpirationCommand extends Command
     /**
      * {@inheritDoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('tus:expired')

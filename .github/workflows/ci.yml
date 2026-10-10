@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php-version: ['8.1', '8.2', '8.3']
+        php-version: ['8.1', '8.2', '8.3', '8.4', '8.5']
         composer-flags: ["--prefer-lowest --prefer-stable", ""]
       fail-fast: false
     services:

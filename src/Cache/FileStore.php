@@ -23,7 +23,7 @@ class FileStore extends AbstractCache
      * @param string|null $cacheDir
      * @param string|null $cacheFile
      */
-    public function __construct(string $cacheDir = null, string $cacheFile = null)
+    public function __construct(?string $cacheDir = null, ?string $cacheFile = null)
     {
         $cacheDir  = $cacheDir ?? Config::get('file.dir');
         $cacheFile = $cacheFile ?? Config::get('file.name');
@@ -134,7 +134,7 @@ class FileStore extends AbstractCache
      *
      * @return mixed
      */
-    protected function lock(string $path, int $type = LOCK_SH, callable $cb = null, $fopenType = FILE::READ_BINARY)
+    protected function lock(string $path, int $type = LOCK_SH, ?callable $cb = null, $fopenType = FILE::READ_BINARY)
     {
         $out    = false;
         $handle = @fopen($path, $fopenType);
