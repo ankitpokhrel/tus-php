@@ -2014,7 +2014,7 @@ class ServerTest extends TestCase
      * @covers ::verifyPatchRequest
      * @covers \TusPhp\Events\UploadComplete::__construct
      */
-    public function it_handles_final_patch_request(): void
+    public function it_returns_success_when_completion_listener_deletes_cache_entry(): void
     {
         $key       = uniqid();
         $fileName  = 'file.txt';
@@ -2095,23 +2095,33 @@ class ServerTest extends TestCase
             ->with($checksum, $fileMeta['file_path'])
             ->andReturn(true);
 
+        $cacheMock = m::mock(FileStore::class);
+        $cacheMock
+            ->shouldReceive('get')
+            ->once()
+            ->with($key)
+            ->andReturn($fileMeta);
+        $cacheMock
+            ->shouldReceive('delete')
+            ->once()
+            ->with($key)
+            ->andReturn(true);
+
         $eventDispatcherMock = m::mock(EventDispatcher::class);
         $eventDispatcherMock
             ->shouldReceive('dispatch')
             ->once()
-            ->with(m::type(UploadComplete::class), 'tus-server.upload.complete');
+            ->with(m::type(UploadComplete::class), 'tus-server.upload.complete')
+            ->andReturnUsing(function ($event) use ($cacheMock, $key) {
+                $cacheMock->delete($key);
+
+                return $event;
+            });
 
         $this->tusServerMock
             ->shouldReceive('event')
             ->once()
             ->andReturn($eventDispatcherMock);
-
-        $cacheMock = m::mock(FileStore::class);
-        $cacheMock
-            ->shouldReceive('get')
-            ->twice()
-            ->with($key)
-            ->andReturn($fileMeta);
 
         $cacheMock
             ->shouldReceive('setPrefix')
